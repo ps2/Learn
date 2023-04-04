@@ -67,6 +67,9 @@ struct BasicChartsView: View {
         .onAppear {
             viewModel.refreshData()
         }
+        .onChange(of: viewModel.loadingState) { newValue in
+            viewModel.refreshData()
+        }
     }
 }
 

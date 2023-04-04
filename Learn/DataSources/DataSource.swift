@@ -9,7 +9,20 @@ import Foundation
 import SwiftUI
 import LoopKit
 
-enum LoadingState {
+enum LoadingState: Equatable {
+    static func == (lhs: LoadingState, rhs: LoadingState) -> Bool {
+        switch (lhs, rhs) {
+        case (.isLoading, .isLoading):
+            return true
+        case (.ready, .ready):
+            return true
+        case (.failed(let lhsError), .failed(let rhsError)):
+            return String(describing: lhsError) == String(describing: rhsError)
+        default:
+            return false
+        }
+    }
+
     case isLoading
     case failed(Error)
     case ready
