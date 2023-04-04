@@ -16,12 +16,12 @@ struct OpaqueHorizontalPaddingModifier: ViewModifier {
         HStack {
             Spacer()
                 .frame(minWidth: amount, maxWidth: amount, maxHeight: .infinity)
-                .background(.background)
+                .background(Color(UIColor.systemBackground))
                 .zIndex(20)
             content
             Spacer()
                 .frame(minWidth: amount, maxWidth: amount, maxHeight: .infinity)
-                .background(.background)
+                .background(Color(UIColor.systemBackground))
                 .zIndex(20)
         }
     }

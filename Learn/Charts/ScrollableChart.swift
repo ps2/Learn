@@ -139,7 +139,7 @@ struct ScrollableChart<Content: View, YAxis: View>: View {
         HStack(alignment: .top, spacing: 0) {
             // Put the yAxis above the graph, as clipping the graph is proving problematic
             AnyView(yAxis)
-                .background(.background)
+                .background(Color(UIColor.systemBackground))
                 .zIndex(10)
             GeometryReader { geometry in
                 chart
