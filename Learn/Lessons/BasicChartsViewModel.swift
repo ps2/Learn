@@ -13,6 +13,8 @@ import HealthKit
 
 class BasicChartsViewModel: ObservableObject {
 
+    @Published var loadingState: LoadingState
+
     var baseTime: Date {
         return (dataSource.endOfData ?? Date()).roundDownToHour()!
     }
@@ -59,17 +61,24 @@ class BasicChartsViewModel: ObservableObject {
         return chartDragStateSubject.eraseToAnyPublisher()
     }
 
-    private var dataSource: DataSource
+    private var dataSource: any DataSource
     private var insulinData = InsulinData()
 
     let displayUnits: HKUnit
 
-    init(dataSource: DataSource, displayUnits: HKUnit, displayedTimeInterval: TimeInterval) {
+    private var cancellables: Set<AnyCancellable> = []
+
+    init(dataSource: any DataSource, displayUnits: HKUnit, displayedTimeInterval: TimeInterval) {
         self.dataSource = dataSource
         self.displayUnits = displayUnits
         self.displayedTimeInterval = displayedTimeInterval
+        self.loadingState = .isLoading
 
-        refreshData()
+        dataSource.loadingStatePublisher
+            .receive(on: RunLoop.main)
+            .sink { (newState) in
+                self.loadingState = newState
+            }.store(in: &cancellables)
     }
 
     func dragStateChanged(_ state: ScrollableChartDragState) {

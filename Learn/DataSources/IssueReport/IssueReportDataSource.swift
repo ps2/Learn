@@ -11,6 +11,11 @@ import SwiftUI
 import LoopKit
 import LoopIssueReportParser
 
+enum IssueReportError: Error {
+    case permissionDenied
+    case couldNotGetDocumentsDirectory
+}
+
 final class IssueReportDataSource: DataSource {
     static var localizedTitle = "Issue Report"
 
@@ -18,34 +23,87 @@ final class IssueReportDataSource: DataSource {
 
     var dataSourceInstanceIdentifier: String
 
+    @Published var loadingState: LoadingState = .isLoading
+    var loadingStatePublisher: Published<LoadingState>.Publisher { $loadingState }
+
     var cachedGlucoseSamples: [LoopKit.StoredGlucoseSample]
 
     var url: URL
     var name: String
+
+    var localFileURL: URL? {
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        return documentsURL.appendingPathComponent(dataSourceInstanceIdentifier + ".md")
+    }
 
     init(url: URL, name: String, instanceIdentifier: String? = nil) {
         self.url = url
         self.name = name
         self.dataSourceInstanceIdentifier = instanceIdentifier ?? UUID().uuidString
         self.cachedGlucoseSamples = []
-        importData()
+
+        if let localFileURL, FileManager.default.fileExists(atPath: localFileURL.path) {
+            Task {
+                try await loadData()
+            }
+        }
     }
 
-    func importData() {
+    func copyFile() async throws {
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                let data = try Data(contentsOf: self.url)
+        guard let localFileURL else {
+            throw IssueReportError.couldNotGetDocumentsDirectory
+        }
 
-                let reportStr = String(data: data, encoding: .utf8)!
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> Void in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    guard self.url.startAccessingSecurityScopedResource() else {
+                        throw IssueReportError.permissionDenied
+                    }
 
-                let issueReport = try IssueReportParser().parse(reportStr)
+                    defer {
+                        self.url.stopAccessingSecurityScopedResource()
+                    }
 
-                DispatchQueue.main.async {
-                    self.cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
+                    let data = try Data(contentsOf: self.url)
+
+                    print("Copying file to \(localFileURL)")
+
+                    try data.write(to: localFileURL)
+
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
                 }
-            } catch {
-                print("Error importing issue report: \(error)")
+            }
+        }
+    }
+
+    func loadData() async throws {
+
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> Void in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    guard let localFileURL = self.localFileURL else {
+                        throw IssueReportError.couldNotGetDocumentsDirectory
+                    }
+
+                    let data = try Data(contentsOf: localFileURL)
+                    let reportStr = String(data: data, encoding: .utf8)!
+                    let issueReport = try IssueReportParser().parse(reportStr)
+                    print("Loaded data from \(localFileURL)")
+                    DispatchQueue.main.async {
+                        self.cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
+                        self.loadingState = .ready
+                    }
+                    continuation.resume()
+                } catch {
+                    self.loadingState = .failed(error)
+                    continuation.resume(throwing: error)
+                }
             }
         }
     }
@@ -72,11 +130,19 @@ final class IssueReportDataSource: DataSource {
         return raw
     }
 
-    static func setupView(didSetupDataSource: @escaping (DataSource) -> Void) -> AnyView {
+    static func setupView(didSetupDataSource: @escaping (any DataSource) -> Void) -> AnyView {
         return AnyView(IssueReportSetupView(didFinishSetup: { (url, nickname) in
             let dataSource = IssueReportDataSource(
                 url: url,
                 name: nickname.isEmpty ? "Issue Report" : nickname)
+            Task {
+                do {
+                    try await dataSource.copyFile()
+                    try await dataSource.loadData()
+                } catch {
+                    print("error copying file: \(error)")
+                }
+            }
             didSetupDataSource(dataSource)
         }))
     }

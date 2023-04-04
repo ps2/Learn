@@ -17,6 +17,9 @@ final class NightscoutDataSource: DataSource {
 
     var dataSourceInstanceIdentifier: String
 
+    @Published var loadingState: LoadingState = .isLoading
+    var loadingStatePublisher: Published<LoadingState>.Publisher { $loadingState }
+
     typealias RawValue = [String: Any]
     let nightscoutClient: NightscoutClient
 
@@ -84,6 +87,7 @@ final class NightscoutDataSource: DataSource {
                 print("Failed to fetch glucose: \(error)")
                 completion(.failure(error))
             case .success(let entries):
+                self.loadingState = .ready
                 let samples = entries.map { $0.storedGlucoseSample }
                 completion(.success(samples))
             }
@@ -99,6 +103,7 @@ final class NightscoutDataSource: DataSource {
                 print("Failed to fetch settings: \(error)")
                 completion(.failure(error))
             case .success(let entries):
+                self.loadingState = .ready
                 let samples = entries.compactMap { $0.storedSettings }
                 completion(.success(samples))
             }

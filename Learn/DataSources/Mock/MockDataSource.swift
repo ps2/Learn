@@ -11,6 +11,10 @@ import SwiftUI
 import LoopKit
 
 class MockDataSource: DataSource {
+
+    @Published var loadingState: LoadingState = .isLoading
+    var loadingStatePublisher: Published<LoadingState>.Publisher { $loadingState }
+
     var endOfData: Date? {
         return nil
     }

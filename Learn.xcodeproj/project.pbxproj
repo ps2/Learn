@@ -155,6 +155,14 @@
 			path = Lessons;
 			sourceTree = "<group>";
 		};
+		C14F53A429DC6A59002A0DED /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				C135B7D329A50BD00012C1F6 /* MockDataSource.swift */,
+			);
+			path = Mock;
+			sourceTree = "<group>";
+		};
 		C15C323929A437B600CFE6F9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -274,10 +282,10 @@
 		C1E4BEE029A4240F00B54132 /* DataSources */ = {
 			isa = PBXGroup;
 			children = (
+				C14F53A429DC6A59002A0DED /* Mock */,
 				C1BD5A2829DBB322001865A5 /* IssueReport */,
 				C1DDFAB629A69E530019E4CB /* Nightscout */,
 				C1E4BEE229A4243200B54132 /* DataSource.swift */,
-				C135B7D329A50BD00012C1F6 /* MockDataSource.swift */,
 			);
 			path = DataSources;
 			sourceTree = "<group>";

@@ -15,26 +15,46 @@ struct BasicChartsView: View {
         self.viewModel = viewModel
     }
 
+    var isLoading: Bool {
+        if case .isLoading = viewModel.loadingState {
+            return true
+        }
+        return false
+    }
+
     var body: some View {
         ScrollView {
-            VStack {
-                GlucoseChart(
-                    startTime: viewModel.start,
-                    endTime: viewModel.end,
-                    chartUnitOffset: $viewModel.chartUnitOffset,
-                    numSegments: viewModel.numSegments,
-                    historicalGlucose: viewModel.glucoseDataValues,
-                    targetRanges: viewModel.targetRanges
-                )
-                InsulinChart(
-                    data: viewModel.insulinDataValues,
-                    startTime: viewModel.start,
-                    endTime: viewModel.end,
-                    chartUnitOffset: $viewModel.chartUnitOffset,
-                    numSegments: viewModel.numSegments
-                )
+            if isLoading {
+                VStack {
+                    ProgressView()
+                        .scaleEffect(4)
+                        .frame(
+                            maxWidth: .infinity,
+                            maxHeight: .infinity,
+                            alignment: .center
+                        )
+
+                }
+            } else {
+                VStack {
+                    GlucoseChart(
+                        startTime: viewModel.start,
+                        endTime: viewModel.end,
+                        chartUnitOffset: $viewModel.chartUnitOffset,
+                        numSegments: viewModel.numSegments,
+                        historicalGlucose: viewModel.glucoseDataValues,
+                        targetRanges: viewModel.targetRanges
+                    )
+                    InsulinChart(
+                        data: viewModel.insulinDataValues,
+                        startTime: viewModel.start,
+                        endTime: viewModel.end,
+                        chartUnitOffset: $viewModel.chartUnitOffset,
+                        numSegments: viewModel.numSegments
+                    )
+                }
+                .opaqueHorizontalPadding()
             }
-            .opaqueHorizontalPadding()
         }
         .onPreferenceChange(ScrollableChartDragStatePreferenceKey.self) { dragState in
             viewModel.dragStateChanged(dragState)
@@ -44,6 +64,9 @@ struct BasicChartsView: View {
         }
         .environment(\.dragStatePublisher, viewModel.dragStatePublisher)
         .environment(\.chartInspectionDate, viewModel.inspectionDate)
+        .onAppear {
+            viewModel.refreshData()
+        }
     }
 }
 

@@ -9,13 +9,21 @@ import Foundation
 import SwiftUI
 import LoopKit
 
-protocol DataSource: AnyObject {
+enum LoadingState {
+    case isLoading
+    case failed(Error)
+    case ready
+}
+
+protocol DataSource: AnyObject, ObservableObject {
     typealias RawStateValue = [String: Any]
 
     static var localizedTitle: String { get }
     static var dataSourceTypeIdentifier: String { get }
 
     var dataSourceInstanceIdentifier: String { get }
+
+    var loadingStatePublisher: Published<LoadingState>.Publisher { get }
 
     var name: String { get }
 
