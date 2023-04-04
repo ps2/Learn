@@ -13,7 +13,10 @@ import HealthKit
 
 class BasicChartsViewModel: ObservableObject {
 
-    var baseTime: Date
+    var baseTime: Date {
+        return (dataSource.endOfData ?? Date()).roundDownToHour()!
+    }
+
     var displayedTimeInterval: TimeInterval
     var segmentSize = TimeInterval(hours: 1) // Panning "snaps" to these segments
 
@@ -61,10 +64,9 @@ class BasicChartsViewModel: ObservableObject {
 
     let displayUnits: HKUnit
 
-    init(dataSource: DataSource, displayUnits: HKUnit, baseTime: Date, displayedTimeInterval: TimeInterval) {
+    init(dataSource: DataSource, displayUnits: HKUnit, displayedTimeInterval: TimeInterval) {
         self.dataSource = dataSource
         self.displayUnits = displayUnits
-        self.baseTime = baseTime
         self.displayedTimeInterval = displayedTimeInterval
 
         refreshData()

@@ -17,6 +17,7 @@
 		C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */; };
 		C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9529A93D9A008FB16F /* InspectGestureView.swift */; };
 		C142CF9C29AB2756008FB16F /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9B29AB2756008FB16F /* Date.swift */; };
+		C14F53A229DBE8CF002A0DED /* LoopIssueReportParser in Frameworks */ = {isa = PBXBuildFile; productRef = C14F53A129DBE8CF002A0DED /* LoopIssueReportParser */; };
 		C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D629AB9C55004B7C32 /* ProfileSet.swift */; };
 		C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */; };
 		C178C5DB29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5DA29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift */; };
@@ -25,6 +26,9 @@
 		C1AD0DC228D4FE40002246E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AD0DC128D4FE40002246E7 /* Assets.xcassets */; };
 		C1AD0DC628D4FE40002246E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */; };
 		C1BD5A2529DB9BEC001865A5 /* LoopKit in Frameworks */ = {isa = PBXBuildFile; productRef = C1BD5A2429DB9BEC001865A5 /* LoopKit */; };
+		C1BD5A2729DBAEA7001865A5 /* IssueReportDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */; };
+		C1BD5A2A29DBB337001865A5 /* IssueReportSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */; };
+		C1BD5A2D29DBB81A001865A5 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */; };
 		C1DDFAB229A67BEB0019E4CB /* BasicChartsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DDFAB129A67BEB0019E4CB /* BasicChartsView.swift */; };
 		C1DDFAB529A6878C0019E4CB /* DataSourceDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DDFAB429A6878C0019E4CB /* DataSourceDescription.swift */; };
 		C1E4BECA29A41D4800B54132 /* ChartLongPressInspectionModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BEC929A41D4800B54132 /* ChartLongPressInspectionModifier.swift */; };
@@ -59,6 +63,7 @@
 		C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDosingStrategy.swift; sourceTree = "<group>"; };
 		C142CF9529A93D9A008FB16F /* InspectGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectGestureView.swift; sourceTree = "<group>"; };
 		C142CF9B29AB2756008FB16F /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
+		C14F53A329DBE9AD002A0DED /* LoopIssueReportParser */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopIssueReportParser; path = ../LoopIssueReportParser; sourceTree = "<group>"; };
 		C15C323A29A437B600CFE6F9 /* LoopKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LoopKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C178C5D629AB9C55004B7C32 /* ProfileSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSet.swift; sourceTree = "<group>"; };
 		C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HKUnit+Nightscout.swift"; sourceTree = "<group>"; };
@@ -70,6 +75,10 @@
 		C1AD0DC328D4FE40002246E7 /* Learn.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Learn.entitlements; sourceTree = "<group>"; };
 		C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C1BD5A2229DB9A2E001865A5 /* NightscoutKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NightscoutKit; path = ../NightscoutKit; sourceTree = "<group>"; };
+		C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportDataSource.swift; sourceTree = "<group>"; };
+		C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportSetupView.swift; sourceTree = "<group>"; };
+		C1BD5A2B29DBB48F001865A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPicker.swift; sourceTree = "<group>"; };
 		C1DDFAB129A67BEB0019E4CB /* BasicChartsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicChartsView.swift; sourceTree = "<group>"; };
 		C1DDFAB429A6878C0019E4CB /* DataSourceDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceDescription.swift; sourceTree = "<group>"; };
 		C1E4BEC929A41D4800B54132 /* ChartLongPressInspectionModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartLongPressInspectionModifier.swift; sourceTree = "<group>"; };
@@ -101,6 +110,7 @@
 			files = (
 				C135B7CA29A442B00012C1F6 /* NightscoutKit in Frameworks */,
 				C1BD5A2529DB9BEC001865A5 /* LoopKit in Frameworks */,
+				C14F53A229DBE8CF002A0DED /* LoopIssueReportParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,6 +170,7 @@
 				C1AD0DBB28D4FE40002246E7 /* Products */,
 				C15C323929A437B600CFE6F9 /* Frameworks */,
 				C1BD5A2229DB9A2E001865A5 /* NightscoutKit */,
+				C14F53A329DBE9AD002A0DED /* LoopIssueReportParser */,
 			);
 			sourceTree = "<group>";
 		};
@@ -174,6 +185,7 @@
 		C1AD0DBC28D4FE40002246E7 /* Learn */ = {
 			isa = PBXGroup;
 			children = (
+				C1BD5A2B29DBB48F001865A5 /* Info.plist */,
 				C142CF9D29AB979D008FB16F /* Lessons */,
 				C1DDFAB329A6877F0019E4CB /* Models */,
 				C1AD0DBD28D4FE40002246E7 /* LearnApp.swift */,
@@ -196,6 +208,16 @@
 				C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C1BD5A2829DBB322001865A5 /* IssueReport */ = {
+			isa = PBXGroup;
+			children = (
+				C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */,
+				C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */,
+				C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */,
+			);
+			path = IssueReport;
 			sourceTree = "<group>";
 		};
 		C1DDFAB329A6877F0019E4CB /* Models */ = {
@@ -252,6 +274,7 @@
 		C1E4BEE029A4240F00B54132 /* DataSources */ = {
 			isa = PBXGroup;
 			children = (
+				C1BD5A2829DBB322001865A5 /* IssueReport */,
 				C1DDFAB629A69E530019E4CB /* Nightscout */,
 				C1E4BEE229A4243200B54132 /* DataSource.swift */,
 				C135B7D329A50BD00012C1F6 /* MockDataSource.swift */,
@@ -278,6 +301,7 @@
 			packageProductDependencies = (
 				C135B7C929A442B00012C1F6 /* NightscoutKit */,
 				C1BD5A2429DB9BEC001865A5 /* LoopKit */,
+				C14F53A129DBE8CF002A0DED /* LoopIssueReportParser */,
 			);
 			productName = Learn;
 			productReference = C1AD0DBA28D4FE40002246E7 /* Learn.app */;
@@ -311,6 +335,7 @@
 			packageReferences = (
 				C135B7C829A442B00012C1F6 /* XCRemoteSwiftPackageReference "NightscoutKit" */,
 				C1BD5A2329DB9BD7001865A5 /* XCRemoteSwiftPackageReference "LoopKit" */,
+				C14F53A029DBE8CF002A0DED /* XCRemoteSwiftPackageReference "LoopIssueReportParser" */,
 			);
 			productRefGroup = C1AD0DBB28D4FE40002246E7 /* Products */;
 			projectDirPath = "";
@@ -347,6 +372,7 @@
 				C1EA323229A7AC7800949EA3 /* NightscoutConfigurationChecker.swift in Sources */,
 				C135B7D429A50BD00012C1F6 /* MockDataSource.swift in Sources */,
 				C1EA322E29A6CB8200949EA3 /* ActionButtonStyle.swift in Sources */,
+				C1BD5A2D29DBB81A001865A5 /* DocumentPicker.swift in Sources */,
 				C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */,
 				C1EA322829A6C7A800949EA3 /* NightscoutSetupView.swift in Sources */,
 				C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */,
@@ -358,6 +384,7 @@
 				C178C5DB29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift in Sources */,
 				C1DDFAB229A67BEB0019E4CB /* BasicChartsView.swift in Sources */,
 				C1AD0DBE28D4FE40002246E7 /* LearnApp.swift in Sources */,
+				C1BD5A2A29DBB337001865A5 /* IssueReportSetupView.swift in Sources */,
 				C1E4BEDA29A41ECF00B54132 /* InsulinData.swift in Sources */,
 				C135B7CD29A45A050012C1F6 /* HKUnit.swift in Sources */,
 				C1EA323429A7C8DE00949EA3 /* NightscoutConfigurationError.swift in Sources */,
@@ -372,6 +399,7 @@
 				C142CF9C29AB2756008FB16F /* Date.swift in Sources */,
 				C1E4BECE29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift in Sources */,
 				C1DDFAB529A6878C0019E4CB /* DataSourceDescription.swift in Sources */,
+				C1BD5A2729DBAEA7001865A5 /* IssueReportDataSource.swift in Sources */,
 				C1EA322C29A6CB0700949EA3 /* KeyboardObserver.swift in Sources */,
 				C1EA323629A7D42E00949EA3 /* NightscoutSummaryView.swift in Sources */,
 			);
@@ -507,6 +535,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Learn/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -516,7 +545,8 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = NO;
+				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -551,6 +581,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Learn/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -560,7 +591,8 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = NO;
+				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -611,6 +643,14 @@
 				kind = branch;
 			};
 		};
+		C14F53A029DBE8CF002A0DED /* XCRemoteSwiftPackageReference "LoopIssueReportParser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LoopKit/LoopIssueReportParser.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		C1BD5A2329DB9BD7001865A5 /* XCRemoteSwiftPackageReference "LoopKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/LoopKit/LoopKit";
@@ -626,6 +666,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C135B7C829A442B00012C1F6 /* XCRemoteSwiftPackageReference "NightscoutKit" */;
 			productName = NightscoutKit;
+		};
+		C14F53A129DBE8CF002A0DED /* LoopIssueReportParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C14F53A029DBE8CF002A0DED /* XCRemoteSwiftPackageReference "LoopIssueReportParser" */;
+			productName = LoopIssueReportParser;
 		};
 		C1BD5A2429DB9BEC001865A5 /* LoopKit */ = {
 			isa = XCSwiftPackageProductDependency;

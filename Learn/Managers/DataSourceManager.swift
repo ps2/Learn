@@ -32,10 +32,10 @@ class DataSourceManager: ObservableObject {
     }
 
 
-    let dataSourceTypes: Array<any DataSource.Type> = [NightscoutDataSource.self, MockDataSource.self]
+    let dataSourceTypes: Array<any DataSource.Type> = [NightscoutDataSource.self, IssueReportDataSource.self, MockDataSource.self]
 
     var dataSourceDescriptions: [DataSourceDescription] {
-        dataSourceTypes.map { DataSourceDescription(id: $0.dataSourceTypeIdentifier, localizedTitle: $0.name)}
+        dataSourceTypes.map { DataSourceDescription(id: $0.dataSourceTypeIdentifier, localizedTitle: $0.localizedTitle)}
     }
 
     func dataSourceTypeByIdentifier(identifier: String) -> (any DataSource.Type)? {

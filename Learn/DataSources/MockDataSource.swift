@@ -11,6 +11,10 @@ import SwiftUI
 import LoopKit
 
 class MockDataSource: DataSource {
+    var endOfData: Date? {
+        return nil
+    }
+
     func getHistoricSettings(start: Date, end: Date, completion: @escaping (Result<[LoopKit.StoredSettings], Error>) -> Void) {
         completion(.success([]))
     }
@@ -19,7 +23,7 @@ class MockDataSource: DataSource {
         completion(.success([]))
     }
 
-    static var name: String = "MockDataSource"
+    static var localizedTitle: String = "MockDataSource"
     static var dataSourceTypeIdentifier: String = "mockdatasource"
 
     typealias RawStateValue = [String: Any]

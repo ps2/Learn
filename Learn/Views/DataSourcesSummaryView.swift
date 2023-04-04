@@ -30,7 +30,7 @@ struct DataSourcesSummaryView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
+            VStack(alignment: .leading) {
                 Text("Learn").font(.system(size: 70))
                     .padding()
                 List {
@@ -46,7 +46,6 @@ struct DataSourcesSummaryView: View {
                                 BasicChartsView(viewModel: BasicChartsViewModel(
                                     dataSource: source,
                                     displayUnits: .milligramsPerDeciliter,
-                                    baseTime: Date().roundDownToHour()!,
                                     displayedTimeInterval: basicChartsTimeInterval
                                 ))
                             } label: {
@@ -59,7 +58,7 @@ struct DataSourcesSummaryView: View {
                     }) {
                         Label("New data source", systemImage: "plus.app")
                             .font(Font.system(.title2))
-                            .padding()
+                            .padding(.vertical)
                     }
                     .confirmationDialog("Select a new Data Source", isPresented: $showingAvailableDataSources, titleVisibility: .visible) {
                         ForEach(dataSourceManager.dataSourceDescriptions) { dataSource in

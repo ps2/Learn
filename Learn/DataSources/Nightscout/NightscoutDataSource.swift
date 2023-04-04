@@ -12,7 +12,7 @@ import SwiftUI
 
 final class NightscoutDataSource: DataSource {
 
-    static var name: String = "Nightscout"
+    static var localizedTitle: String = "Nightscout"
     static var dataSourceTypeIdentifier: String = "nightscout"
 
     var dataSourceInstanceIdentifier: String
@@ -67,6 +67,10 @@ final class NightscoutDataSource: DataSource {
 
     var summaryView: AnyView {
         return AnyView(NightscoutSummaryView(name: name))
+    }
+
+    var endOfData: Date? {
+        return nil
     }
 
     public func getGlucoseSamples(start: Date, end: Date, completion: @escaping (_ result: Result<[StoredGlucoseSample], Error>) -> Void) {

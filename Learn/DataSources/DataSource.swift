@@ -12,7 +12,7 @@ import LoopKit
 protocol DataSource: AnyObject {
     typealias RawStateValue = [String: Any]
 
-    static var name: String { get }
+    static var localizedTitle: String { get }
     static var dataSourceTypeIdentifier: String { get }
 
     var dataSourceInstanceIdentifier: String { get }
@@ -29,6 +29,10 @@ protocol DataSource: AnyObject {
     var summaryView: AnyView { get }
 
     // Data fetching apis
+
+    // If current data is not expected, return the last available date
+    var endOfData: Date? { get }
+
     func getGlucoseSamples(start: Date, end: Date, completion: @escaping (Result<[StoredGlucoseSample], Error>) -> Void)
     func getHistoricSettings(start: Date, end: Date, completion: @escaping (Result<[StoredSettings], Error>) -> Void)
 }
