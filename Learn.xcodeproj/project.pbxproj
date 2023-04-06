@@ -163,6 +163,17 @@
 			path = Mock;
 			sourceTree = "<group>";
 		};
+		C14F53A529DE60AD002A0DED /* ChartSupport */ = {
+			isa = PBXGroup;
+			children = (
+				C1E4BEC929A41D4800B54132 /* ChartLongPressInspectionModifier.swift */,
+				C1E4BECD29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift */,
+				C1E4BECB29A41D6B00B54132 /* ScrollableChart.swift */,
+				C142CF9529A93D9A008FB16F /* InspectGestureView.swift */,
+			);
+			path = ChartSupport;
+			sourceTree = "<group>";
+		};
 		C15C323929A437B600CFE6F9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -200,6 +211,7 @@
 				C135B7CE29A508800012C1F6 /* Views */,
 				C135B7D529A518AD0012C1F6 /* Managers */,
 				C1E4BEDE29A41F3200B54132 /* Charts */,
+				C14F53A529DE60AD002A0DED /* ChartSupport */,
 				C1E4BEE029A4240F00B54132 /* DataSources */,
 				C135B7CB29A459EA0012C1F6 /* Extensions */,
 				C1AD0DC328D4FE40002246E7 /* Learn.entitlements */,
@@ -269,12 +281,8 @@
 		C1E4BEDE29A41F3200B54132 /* Charts */ = {
 			isa = PBXGroup;
 			children = (
-				C1E4BEC929A41D4800B54132 /* ChartLongPressInspectionModifier.swift */,
 				C1EF206428D5033B007A8097 /* GlucoseChart.swift */,
-				C1E4BECD29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift */,
 				C1E4BED129A41E7C00B54132 /* InsulinChart.swift */,
-				C1E4BECB29A41D6B00B54132 /* ScrollableChart.swift */,
-				C142CF9529A93D9A008FB16F /* InspectGestureView.swift */,
 			);
 			path = Charts;
 			sourceTree = "<group>";

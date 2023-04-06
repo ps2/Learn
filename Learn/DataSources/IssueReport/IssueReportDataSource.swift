@@ -26,9 +26,13 @@ final class IssueReportDataSource: DataSource {
     @Published var loadingState: LoadingState = .isLoading
     var loadingStatePublisher: Published<LoadingState>.Publisher { $loadingState }
 
+    @MainActor
     var cachedGlucoseSamples: [LoopKit.StoredGlucoseSample]
 
+    @MainActor
     var url: URL
+
+    @MainActor
     var name: String
 
     var localFileURL: URL? {
@@ -51,60 +55,57 @@ final class IssueReportDataSource: DataSource {
         }
     }
 
-    func copyFile() async throws {
+    @MainActor
+    func importIssueReportFile() async throws {
 
         guard let localFileURL else {
             throw IssueReportError.couldNotGetDocumentsDirectory
         }
 
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> Void in
-            DispatchQueue.global(qos: .userInitiated).async {
-                do {
-                    guard self.url.startAccessingSecurityScopedResource() else {
-                        throw IssueReportError.permissionDenied
-                    }
+        guard self.url.startAccessingSecurityScopedResource() else {
+            throw IssueReportError.permissionDenied
+        }
 
-                    defer {
-                        self.url.stopAccessingSecurityScopedResource()
-                    }
+        defer {
+            self.url.stopAccessingSecurityScopedResource()
+        }
 
-                    let data = try Data(contentsOf: self.url)
+        try await Self.copyFile(from: self.url, to: localFileURL)
+    }
 
-                    print("Copying file to \(localFileURL)")
+    static func copyFile(from source: URL, to dest: URL) async throws {
+        Task {
+            let data = try Data(contentsOf: source)
 
-                    try data.write(to: localFileURL)
+            print("Copying \(source) to \(dest)")
 
-                    continuation.resume()
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
+            try data.write(to: dest)
         }
     }
 
+    static func loadIssueReport(from url: URL) async throws -> IssueReport {
+        return try await Task {
+            let data = try Data(contentsOf: url)
+            let reportStr = String(data: data, encoding: .utf8)!
+            return try IssueReportParser(skipDeviceLog: true).parse(reportStr)
+        }.value
+    }
+
+    @MainActor
     func loadData() async throws {
+        print("Loading data at \(Date())")
 
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> Void in
-            DispatchQueue.global(qos: .userInitiated).async {
-                do {
-                    guard let localFileURL = self.localFileURL else {
-                        throw IssueReportError.couldNotGetDocumentsDirectory
-                    }
+        guard let localFileURL = self.localFileURL else {
+            throw IssueReportError.couldNotGetDocumentsDirectory
+        }
 
-                    let data = try Data(contentsOf: localFileURL)
-                    let reportStr = String(data: data, encoding: .utf8)!
-                    let issueReport = try IssueReportParser().parse(reportStr)
-                    print("Loaded data from \(localFileURL)")
-                    DispatchQueue.main.async {
-                        self.cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
-                        self.loadingState = .ready
-                    }
-                    continuation.resume()
-                } catch {
-                    self.loadingState = .failed(error)
-                    continuation.resume(throwing: error)
-                }
-            }
+        do {
+            let issueReport = try await Self.loadIssueReport(from: localFileURL)
+            print("Loaded data from \(localFileURL)")
+            self.cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
+            self.loadingState = .ready
+        } catch {
+            self.loadingState = .failed(error)
         }
     }
 
@@ -121,6 +122,7 @@ final class IssueReportDataSource: DataSource {
         self.init(url: url, name: name, instanceIdentifier: instanceIdentifier)
     }
 
+    @MainActor
     var rawState: RawStateValue {
         let raw = [
             "name": name,
@@ -137,7 +139,7 @@ final class IssueReportDataSource: DataSource {
                 name: nickname.isEmpty ? "Issue Report" : nickname)
             Task {
                 do {
-                    try await dataSource.copyFile()
+                    try await dataSource.importIssueReportFile()
                     try await dataSource.loadData()
                 } catch {
                     print("error copying file: \(error)")
@@ -147,6 +149,7 @@ final class IssueReportDataSource: DataSource {
         }))
     }
 
+    @MainActor
     var summaryView: AnyView {
         AnyView(
             HStack {
@@ -159,10 +162,12 @@ final class IssueReportDataSource: DataSource {
         )
     }
 
+    @MainActor
     var endOfData: Date? {
         return cachedGlucoseSamples.last?.startDate
     }
 
+    @MainActor
     func getGlucoseSamples(start: Date, end: Date, completion: @escaping (Result<[LoopKit.StoredGlucoseSample], Error>) -> Void) {
         let matching = cachedGlucoseSamples.filter { $0.startDate >= start && $0.startDate <= end }
         completion(.success(matching))

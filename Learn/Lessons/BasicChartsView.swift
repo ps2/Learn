@@ -40,6 +40,7 @@ struct BasicChartsView: View {
                     GlucoseChart(
                         startTime: viewModel.start,
                         endTime: viewModel.end,
+                        upperRightLabel: viewModel.dateStr,
                         chartUnitOffset: $viewModel.chartUnitOffset,
                         numSegments: viewModel.numSegments,
                         historicalGlucose: viewModel.glucoseDataValues,

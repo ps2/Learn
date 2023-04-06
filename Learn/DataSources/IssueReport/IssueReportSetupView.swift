@@ -26,18 +26,27 @@ struct IssueReportSetupView: View {
 
     var body: some View {
         VStack {
-            Text("Issue Report Import", comment: "Title on IssueReportSetupView")
+            Text("Loop Issue Report", comment: "Title on IssueReportSetupView")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
-                .padding(.top)
+                .padding(.top, 25)
+            Image(decorative: "loop")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 150, height: 150)
+
             Spacer()
 
             HStack {
-                Button(action: { self.isFilePickerShown.toggle() }) {
+                Button(action: {
+                    isFilePickerShown.toggle()
+                }) {
                     Image(systemName: "rectangle.and.paperclip").resizable().frame(width: 50, height: 50)
                 }
                 if let importURL {
                     Text(importURL.lastPathComponent)
+                } else if isFilePickerShown {
+                    ProgressView()
                 } else {
                     Text("Please select an issue report to import...")
                 }

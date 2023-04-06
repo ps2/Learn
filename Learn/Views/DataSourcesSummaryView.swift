@@ -39,7 +39,8 @@ struct DataSourcesSummaryView: View {
                             Text("Let's get started!")
                                 .font(.title)
                                 .padding(.bottom)
-                        }.frame(minWidth: 0, maxWidth: .infinity)
+                                .foregroundColor(.green)
+                        }
                     } else {
                         ForEach(dataSourceManager.dataSources, id: \.dataSourceInstanceIdentifier) { source in
                             NavigationLink {

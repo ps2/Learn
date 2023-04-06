@@ -42,6 +42,19 @@ class BasicChartsViewModel: ObservableObject {
         return start...end
     }
 
+    private var dateIntervalFormatter = {
+        let formatter = DateIntervalFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+
+    var dateStr: String {
+        return dateIntervalFormatter.string(
+            from: scrolledToTime.addingTimeInterval(-(displayedTimeInterval * 0.5)),
+            to: scrolledToTime.addingTimeInterval(+(displayedTimeInterval * 0.5)))
+    }
+
     @Published var chartUnitOffset: Int = 0 {
         didSet {
             refreshData()

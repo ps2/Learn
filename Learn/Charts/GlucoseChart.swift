@@ -35,13 +35,15 @@ struct GlucoseChart: View {
 
     private var startTime: Date
     private var endTime: Date
+    private var upperRightLabel: String
 
     private var historicalGlucose: [GlucoseValue]
     private var targetRanges: [TargetRange]
 
-    init(startTime: Date, endTime: Date, chartUnitOffset: Binding<Int>, numSegments: Int, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange])  {
+    init(startTime: Date, endTime: Date, upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange])  {
         self.startTime = startTime
         self.endTime = endTime
+        self.upperRightLabel = upperRightLabel
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
         self.historicalGlucose = historicalGlucose
@@ -65,8 +67,7 @@ struct GlucoseChart: View {
             HStack {
                 Text("Glucose").bold()
                 Spacer()
-                Text("Eventually 112 mg/dL")
-                    .bold()
+                Text(upperRightLabel)
                     .foregroundColor(.secondary)
             }
             .opacity(inspectedElement == nil ? 1 : 0)
@@ -85,7 +86,7 @@ struct GlucoseChart: View {
                             x: .value("Time", inspectedElement.date, unit: .second),
                             y: .value("Historical Glucose", inspectedElement.value)
                         )
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                         .symbolSize(CGSize(width: 15, height: 15))
                     }
 
@@ -106,11 +107,32 @@ struct GlucoseChart: View {
                     Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
                 }
                 .chartXAxis {
-                    AxisMarks(
-                        format: .dateTime.hour(),
-                        preset: .extended,
-                        values: .stride(by: .hour)
-                    )
+                    AxisMarks(values: .stride(by: .hour)) { value in
+                            if let date = value.as(Date.self) {
+                                let hour = Calendar.current.component(.hour, from: date)
+                                AxisValueLabel {
+                                    VStack(alignment: .leading) {
+                                        switch hour {
+                                        case 0, 12:
+                                            Text(date, format: .dateTime.hour())
+                                        default:
+                                            Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
+                                        }
+                                        if value.index == 0 || hour == 0 {
+                                            Text(date, format: .dateTime.month().day())
+                                        }
+                                    }
+                                }
+
+                                if hour == 0 {
+                                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                    AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
+                                } else {
+                                    AxisGridLine()
+                                    AxisTick()
+                                }
+                            }
+                        }
                 }
                 .chartYAxis {
                     AxisMarks(position: .trailing, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) {
@@ -187,7 +209,7 @@ struct GlucoseChart_Previews: PreviewProvider {
             let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 2) / (3600*3) * Double.pi * 2) * 10
             return TargetRange(range: DoubleRange(minValue: value-5, maxValue: value+5), startTime: date, endTime: date.addingTimeInterval(targetTimeInterval))
         }
-        return GlucoseChart(startTime: startDate, endTime:endDate, chartUnitOffset: .constant(0), numSegments: 6, historicalGlucose: glucose, targetRanges: targets)
+        return GlucoseChart(startTime: startDate, endTime:endDate, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6, historicalGlucose: glucose, targetRanges: targets)
             .padding()
     }
 }
