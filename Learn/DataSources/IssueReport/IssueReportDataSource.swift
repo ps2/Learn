@@ -22,9 +22,9 @@ final class IssueReportDataSource: DataSource {
     static var dataSourceTypeIdentifier = "issuereportdatasource"
 
     var dataSourceInstanceIdentifier: String
+    var stateStorage: StateStorage?
 
     @Published var loadingState: LoadingState = .isLoading
-    var loadingStatePublisher: Published<LoadingState>.Publisher { $loadingState }
 
     @MainActor
     var cachedGlucoseSamples: [LoopKit.StoredGlucoseSample]
@@ -32,7 +32,6 @@ final class IssueReportDataSource: DataSource {
     @MainActor
     var url: URL
 
-    @MainActor
     var name: String
 
     var localFileURL: URL? {
@@ -149,7 +148,6 @@ final class IssueReportDataSource: DataSource {
         }))
     }
 
-    @MainActor
     var summaryView: AnyView {
         AnyView(
             HStack {
@@ -162,21 +160,23 @@ final class IssueReportDataSource: DataSource {
         )
     }
 
+    var mainView: AnyView {
+        AnyView(IssueReportMainView(dataSource: self))
+    }
+
     @MainActor
     var endOfData: Date? {
         return cachedGlucoseSamples.last?.startDate
     }
 
     @MainActor
-    func getGlucoseSamples(start: Date, end: Date, completion: @escaping (Result<[LoopKit.StoredGlucoseSample], Error>) -> Void) {
-        let matching = cachedGlucoseSamples.filter { $0.startDate >= start && $0.startDate <= end }
-        completion(.success(matching))
+    func getGlucoseSamples(start: Date, end: Date) async throws -> [LoopKit.StoredGlucoseSample] {
+        return cachedGlucoseSamples.filter { $0.startDate >= start && $0.startDate <= end }
     }
 
-    func getHistoricSettings(start: Date, end: Date, completion: @escaping (Result<[LoopKit.StoredSettings], Error>) -> Void) {
-        //.completion(.success([]))
+    func getHistoricSettings(start: Date, end: Date) async throws -> [LoopKit.StoredSettings] {
+        return []
     }
-
 }
 
 extension LoopIssueReportParser.GlucoseCondition {

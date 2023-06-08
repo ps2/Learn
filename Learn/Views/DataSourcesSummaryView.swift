@@ -9,9 +9,6 @@
 import SwiftUI
 
 struct DataSourcesSummaryView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
-
     @ObservedObject private var dataSourceManager = DataSourceManager()
 
     @State private var showingAvailableDataSources = false
@@ -19,14 +16,6 @@ struct DataSourcesSummaryView: View {
     @State private var showingDataSourceSetup = false
 
     @State private var addingDataSource: DataSourceDescription?
-
-    var basicChartsTimeInterval: TimeInterval {
-        if horizontalSizeClass == .compact {
-            return TimeInterval(hours: 6)
-        } else {
-            return TimeInterval(hours: 12)
-        }
-    }
 
     var body: some View {
         NavigationView {
@@ -44,11 +33,7 @@ struct DataSourcesSummaryView: View {
                     } else {
                         ForEach(dataSourceManager.dataSources, id: \.dataSourceInstanceIdentifier) { source in
                             NavigationLink {
-                                BasicChartsView(viewModel: BasicChartsViewModel(
-                                    dataSource: source,
-                                    displayUnits: .milligramsPerDeciliter,
-                                    displayedTimeInterval: basicChartsTimeInterval
-                                ))
+                                source.mainView
                             } label: {
                                 source.summaryView
                             }

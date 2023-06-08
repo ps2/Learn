@@ -13,18 +13,18 @@ import LoopKit
 class MockDataSource: DataSource {
 
     @Published var loadingState: LoadingState = .isLoading
-    var loadingStatePublisher: Published<LoadingState>.Publisher { $loadingState }
+
+    var stateStorage: StateStorage?
 
     var endOfData: Date? {
         return nil
     }
 
-    func getHistoricSettings(start: Date, end: Date, completion: @escaping (Result<[LoopKit.StoredSettings], Error>) -> Void) {
-        completion(.success([]))
+    func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample] {
+        return []
     }
-
-    func getGlucoseSamples(start: Date, end: Date, completion: @escaping (Result<[LoopKit.StoredGlucoseSample], Error>) -> Void) {
-        completion(.success([]))
+    func getHistoricSettings(start: Date, end: Date) async throws -> [StoredSettings] {
+        return []
     }
 
     static var localizedTitle: String = "MockDataSource"
@@ -40,6 +40,10 @@ class MockDataSource: DataSource {
 
     var summaryView: AnyView {
         return AnyView(Text("Mock Data"))
+    }
+
+    var mainView: AnyView {
+        AnyView(MockMainView(dataSource: self))
     }
 
     var dataSourceInstanceIdentifier: String

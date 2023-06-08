@@ -11,14 +11,12 @@ import NightscoutKit
 import SwiftUI
 
 final class NightscoutDataSource: DataSource {
-
     static var localizedTitle: String = "Nightscout"
     static var dataSourceTypeIdentifier: String = "nightscout"
 
     var dataSourceInstanceIdentifier: String
 
     @Published var loadingState: LoadingState = .isLoading
-    var loadingStatePublisher: Published<LoadingState>.Publisher { $loadingState }
 
     typealias RawValue = [String: Any]
     let nightscoutClient: NightscoutClient
@@ -26,13 +24,26 @@ final class NightscoutDataSource: DataSource {
     let name: String
     var url: URL
     var apiSecret: String?
+    var cacheEndDate: Date?
+    var stateStorage: StateStorage?
 
-    init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil) {
+    private var manager: NightscoutDataManager
+
+    init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil, cacheEndDate: Date = .distantPast) {
         self.name = name
         self.url = url
         self.apiSecret = apiSecret
         self.dataSourceInstanceIdentifier = instanceIdentifier ?? UUID().uuidString
+        self.cacheEndDate = cacheEndDate
         nightscoutClient = NightscoutClient(siteURL: url, apiSecret: apiSecret)
+        manager = NightscoutDataManager(instanceIdentifier: self.dataSourceInstanceIdentifier, nightscoutClient: nightscoutClient, cacheEndDate: cacheEndDate)
+
+        Task { @MainActor in
+            await manager.setDelegate(self)
+            self.loadingState = .isLoading
+            await manager.syncRemoteData()
+            self.loadingState = .ready
+        }
     }
 
     convenience init?(rawState: RawStateValue) {
@@ -47,20 +58,23 @@ final class NightscoutDataSource: DataSource {
 
         let apiSecret = rawState["apiSecret"] as? String
 
-        self.init(name: name, url: url, apiSecret: apiSecret, instanceIdentifier: instanceIdentifier)
+        let cacheEndDate = rawState["cacheEndDate"] as? Date ?? .distantPast
+
+        self.init(name: name, url: url, apiSecret: apiSecret, instanceIdentifier: instanceIdentifier, cacheEndDate: cacheEndDate)
     }
 
     var rawState: RawStateValue {
-        var raw = [
+        var raw: RawValue = [
             "name": name,
             "url": url.absoluteString,
-            "instanceIdentifier": dataSourceInstanceIdentifier
+            "instanceIdentifier": dataSourceInstanceIdentifier,
         ]
         raw["apiSecret"] = apiSecret
+        raw["cacheEndDate"] = cacheEndDate
         return raw
     }
 
-    static func setupView(didSetupDataSource: @escaping (any DataSource) -> Void) -> AnyView {
+    @MainActor static func setupView(didSetupDataSource: @escaping (any DataSource) -> Void) -> AnyView {
         let configurationChecker = NightscoutConfigurationChecker()
         return AnyView(NightscoutSetupView(configurationChecker: configurationChecker, didFinishSetup: { url, nickname, apiSecret in
             let dataSource = NightscoutDataSource(name: nickname, url: url, apiSecret: apiSecret)
@@ -69,44 +83,32 @@ final class NightscoutDataSource: DataSource {
     }
 
     var summaryView: AnyView {
-        return AnyView(NightscoutSummaryView(name: name))
+        AnyView(NightscoutSummaryView(name: name))
+    }
+
+    var mainView: AnyView {
+        AnyView(NightscoutMainView(dataSource: self))
     }
 
     var endOfData: Date? {
         return nil
     }
 
-    public func getGlucoseSamples(start: Date, end: Date, completion: @escaping (_ result: Result<[StoredGlucoseSample], Error>) -> Void) {
-        let interval = DateInterval(start: start, end: end)
-
-        print("Fetching \(interval)")
-
-        nightscoutClient.fetchGlucose(dateInterval: interval, maxCount: 1000) { result in
-            switch result {
-            case .failure(let error):
-                print("Failed to fetch glucose: \(error)")
-                completion(.failure(error))
-            case .success(let entries):
-                self.loadingState = .ready
-                let samples = entries.map { $0.storedGlucoseSample }
-                completion(.success(samples))
-            }
-        }
+    func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample] {
+        return try await manager.getGlucoseSamples(start: start, end: end)
     }
 
-    public func getHistoricSettings(start: Date, end: Date, completion: @escaping (Result<[StoredSettings], Error>) -> Void) {
-        let interval = DateInterval(start: start, end: end)
+    func getHistoricSettings(start: Date, end: Date) async throws -> [StoredSettings] {
+        return []
+    }
 
-        nightscoutClient.fetchProfiles(dateInterval: interval) { result in
-            switch result {
-            case .failure(let error):
-                print("Failed to fetch settings: \(error)")
-                completion(.failure(error))
-            case .success(let entries):
-                self.loadingState = .ready
-                let samples = entries.compactMap { $0.storedSettings }
-                completion(.success(samples))
-            }
+}
+
+extension NightscoutDataSource: NightscoutDataManagerDelegate {
+    func didUpdateCache(cacheEndDate: Date) {
+        DispatchQueue.main.async {
+            self.cacheEndDate = cacheEndDate
+            self.stateStorage?.store(rawState: self.rawState)
         }
     }
 }

@@ -14,7 +14,7 @@ class DataSourceManager: ObservableObject {
 
     private let storageURL: URL
 
-    private let log = OSLog(subsystem: "com.loopkit.Loop", category: "PersistedProperty")
+    private let log = OSLog(subsystem: "org.loopkit.Learn", category: "DataSourceManager")
 
     public init() {
         guard let localDocuments = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
@@ -28,7 +28,7 @@ class DataSourceManager: ObservableObject {
             os_log(.error, "Unable to create directory for storing datasources", error.localizedDescription)
         }
 
-        dataSources = loadDataSources()
+        loadDataSources()
     }
 
 
@@ -42,26 +42,13 @@ class DataSourceManager: ObservableObject {
         dataSourceTypes.first { $0.dataSourceTypeIdentifier == identifier }
     }
 
-    func persistState(dataSource: any DataSource) {
-        let rawValue = dataSource.rawValue
-        let path = storageURL.appendingPathComponent(dataSource.dataSourceInstanceIdentifier + ".plist")
-        do {
-            let data = try PropertyListSerialization.data(fromPropertyList: rawValue, format: .binary, options: 0)
-            try data.write(to: path, options: .atomic)
-            os_log(.info, "Wrote state to %{public}@", path.absoluteString)
-        } catch {
-            os_log(.error, "Error saving state: %{public}@", error.localizedDescription)
-        }
-    }
-
-    func loadDataSources() -> [any DataSource] {
-        var sources: [any DataSource] = []
+    func loadDataSources() {
         let enumerator = FileManager.default.enumerator(at: storageURL, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
         while let file = enumerator?.nextObject() as? NSURL {
             print("Looking at \(file)")
             do {
                 let data = try Data(contentsOf: file as URL)
-                os_log(.info, "Reading data source state from %{public}@", storageURL.absoluteString)
+                os_log(.info, "Reading data source state from %{public}@", file)
                 guard let value = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? DataSource.RawValue else {
                     continue
                 }
@@ -71,7 +58,7 @@ class DataSourceManager: ObservableObject {
                 {
                     if let dataSource = dataSourceType.init(rawState: dataSourceState) {
                         print("Instantiated \(dataSourceType)")
-                        sources.append(dataSource)
+                        registerSource(dataSource: dataSource)
                     }
                 } else {
                     os_log(.error, "Unable to determine data source type for: %{public}@", file)
@@ -80,11 +67,19 @@ class DataSourceManager: ObservableObject {
                 os_log(.error, "Error reading data source state: %{public}@", error.localizedDescription)
             }
         }
-        return sources
     }
 
     func addDataSource(dataSource: any DataSource) {
-        persistState(dataSource: dataSource)
+        registerSource(dataSource: dataSource)
+        dataSource.stateStorage?.store(rawState: dataSource.rawState)
+    }
+
+    private func registerSource(dataSource: any DataSource) {
+        let storage = PropertyListStateStorage(
+            typeIdentifier: type(of: dataSource).dataSourceTypeIdentifier,
+            instanceIdentifier: dataSource.dataSourceInstanceIdentifier,
+            storageURL: storageURL)
+        dataSource.stateStorage = storage
         dataSources.append(dataSource)
     }
 }

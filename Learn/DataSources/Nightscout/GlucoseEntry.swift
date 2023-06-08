@@ -11,8 +11,10 @@ import LoopKit
 import HealthKit
 
 extension GlucoseEntry {
-    var storedGlucoseSample: StoredGlucoseSample {
+    var newGlucoseSample: NewGlucoseSample? {
         let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: glucose)
+
+        guard let id else { return nil }
 
         let glucoseCondition: GlucoseCondition?
         switch condition {
@@ -38,20 +40,15 @@ extension GlucoseEntry {
             trendRate = nil
         }
 
-        return StoredGlucoseSample(
-            uuid: nil,
-            provenanceIdentifier: "Nightscout",
-            syncIdentifier: id,
-            syncVersion: nil,
-            startDate: date,
+        return NewGlucoseSample(
+            date: date,
             quantity: quantity,
             condition: glucoseCondition,
             trend: glucoseTrend,
             trendRate: trendRate,
             isDisplayOnly: isCalibration ?? false,
             wasUserEntered: glucoseType == .meter,
-            device: nil,
-            healthKitEligibleDate: nil)
+            syncIdentifier: id)
     }
 
 }

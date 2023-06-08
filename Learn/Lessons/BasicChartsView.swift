@@ -66,10 +66,9 @@ struct BasicChartsView: View {
         .environment(\.dragStatePublisher, viewModel.dragStatePublisher)
         .environment(\.chartInspectionDate, viewModel.inspectionDate)
         .onAppear {
-            viewModel.refreshData()
-        }
-        .onChange(of: viewModel.loadingState) { newValue in
-            viewModel.refreshData()
+            Task {
+                await viewModel.loadData()
+            }
         }
     }
 }

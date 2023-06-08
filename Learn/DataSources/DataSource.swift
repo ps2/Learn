@@ -28,7 +28,11 @@ enum LoadingState: Equatable {
     case ready
 }
 
-protocol DataSource: AnyObject, ObservableObject {
+protocol StateStorage {
+    func store(rawState: DataSource.RawStateValue)
+}
+
+protocol DataSource: AnyObject, ObservableObject, Identifiable {
     typealias RawStateValue = [String: Any]
 
     static var localizedTitle: String { get }
@@ -36,9 +40,9 @@ protocol DataSource: AnyObject, ObservableObject {
 
     var dataSourceInstanceIdentifier: String { get }
 
-    var loadingStatePublisher: Published<LoadingState>.Publisher { get }
-
     var name: String { get }
+
+    var stateStorage: StateStorage? { get set }
 
     init?(rawState: RawStateValue)
 
@@ -49,13 +53,14 @@ protocol DataSource: AnyObject, ObservableObject {
 
     var summaryView: AnyView { get }
 
-    // Data fetching apis
+    var mainView: AnyView { get }
 
     // If current data is not expected, return the last available date
     var endOfData: Date? { get }
 
-    func getGlucoseSamples(start: Date, end: Date, completion: @escaping (Result<[StoredGlucoseSample], Error>) -> Void)
-    func getHistoricSettings(start: Date, end: Date, completion: @escaping (Result<[StoredSettings], Error>) -> Void)
+    // Data fetching apis
+    func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample]
+    func getHistoricSettings(start: Date, end: Date) async throws -> [StoredSettings]
 }
 
 extension DataSource {

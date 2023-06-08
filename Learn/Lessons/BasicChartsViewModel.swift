@@ -11,9 +11,10 @@ import Combine
 import HealthKit
 
 
+@MainActor
 class BasicChartsViewModel: ObservableObject {
 
-    @Published var loadingState: LoadingState
+    @Published var loadingState: LoadingState = .ready
 
     var baseTime: Date {
         return (dataSource.endOfData ?? Date()).roundDownToHour()!
@@ -57,7 +58,9 @@ class BasicChartsViewModel: ObservableObject {
 
     @Published var chartUnitOffset: Int = 0 {
         didSet {
-            refreshData()
+            Task {
+                await loadData()
+            }
         }
     }
 
@@ -85,13 +88,6 @@ class BasicChartsViewModel: ObservableObject {
         self.dataSource = dataSource
         self.displayUnits = displayUnits
         self.displayedTimeInterval = displayedTimeInterval
-        self.loadingState = .isLoading
-
-        dataSource.loadingStatePublisher
-            .receive(on: RunLoop.main)
-            .sink { (newState) in
-                self.loadingState = newState
-            }.store(in: &cancellables)
     }
 
     func dragStateChanged(_ state: ScrollableChartDragState) {
@@ -109,43 +105,31 @@ class BasicChartsViewModel: ObservableObject {
         }
     }
 
-    func refreshData() {
+    func loadData() async {
 
         // Glucose
-        dataSource.getGlucoseSamples(start: start, end: end) { result in
-            switch result {
-            case .success(let samples):
-                DispatchQueue.main.async {
-                    self.glucoseDataValues = samples.map({ sample in
-                        GlucoseValue(value: sample.quantity.doubleValue(for: self.displayUnits), date: sample.startDate)
-                    })
+        do {
+            self.glucoseDataValues = try await dataSource.getGlucoseSamples(start: start, end: end).map( { sample in
+                GlucoseValue(value: sample.quantity.doubleValue(for: self.displayUnits), date: sample.startDate)
+            })
+
+            // Target Schedule
+            let settings = try await dataSource.getHistoricSettings(start: start, end: end)
+            if let latestSetting = settings.sorted(by: { $0.date < $1.date }).last,
+               let schedule = latestSetting.glucoseTargetRangeSchedule
+            {
+                self.targetRanges = schedule.quantityBetween(start: self.start, end: self.end).compactMap { entry in
+                    let range = entry.value.doubleRange(for: self.displayUnits)
+                    return TargetRange(range: range, startTime: entry.startDate, endTime: entry.endDate)
                 }
-            case .failure(let error):
-                print("Error fetching glucose: \(error)")
             }
+        } catch {
+            print("Error refreshing data: \(error)")
         }
 
-        // Target Schedule
-        dataSource.getHistoricSettings(start: start, end: end) { result in
-            switch result {
-            case .success(let settings):
-                DispatchQueue.main.async {
-                    if let latestSetting = settings.sorted(by: { $0.date < $1.date }).last,
-                       let schedule = latestSetting.glucoseTargetRangeSchedule {
-                        self.targetRanges = schedule.quantityBetween(start: self.start, end: self.end).compactMap { entry in
-                            let range = entry.value.doubleRange(for: self.displayUnits)
-                            return TargetRange(range: range, startTime: entry.startDate, endTime: entry.endDate)
-                        }
-                    }
-                }
-            case .failure(let error):
-                print("Error fetching historic settings: \(error)")
-            }
-        }
 
         // Insulin
         insulinDataValues = insulinData.fetchData(startDate: start, endDate: end)
-
     }
 }
 

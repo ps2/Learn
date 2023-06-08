@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C11E62C72A2EDC6900F9BECF /* PropertyListStateStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11E62C62A2EDC6900F9BECF /* PropertyListStateStorage.swift */; };
 		C11EB29E29BE733100FCDB24 /* OpaquePadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11EB29D29BE733100FCDB24 /* OpaquePadding.swift */; };
 		C135B7CA29A442B00012C1F6 /* NightscoutKit in Frameworks */ = {isa = PBXBuildFile; productRef = C135B7C929A442B00012C1F6 /* NightscoutKit */; };
 		C135B7CD29A45A050012C1F6 /* HKUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7CC29A45A050012C1F6 /* HKUnit.swift */; };
@@ -15,9 +16,11 @@
 		C135B7D429A50BD00012C1F6 /* MockDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D329A50BD00012C1F6 /* MockDataSource.swift */; };
 		C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */; };
 		C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */; };
+		C140C3B72A1593200038BAFD /* NightscoutDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140C3B62A1593200038BAFD /* NightscoutDataManager.swift */; };
 		C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9529A93D9A008FB16F /* InspectGestureView.swift */; };
 		C142CF9C29AB2756008FB16F /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9B29AB2756008FB16F /* Date.swift */; };
 		C14F53A229DBE8CF002A0DED /* LoopIssueReportParser in Frameworks */ = {isa = PBXBuildFile; productRef = C14F53A129DBE8CF002A0DED /* LoopIssueReportParser */; };
+		C156EB602A2BDF1900AC9DED /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C156EB5F2A2BDF1900AC9DED /* OSLog.swift */; };
 		C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D629AB9C55004B7C32 /* ProfileSet.swift */; };
 		C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */; };
 		C178C5DB29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5DA29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift */; };
@@ -51,9 +54,13 @@
 		C1EA323429A7C8DE00949EA3 /* NightscoutConfigurationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA323329A7C8DE00949EA3 /* NightscoutConfigurationError.swift */; };
 		C1EA323629A7D42E00949EA3 /* NightscoutSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA323529A7D42E00949EA3 /* NightscoutSummaryView.swift */; };
 		C1EF206528D5033B007A8097 /* GlucoseChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EF206428D5033B007A8097 /* GlucoseChart.swift */; };
+		C1F298C72A315B5E00372926 /* MockMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298C62A315B5E00372926 /* MockMainView.swift */; };
+		C1F298C92A315C4600372926 /* IssueReportMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298C82A315C4600372926 /* IssueReportMainView.swift */; };
+		C1F298CB2A315CFD00372926 /* NightscoutMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298CA2A315CFD00372926 /* NightscoutMainView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C11E62C62A2EDC6900F9BECF /* PropertyListStateStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyListStateStorage.swift; sourceTree = "<group>"; };
 		C11EB29D29BE733100FCDB24 /* OpaquePadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpaquePadding.swift; sourceTree = "<group>"; };
 		C135B7CC29A45A050012C1F6 /* HKUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKUnit.swift; sourceTree = "<group>"; };
 		C135B7CF29A508C20012C1F6 /* DataSourcesSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourcesSummaryView.swift; sourceTree = "<group>"; };
@@ -61,9 +68,11 @@
 		C135B7D329A50BD00012C1F6 /* MockDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataSource.swift; sourceTree = "<group>"; };
 		C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceManager.swift; sourceTree = "<group>"; };
 		C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDosingStrategy.swift; sourceTree = "<group>"; };
+		C140C3B62A1593200038BAFD /* NightscoutDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataManager.swift; sourceTree = "<group>"; };
 		C142CF9529A93D9A008FB16F /* InspectGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectGestureView.swift; sourceTree = "<group>"; };
 		C142CF9B29AB2756008FB16F /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		C14F53A329DBE9AD002A0DED /* LoopIssueReportParser */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopIssueReportParser; path = ../LoopIssueReportParser; sourceTree = "<group>"; };
+		C156EB5F2A2BDF1900AC9DED /* OSLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLog.swift; sourceTree = "<group>"; };
 		C15C323A29A437B600CFE6F9 /* LoopKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LoopKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C178C5D629AB9C55004B7C32 /* ProfileSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSet.swift; sourceTree = "<group>"; };
 		C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HKUnit+Nightscout.swift"; sourceTree = "<group>"; };
@@ -74,6 +83,7 @@
 		C1AD0DC128D4FE40002246E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1AD0DC328D4FE40002246E7 /* Learn.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Learn.entitlements; sourceTree = "<group>"; };
 		C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C1B8E6E32A1B9F9F00AF38D0 /* LoopKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopKit; path = ../LoopKit; sourceTree = "<group>"; };
 		C1BD5A2229DB9A2E001865A5 /* NightscoutKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NightscoutKit; path = ../NightscoutKit; sourceTree = "<group>"; };
 		C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportDataSource.swift; sourceTree = "<group>"; };
 		C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportSetupView.swift; sourceTree = "<group>"; };
@@ -101,6 +111,9 @@
 		C1EA323329A7C8DE00949EA3 /* NightscoutConfigurationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutConfigurationError.swift; sourceTree = "<group>"; };
 		C1EA323529A7D42E00949EA3 /* NightscoutSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutSummaryView.swift; sourceTree = "<group>"; };
 		C1EF206428D5033B007A8097 /* GlucoseChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseChart.swift; sourceTree = "<group>"; };
+		C1F298C62A315B5E00372926 /* MockMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMainView.swift; sourceTree = "<group>"; };
+		C1F298C82A315C4600372926 /* IssueReportMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportMainView.swift; sourceTree = "<group>"; };
+		C1F298CA2A315CFD00372926 /* NightscoutMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutMainView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +136,7 @@
 				C135B7CC29A45A050012C1F6 /* HKUnit.swift */,
 				C142CF9B29AB2756008FB16F /* Date.swift */,
 				C18AF8E129ACF2FA00C40B82 /* TimeInterval.swift */,
+				C156EB5F2A2BDF1900AC9DED /* OSLog.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -142,8 +156,27 @@
 			isa = PBXGroup;
 			children = (
 				C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */,
+				C11E62C62A2EDC6900F9BECF /* PropertyListStateStorage.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		C140C3B42A1592D80038BAFD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C1EA322729A6C7A800949EA3 /* NightscoutSetupView.swift */,
+				C1EA323529A7D42E00949EA3 /* NightscoutSummaryView.swift */,
+				C1F298CA2A315CFD00372926 /* NightscoutMainView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C140C3B52A15930D0038BAFD /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				C140C3B62A1593200038BAFD /* NightscoutDataManager.swift */,
+			);
+			path = Data;
 			sourceTree = "<group>";
 		};
 		C142CF9D29AB979D008FB16F /* Lessons */ = {
@@ -159,6 +192,7 @@
 			isa = PBXGroup;
 			children = (
 				C135B7D329A50BD00012C1F6 /* MockDataSource.swift */,
+				C1F298C62A315B5E00372926 /* MockMainView.swift */,
 			);
 			path = Mock;
 			sourceTree = "<group>";
@@ -190,6 +224,7 @@
 				C15C323929A437B600CFE6F9 /* Frameworks */,
 				C1BD5A2229DB9A2E001865A5 /* NightscoutKit */,
 				C14F53A329DBE9AD002A0DED /* LoopIssueReportParser */,
+				C1B8E6E32A1B9F9F00AF38D0 /* LoopKit */,
 			);
 			sourceTree = "<group>";
 		};
@@ -206,7 +241,7 @@
 			children = (
 				C1BD5A2B29DBB48F001865A5 /* Info.plist */,
 				C142CF9D29AB979D008FB16F /* Lessons */,
-				C1DDFAB329A6877F0019E4CB /* Models */,
+				C1DDFAB329A6877F0019E4CB /* Model */,
 				C1AD0DBD28D4FE40002246E7 /* LearnApp.swift */,
 				C135B7CE29A508800012C1F6 /* Views */,
 				C135B7D529A518AD0012C1F6 /* Managers */,
@@ -236,24 +271,25 @@
 				C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */,
 				C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */,
 				C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */,
+				C1F298C82A315C4600372926 /* IssueReportMainView.swift */,
 			);
 			path = IssueReport;
 			sourceTree = "<group>";
 		};
-		C1DDFAB329A6877F0019E4CB /* Models */ = {
+		C1DDFAB329A6877F0019E4CB /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				C1DDFAB429A6878C0019E4CB /* DataSourceDescription.swift */,
 			);
-			path = Models;
+			path = Model;
 			sourceTree = "<group>";
 		};
 		C1DDFAB629A69E530019E4CB /* Nightscout */ = {
 			isa = PBXGroup;
 			children = (
+				C140C3B52A15930D0038BAFD /* Data */,
+				C140C3B42A1592D80038BAFD /* Views */,
 				C1E4BEE429A425A100B54132 /* NightscoutDataSource.swift */,
-				C1EA323529A7D42E00949EA3 /* NightscoutSummaryView.swift */,
-				C1EA322729A6C7A800949EA3 /* NightscoutSetupView.swift */,
 				C1EA322B29A6CB0700949EA3 /* KeyboardObserver.swift */,
 				C1EA322F29A72DE900949EA3 /* GlucoseEntry.swift */,
 				C1EA323129A7AC7800949EA3 /* NightscoutConfigurationChecker.swift */,
@@ -401,12 +437,17 @@
 				C1DDFAB229A67BEB0019E4CB /* BasicChartsView.swift in Sources */,
 				C1AD0DBE28D4FE40002246E7 /* LearnApp.swift in Sources */,
 				C1BD5A2A29DBB337001865A5 /* IssueReportSetupView.swift in Sources */,
+				C1F298C72A315B5E00372926 /* MockMainView.swift in Sources */,
 				C1E4BEDA29A41ECF00B54132 /* InsulinData.swift in Sources */,
 				C135B7CD29A45A050012C1F6 /* HKUnit.swift in Sources */,
+				C1F298CB2A315CFD00372926 /* NightscoutMainView.swift in Sources */,
 				C1EA323429A7C8DE00949EA3 /* NightscoutConfigurationError.swift in Sources */,
+				C156EB602A2BDF1900AC9DED /* OSLog.swift in Sources */,
+				C11E62C72A2EDC6900F9BECF /* PropertyListStateStorage.swift in Sources */,
 				C1E4BECC29A41D6B00B54132 /* ScrollableChart.swift in Sources */,
 				C135B7D229A50B710012C1F6 /* DataSourceListItemView.swift in Sources */,
 				C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */,
+				C140C3B72A1593200038BAFD /* NightscoutDataManager.swift in Sources */,
 				C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */,
 				C1E4BEDC29A41ECF00B54132 /* BasalSchedule.swift in Sources */,
 				C1EA323029A72DE900949EA3 /* GlucoseEntry.swift in Sources */,
@@ -414,6 +455,7 @@
 				C1E4BEE329A4243200B54132 /* DataSource.swift in Sources */,
 				C142CF9C29AB2756008FB16F /* Date.swift in Sources */,
 				C1E4BECE29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift in Sources */,
+				C1F298C92A315C4600372926 /* IssueReportMainView.swift in Sources */,
 				C1DDFAB529A6878C0019E4CB /* DataSourceDescription.swift in Sources */,
 				C1BD5A2729DBAEA7001865A5 /* IssueReportDataSource.swift in Sources */,
 				C1EA322C29A6CB0700949EA3 /* KeyboardObserver.swift in Sources */,
