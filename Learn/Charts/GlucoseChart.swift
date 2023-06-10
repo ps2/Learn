@@ -32,8 +32,13 @@ struct GlucoseChart: View {
 
     private let desiredYAxisNumberOfMarks: Int = 4
 
-    private let yScale = 0...400
-
+    private var yScale: ClosedRange<Double> {
+        if formatters.glucoseUnit == .milligramsPerDeciliter {
+            return 0...400
+        } else {
+            return 0...22
+        }
+    }
     private var xScale: ClosedRange<Date> { return startTime...endTime }
 
     private var startTime: Date
@@ -206,6 +211,6 @@ struct GlucoseChart_Previews: PreviewProvider {
 
         return GlucoseChart(startTime: startDate, endTime:endDate, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6, historicalGlucose: glucose, targetRanges: targets)
             .opaqueHorizontalPadding()
-            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+            .environmentObject(QuantityFormatters(glucoseUnit: .millimolesPerLiter))
     }
 }
