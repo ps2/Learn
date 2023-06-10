@@ -1,5 +1,5 @@
 //
-//  InsulinChart. ift
+//  InsulinChart.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 1/15/23.
@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Charts
+import HealthKit
 
 protocol DateSelectableValue {
     var dateForSelection: Date { get }
@@ -70,7 +71,7 @@ struct ScheduledBasal: Identifiable, DateSelectableValue {
 }
 
 struct InsulinDeliveryChart: View {
-
+    @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
 
     private let desiredYAxisNumberOfMarks: Int = 4
@@ -225,9 +226,16 @@ struct InsulinDeliveryChart: View {
             GeometryReader { geometry in
                 preferences.map { anchor in
                     VStack {
-                        if let selectedElement = inspectedElement {
+                        if let bolus = inspectedElement as? Bolus {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
-                                Text("\(selectedElement.selectionValue, format: .number) mg/dL")
+
+                                Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: bolus.amount))!)
+                                    .bold()
+                            }
+                        } else if let inspectedElement {
+                            HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
+
+                                Text(formatters.insulinRateFormatter.string(from: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: inspectedElement.selectionValue))!)
                                     .bold()
                             }
                         }
