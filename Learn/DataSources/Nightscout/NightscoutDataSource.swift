@@ -111,7 +111,9 @@ final class NightscoutDataSource: DataSource {
     }
 
     func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
-        return []
+        return try await manager.doseStore.getBoluses(start: start, end: end).map { dose in
+            Bolus(date: dose.startDate, amount: dose.deliveredUnits ?? dose.programmedUnits, automatic: dose.automatic ?? false, id: dose.syncIdentifier ?? UUID().uuidString)
+        }
     }
 }
 

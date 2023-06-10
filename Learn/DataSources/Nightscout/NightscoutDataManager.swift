@@ -18,10 +18,10 @@ protocol NightscoutDataManagerDelegate: AnyObject {
 
 actor NightscoutDataManager {
 
-    private var glucoseStore: GlucoseStore
-    private var doseStore: DoseStore
-    private var carbStore: CarbStore
-    private var nightscoutClient: NightscoutClient
+    var glucoseStore: GlucoseStore
+    var doseStore: DoseStore
+    var carbStore: CarbStore
+    var nightscoutClient: NightscoutClient
 
     private var cacheEndDate: Date?
 
@@ -92,15 +92,13 @@ actor NightscoutDataManager {
         return []
     }
 
-
-
     // MARK: Remote fetching
-    func fetchGlucoseSamples(start: Date, end: Date) async throws -> [NewGlucoseSample] {
+    func syncGlucose(start: Date, end: Date) async throws {
         let interval = DateInterval(start: start, end: end)
         print("Fetching \(interval)")
 
-        return try await withCheckedThrowingContinuation { continuation in
-            nightscoutClient.fetchGlucose(dateInterval: interval, maxCount: 1000) { result in
+        let samples: [NewGlucoseSample] = try await withCheckedThrowingContinuation { continuation in
+            nightscoutClient.fetchGlucose(dateInterval: interval, maxCount: 5000) { result in
                 switch result {
                 case .failure(let error):
                     continuation.resume(throwing: error)
@@ -109,6 +107,39 @@ actor NightscoutDataManager {
                     continuation.resume(returning: samples)
                 }
             }
+        }
+        glucoseStore.addGlucoseSamples(samples) { result in
+            switch result {
+            case .success(let storedSamples):
+                print("added \(storedSamples.count) glucose samples")
+            case .failure(let error):
+                self.log.error("Unable to store glucose samples: %{public}@", error.localizedDescription)
+            }
+        }
+    }
+
+    func syncTreatments(start: Date, end: Date) async throws {
+        let interval = DateInterval(start: start, end: end)
+        print("Fetching \(interval) glucose samples")
+
+        let treatments: [NightscoutTreatment] = try await withCheckedThrowingContinuation { continuation in
+            nightscoutClient.fetchTreatments(dateInterval: interval) { result in
+                switch result {
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                case .success(let entries):
+                    continuation.resume(returning: entries)
+                }
+            }
+        }
+
+        let doses = treatments.compactMap { $0.dose }
+
+        doseStore.addDoses(doses, from: nil) { error in
+            if let error {
+                self.log.error("Unable to store doses: %{public}@", error.localizedDescription)
+            }
+            print("added \(doses.count) doses")
         }
     }
 
@@ -129,6 +160,8 @@ actor NightscoutDataManager {
 
     func syncRemoteData() async {
         let maxFetchInterval: TimeInterval = .days(7)
+
+        cacheEndDate = nil
 
         var fetchedCurrentData = false
 
@@ -151,11 +184,8 @@ actor NightscoutDataManager {
     }
 
     func fetchAndStoreData(startDate: Date, endDate: Date) async throws {
-        let samples = try await fetchGlucoseSamples(start: startDate, end: endDate)
-        glucoseStore.addGlucoseSamples(samples) { result in
-            print("added \(samples.count)")
-        }
-
+        try await syncGlucose(start: startDate, end: endDate)
+        try await syncTreatments(start: startDate, end: endDate)
     }
 
 }

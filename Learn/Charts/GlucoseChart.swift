@@ -87,6 +87,7 @@ struct GlucoseChart: View {
                             x: .value("Time", reading.date, unit: .second),
                             y: .value("Historical Glucose", reading.quantity.doubleValue(for: formatters.glucoseUnit))
                         )
+                        .foregroundStyle(Color.glucose)
                         .symbolSize(CGSize(width: 5, height: 5))
                     }
                     if let inspectedElement {
