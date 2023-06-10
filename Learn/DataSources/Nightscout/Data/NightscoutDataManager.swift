@@ -87,6 +87,11 @@ actor NightscoutDataManager {
         return []
     }
 
+    func getInsulinDelivery(start: Date, end: Date) async throws -> [DoseEntry] {
+        //return try await doseStore.getNormalizedDoseEntries(start: start, end: end)
+        return []
+    }
+
 
 
     // MARK: Remote fetching

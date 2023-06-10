@@ -43,6 +43,8 @@ class DataSourceManager: ObservableObject {
     }
 
     func loadDataSources() {
+        addDataSource(dataSource: IssueReportDataSource.mock)
+
         let enumerator = FileManager.default.enumerator(at: storageURL, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
         while let file = enumerator?.nextObject() as? NSURL {
             print("Looking at \(file)")

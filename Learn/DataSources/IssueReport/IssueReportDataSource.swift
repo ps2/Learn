@@ -47,10 +47,8 @@ final class IssueReportDataSource: DataSource {
         self.dataSourceInstanceIdentifier = instanceIdentifier ?? UUID().uuidString
         self.cachedGlucoseSamples = []
 
-        if let localFileURL, FileManager.default.fileExists(atPath: localFileURL.path) {
-            Task {
-                try await loadData()
-            }
+        Task {
+            try await loadData()
         }
     }
 
@@ -99,8 +97,14 @@ final class IssueReportDataSource: DataSource {
         }
 
         do {
-            let issueReport = try await Self.loadIssueReport(from: localFileURL)
-            print("Loaded data from \(localFileURL)")
+            var targetFile: URL
+            if FileManager.default.fileExists(atPath: localFileURL.path) {
+                targetFile = localFileURL
+            } else {
+                targetFile = url
+            }
+            let issueReport = try await Self.loadIssueReport(from: targetFile)
+            print("Loaded data from \(targetFile)")
             self.cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
             self.loadingState = .ready
         } catch {
@@ -228,5 +232,13 @@ extension LoopIssueReportParser.StoredGlucoseSample {
             wasUserEntered: wasUserEntered,
             device: nil,
             healthKitEligibleDate: healthKitEligibleDate)
+    }
+}
+
+
+extension IssueReportDataSource {
+    static var mock: IssueReportDataSource {
+        let issueReport = Bundle.main.url(forResource: "Example-Issue-Report", withExtension: "md")!
+        return IssueReportDataSource(url: issueReport, name: "Example Issue Report")
     }
 }

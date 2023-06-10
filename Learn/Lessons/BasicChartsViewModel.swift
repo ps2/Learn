@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import Combine
 import HealthKit
+import LoopKit
 
 
 @MainActor
@@ -17,6 +18,7 @@ class BasicChartsViewModel: ObservableObject {
     @Published var loadingState: LoadingState = .ready
 
     var baseTime: Date {
+        print("dataSource.endOfData = \(String(describing: dataSource.endOfData))")
         return (dataSource.endOfData ?? Date()).roundDownToHour()!
     }
 
@@ -65,7 +67,6 @@ class BasicChartsViewModel: ObservableObject {
     }
 
     @Published var glucoseDataValues: [GlucoseValue] = []
-    @Published var insulinDataValues: [InsulinValue] = []
     @Published var targetRanges: [TargetRange] = []
 
     // When in inspection mode, the date being inspected
@@ -78,7 +79,6 @@ class BasicChartsViewModel: ObservableObject {
     }
 
     private var dataSource: any DataSource
-    private var insulinData = InsulinData()
 
     let displayUnits: HKUnit
 
@@ -127,9 +127,6 @@ class BasicChartsViewModel: ObservableObject {
             print("Error refreshing data: \(error)")
         }
 
-
-        // Insulin
-        insulinDataValues = insulinData.fetchData(startDate: start, endDate: end)
     }
 }
 

@@ -210,6 +210,6 @@ struct GlucoseChart_Previews: PreviewProvider {
             return TargetRange(range: DoubleRange(minValue: value-5, maxValue: value+5), startTime: date, endTime: date.addingTimeInterval(targetTimeInterval))
         }
         return GlucoseChart(startTime: startDate, endTime:endDate, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6, historicalGlucose: glucose, targetRanges: targets)
-            .padding()
+            .opaqueHorizontalPadding()
     }
 }

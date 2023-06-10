@@ -22,16 +22,19 @@ struct IssueReportMainView: View {
     }
 
     var body: some View {
-        BasicChartsView(viewModel: BasicChartsViewModel(
-            dataSource: dataSource,
-            displayUnits: .milligramsPerDeciliter,
-            displayedTimeInterval: chartTimeInterval
-        ))
+        VStack {
+            Text("Issue Report")
+            BasicChartsView(viewModel: BasicChartsViewModel(
+                dataSource: dataSource,
+                displayUnits: .milligramsPerDeciliter,
+                displayedTimeInterval: chartTimeInterval
+            ))
+        }
     }
 }
 
 struct IssueReportMainView_Previews: PreviewProvider {
     static var previews: some View {
-        IssueReportMainView(dataSource: IssueReportDataSource(url: URL(string: "file://mock")!, name: "Mock Issue Report"))
+        IssueReportMainView(dataSource: IssueReportDataSource.mock)
     }
 }
