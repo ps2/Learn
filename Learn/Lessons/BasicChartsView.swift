@@ -77,6 +77,7 @@ struct BasicChartsView: View {
 
 struct MainChartsView_Previews: PreviewProvider {
     static var previews: some View {
-        BasicChartsView(viewModel: BasicChartsViewModel(dataSource: MockDataSource(), displayUnits: .milligramsPerDeciliter, displayedTimeInterval: TimeInterval(hours: 6)))
+        BasicChartsView(viewModel: BasicChartsViewModel(dataSource: MockDataSource(), displayedTimeInterval: TimeInterval(hours: 6)))
+            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

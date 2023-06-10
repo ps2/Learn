@@ -94,11 +94,11 @@ final class NightscoutDataSource: DataSource {
         return nil
     }
 
-    func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample] {
-        return try await manager.getGlucoseSamples(start: start, end: end)
+    func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue] {
+        return try await manager.getGlucoseSamples(start: start, end: end).map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
     }
 
-    func getHistoricSettings(start: Date, end: Date) async throws -> [StoredSettings] {
+    func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
         return []
     }
 

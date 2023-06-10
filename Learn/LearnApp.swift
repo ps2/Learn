@@ -9,10 +9,12 @@ import SwiftUI
 
 @main
 struct LearnApp: App {
+    let formatters = QuantityFormatters(glucoseUnit: .milligramsPerDeciliter)
 
     var body: some Scene {
         WindowGroup {
             DataSourcesSummaryView()
+                .environmentObject(formatters)
         }
     }
 }

@@ -21,4 +21,11 @@ extension HKUnit {
         return HKUnit.moleUnit(with: .milli, molarMass: HKUnitMolarMassBloodGlucose).unitDivided(by: .liter())
     }()
 
+    static let internationalUnitsPerHour: HKUnit = {
+        return HKUnit.internationalUnit().unitDivided(by: .hour())
+    }()
+
+    static let gramsPerUnit: HKUnit = {
+        return HKUnit.gram().unitDivided(by: .internationalUnit())
+    }()
 }

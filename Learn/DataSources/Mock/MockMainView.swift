@@ -24,7 +24,6 @@ struct MockMainView: View {
     var body: some View {
         BasicChartsView(viewModel: BasicChartsViewModel(
             dataSource: dataSource,
-            displayUnits: .milligramsPerDeciliter,
             displayedTimeInterval: chartTimeInterval
         ))
     }

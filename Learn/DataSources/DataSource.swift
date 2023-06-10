@@ -59,8 +59,8 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
     var endOfData: Date? { get }
 
     // Data fetching apis
-    func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample]
-    func getHistoricSettings(start: Date, end: Date) async throws -> [StoredSettings]
+    func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue]
+    func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange]
 }
 
 extension DataSource {

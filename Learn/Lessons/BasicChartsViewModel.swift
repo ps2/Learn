@@ -80,13 +80,10 @@ class BasicChartsViewModel: ObservableObject {
 
     private var dataSource: any DataSource
 
-    let displayUnits: HKUnit
-
     private var cancellables: Set<AnyCancellable> = []
 
-    init(dataSource: any DataSource, displayUnits: HKUnit, displayedTimeInterval: TimeInterval) {
+    init(dataSource: any DataSource, displayedTimeInterval: TimeInterval) {
         self.dataSource = dataSource
-        self.displayUnits = displayUnits
         self.displayedTimeInterval = displayedTimeInterval
     }
 
@@ -109,20 +106,8 @@ class BasicChartsViewModel: ObservableObject {
 
         // Glucose
         do {
-            self.glucoseDataValues = try await dataSource.getGlucoseSamples(start: start, end: end).map( { sample in
-                GlucoseValue(value: sample.quantity.doubleValue(for: self.displayUnits), date: sample.startDate)
-            })
-
-            // Target Schedule
-            let settings = try await dataSource.getHistoricSettings(start: start, end: end)
-            if let latestSetting = settings.sorted(by: { $0.date < $1.date }).last,
-               let schedule = latestSetting.glucoseTargetRangeSchedule
-            {
-                self.targetRanges = schedule.quantityBetween(start: self.start, end: self.end).compactMap { entry in
-                    let range = entry.value.doubleRange(for: self.displayUnits)
-                    return TargetRange(range: range, startTime: entry.startDate, endTime: entry.endDate)
-                }
-            }
+            self.glucoseDataValues = try await dataSource.getGlucoseValues(start: start, end: end)
+            self.targetRanges = try await dataSource.getTargetRanges(start: start, end: end)
         } catch {
             print("Error refreshing data: \(error)")
         }

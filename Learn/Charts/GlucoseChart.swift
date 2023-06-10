@@ -8,22 +8,25 @@
 
 import SwiftUI
 import Charts
-import LoopKit
+import HealthKit
 
 struct GlucoseValue: Equatable {
-    let value: Double
+    let quantity: HKQuantity
     let date: Date
 }
 
 struct TargetRange: Equatable {
-    let range: DoubleRange
+    let min: HKQuantity
+    let max: HKQuantity
     let startTime: Date
     let endTime: Date
 }
 
 struct GlucoseChart: View {
 
+    @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
+
     @Binding var chartUnitOffset: Int
     private let numSegments: Int
 
@@ -77,14 +80,14 @@ struct GlucoseChart: View {
                     ForEach(historicalGlucose, id: \.date) { reading in
                         PointMark(
                             x: .value("Time", reading.date, unit: .second),
-                            y: .value("Historical Glucose", reading.value)
+                            y: .value("Historical Glucose", reading.quantity.doubleValue(for: formatters.glucoseUnit))
                         )
                         .symbolSize(CGSize(width: 5, height: 5))
                     }
                     if let inspectedElement {
                         PointMark(
                             x: .value("Time", inspectedElement.date, unit: .second),
-                            y: .value("Historical Glucose", inspectedElement.value)
+                            y: .value("Historical Glucose", inspectedElement.quantity.doubleValue(for: formatters.glucoseUnit))
                         )
                         .foregroundStyle(.secondary)
                         .symbolSize(CGSize(width: 15, height: 15))
@@ -94,8 +97,8 @@ struct GlucoseChart: View {
                         RectangleMark(
                             xStart: .value("Segment Start", target.startTime, unit: .second),
                             xEnd: .value("Segment End", target.endTime, unit: .second),
-                            yStart: .value("TargetBottom", target.range.minValue),
-                            yEnd: .value("TargetTop", target.range.maxValue)
+                            yStart: .value("TargetBottom", target.min.doubleValue(for: formatters.glucoseUnit)),
+                            yEnd: .value("TargetTop", target.max.doubleValue(for: formatters.glucoseUnit))
                         )
                         .foregroundStyle(.tertiary)
                     }
@@ -147,7 +150,7 @@ struct GlucoseChart: View {
                     VStack {
                         if let selectedElement = inspectedElement {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
-                                Text("\(selectedElement.value, format: .number) mg/dL")
+                                Text(formatters.glucoseFormatter.string(from: selectedElement.quantity)!)
                                     .bold()
                             }
                         }
@@ -161,7 +164,7 @@ struct GlucoseChart: View {
         if let selectedElement {
             let point = proxy.position(for: (
                 x: selectedElement.date,
-                y: selectedElement.value
+                y: selectedElement.quantity.doubleValue(for: formatters.glucoseUnit)
             ))
             return point ?? .zero
         } else {
@@ -194,22 +197,15 @@ struct GlucoseChart: View {
 
 struct GlucoseChart_Previews: PreviewProvider {
     static var previews: some View {
+
+        let mockDataSource = MockDataSource()
         let endDate = Date()
         let startDate = endDate.addingTimeInterval(-18 * 3600)
+        let glucose = mockDataSource.getMockGlucoseValues(start: startDate, end: endDate)
+        let targets = mockDataSource.getMockTargetRanges(start: startDate, end: endDate)
 
-
-        let glucose = stride(from: startDate, through: endDate, by: TimeInterval(5 * 60)).map { date in
-            let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 60
-            return GlucoseValue(value: value, date: date)
-        }
-
-        let targetTimeInterval = TimeInterval(90 * 60)
-
-        let targets = stride(from: startDate, through: endDate, by: targetTimeInterval).map { date in
-            let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 2) / (3600*3) * Double.pi * 2) * 10
-            return TargetRange(range: DoubleRange(minValue: value-5, maxValue: value+5), startTime: date, endTime: date.addingTimeInterval(targetTimeInterval))
-        }
         return GlucoseChart(startTime: startDate, endTime:endDate, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6, historicalGlucose: glucose, targetRanges: targets)
             .opaqueHorizontalPadding()
+            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

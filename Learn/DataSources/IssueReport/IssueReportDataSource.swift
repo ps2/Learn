@@ -174,11 +174,12 @@ final class IssueReportDataSource: DataSource {
     }
 
     @MainActor
-    func getGlucoseSamples(start: Date, end: Date) async throws -> [LoopKit.StoredGlucoseSample] {
-        return cachedGlucoseSamples.filter { $0.startDate >= start && $0.startDate <= end }
+    func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue] {
+        let samples: [LoopKit.StoredGlucoseSample] = cachedGlucoseSamples.filter { $0.startDate >= start && $0.startDate <= end }
+        return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
     }
 
-    func getHistoricSettings(start: Date, end: Date) async throws -> [LoopKit.StoredSettings] {
+    func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
         return []
     }
 }

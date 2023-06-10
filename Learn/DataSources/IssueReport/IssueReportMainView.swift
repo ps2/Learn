@@ -26,7 +26,6 @@ struct IssueReportMainView: View {
             Text("Issue Report")
             BasicChartsView(viewModel: BasicChartsViewModel(
                 dataSource: dataSource,
-                displayUnits: .milligramsPerDeciliter,
                 displayedTimeInterval: chartTimeInterval
             ))
         }
