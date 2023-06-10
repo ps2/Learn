@@ -292,71 +292,11 @@ struct InsulinDeliveryChart_Previews: PreviewProvider {
         let endDate = Date()
         let startDate = endDate.addingTimeInterval(-18 * 3600)
 
-        let boluses = [
-            Bolus(date: startDate.addingTimeInterval(7.1 * 3600), amount: 2.5, automatic: true, id: "1234"),
-            Bolus(date: startDate.addingTimeInterval(10.5 * 3600), amount: 0.5, automatic: true, id: "12345")
-        ]
+        let mockDataSource = MockDataSource()
 
-        let basalSchedule: [ScheduledBasal] = [
-            ScheduledBasal(
-                start: startDate,
-                end: startDate.addingTimeInterval(5 * 3600),
-                rate: 0.8,
-                automatic: false),
-            ScheduledBasal(
-                start: startDate.addingTimeInterval(5 * 3600),
-                end: startDate.addingTimeInterval(10 * 3600),
-                rate: 1.2,
-                automatic: false),
-            ScheduledBasal(
-                start: startDate.addingTimeInterval(10 * 3600),
-                end: startDate.addingTimeInterval(15 * 3600),
-                rate: 0.5,
-                automatic: false),
-            ScheduledBasal(
-                start: startDate.addingTimeInterval(15 * 3600),
-                end: startDate.addingTimeInterval(18 * 3600),
-                rate: 0.9,
-                automatic: false)
-        ]
-
-        let basalDoses: [Basal] = [
-            Basal(
-                start: startDate,
-                end: startDate.addingTimeInterval(5*3600),
-                rate: 1.1,
-                temporary: true,
-                automatic: true,
-                id: UUID().uuidString),
-            Basal(
-                start: startDate.addingTimeInterval(5*3600),
-                end: startDate.addingTimeInterval(9*3600),
-                rate: 1.4,
-                temporary: true,
-                automatic: true,
-                id: UUID().uuidString),
-            Basal(
-                start: startDate.addingTimeInterval(9*3600),
-                end: startDate.addingTimeInterval(12*3600),
-                rate: 1.1,
-                temporary: true,
-                automatic: true,
-                id: UUID().uuidString),
-            Basal(
-                start: startDate.addingTimeInterval(12*3600),
-                end: startDate.addingTimeInterval(14*3600),
-                rate: 2.1,
-                temporary: true,
-                automatic: true,
-                id: UUID().uuidString),
-            Basal(
-                start: startDate.addingTimeInterval(14*3600),
-                end: startDate.addingTimeInterval(16*3600),
-                rate: 1.1,
-                temporary: true,
-                automatic: true,
-                id: UUID().uuidString),
-        ]
+        let boluses = mockDataSource.getMockBoluses(start: startDate, end: endDate)
+        let basalSchedule = mockDataSource.getMockBasalSchedule(start: startDate, end: endDate)
+        let basalDoses = mockDataSource.getMockBasalDoses(start: startDate, end: endDate)
 
         return InsulinDeliveryChart(bolusDoses: boluses, basalDoses: basalDoses, basalSchedule: basalSchedule, startTime: startDate, endTime: endDate, chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()

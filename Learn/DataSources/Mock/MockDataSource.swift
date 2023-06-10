@@ -12,7 +12,6 @@ import LoopKit
 import HealthKit
 
 class MockDataSource: DataSource {
-
     @Published var loadingState: LoadingState = .isLoading
 
     var stateStorage: StateStorage?
@@ -49,6 +48,46 @@ class MockDataSource: DataSource {
     func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
         return getMockTargetRanges(start: start, end: end)
     }
+
+    func getMockBasalDoses(start: Date, end: Date) -> [Basal] {
+        let spaceBetweenChanges = TimeInterval(0.3 * 3600)
+
+        return stride(from: start, through: end, by: spaceBetweenChanges).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1.5
+            return Basal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value, temporary: false, automatic: false, id: UUID().uuidString)
+        }
+    }
+
+    func getBasalDoses(start: Date, end: Date) async throws -> [Basal] {
+        return getMockBasalDoses(start: start, end: end)
+    }
+
+    func getMockBasalSchedule(start: Date, end: Date) -> [ScheduledBasal] {
+        let spaceBetweenChanges = TimeInterval(2 * 3600)
+
+        return stride(from: start, through: end, by: spaceBetweenChanges).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
+            return ScheduledBasal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value, automatic: false)
+        }
+    }
+
+    func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
+        return getMockBasalSchedule(start: start, end: end)
+    }
+
+    func getMockBoluses(start: Date, end: Date) -> [Bolus] {
+        let spaceBetweenBoluses = TimeInterval(2.2 * 3600)
+
+        return stride(from: start, through: end, by: spaceBetweenBoluses).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
+            return Bolus(date: date, amount: value, automatic: false, id: UUID().uuidString)
+        }
+    }
+
+    func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
+        return getMockBoluses(start: start, end: end)
+    }
+
 
 
     static var localizedTitle: String = "MockDataSource"

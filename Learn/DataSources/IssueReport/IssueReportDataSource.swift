@@ -182,6 +182,18 @@ final class IssueReportDataSource: DataSource {
     func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
         return []
     }
+
+    func getBasalDoses(start: Date, end: Date) async throws -> [Basal] {
+        return []
+    }
+
+    func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
+        return []
+    }
+
+    func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
+        return []
+    }
 }
 
 extension LoopIssueReportParser.GlucoseCondition {

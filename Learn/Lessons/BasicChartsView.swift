@@ -47,9 +47,9 @@ struct BasicChartsView: View {
                         targetRanges: viewModel.targetRanges
                     )
                     InsulinDeliveryChart(
-                        bolusDoses: [],
-                        basalDoses: [],
-                        basalSchedule: [],
+                        bolusDoses: viewModel.boluses,
+                        basalDoses: viewModel.basalDoses,
+                        basalSchedule: viewModel.basalSchedule,
                         startTime: viewModel.start,
                         endTime: viewModel.end,
                         chartUnitOffset: $viewModel.chartUnitOffset,

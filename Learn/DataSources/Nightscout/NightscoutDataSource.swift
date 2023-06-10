@@ -102,6 +102,17 @@ final class NightscoutDataSource: DataSource {
         return []
     }
 
+    func getBasalDoses(start: Date, end: Date) async throws -> [Basal] {
+        return []
+    }
+
+    func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
+        return []
+    }
+
+    func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
+        return []
+    }
 }
 
 extension NightscoutDataSource: NightscoutDataManagerDelegate {
