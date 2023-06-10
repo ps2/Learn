@@ -87,19 +87,37 @@ struct InsulinDeliveryChart: View {
     private var numSegments: Int
     @Binding var chartUnitOffset: Int
 
-    struct BasalSchedulePoint: Hashable {
-        let date: Date
-        let rate: Double
+    enum BasalRatePointType: Int {
+        case dose
+        case schedule
+
+        var strokeStyle: StrokeStyle {
+            switch self {
+            case .dose:
+                return StrokeStyle()
+            case .schedule:
+                return StrokeStyle(dash: [3,3])
+            }
+        }
     }
 
-    var basalSchedulePoints: [BasalSchedulePoint] {
-        var points = [BasalSchedulePoint]()
+    struct BasalRatePoint: Hashable {
+        let date: Date
+        let rate: Double
+        let type: BasalRatePointType
+    }
 
-        for item in basalSchedule {
-            points.append(BasalSchedulePoint(date: item.start, rate: item.rate))
-            points.append(BasalSchedulePoint(date: item.end, rate: item.rate))
+    var basalPoints: [BasalRatePoint] {
+        var points = [BasalRatePoint]()
+
+        for dose in basalDoses {
+            points.append(BasalRatePoint(date: dose.start, rate: dose.rate, type: .dose))
+            points.append(BasalRatePoint(date: dose.end, rate: dose.rate, type: .dose))
         }
-
+        for item in basalSchedule {
+            points.append(BasalRatePoint(date: item.start, rate: item.rate, type: .schedule))
+            points.append(BasalRatePoint(date: item.end, rate: item.rate, type: .schedule))
+        }
         return points
     }
 
@@ -153,13 +171,6 @@ struct InsulinDeliveryChart: View {
                         .foregroundStyle(.orange.opacity(0.4))
                     }
                     // Basal Schedule
-                    ForEach(basalSchedulePoints, id: \.self) { point in
-                        LineMark(
-                            x: .value("Time", point.date, unit: .second),
-                            y: .value("Rate", point.rate))
-                        .lineStyle(StrokeStyle(dash: [3,3]))
-                        .foregroundStyle(Color.insulin)
-                    }
                     // Basal Doses
                     ForEach(basalDoses) { dose in
                         RectangleMark(
@@ -168,6 +179,15 @@ struct InsulinDeliveryChart: View {
                             yStart: .value("Base", 0),
                             yEnd: .value("Base", dose.rate))
                         .foregroundStyle(Color.insulin.opacity(0.5))
+                    }
+                    ForEach(basalPoints, id: \.self) { point in
+                        LineMark(
+                            x: .value("Time", point.date, unit: .second),
+                            y: .value("Scheduled Rate", point.rate),
+                            series: .value("Type", point.type.rawValue)
+                        )
+                        .lineStyle(point.type.strokeStyle)
+                        .foregroundStyle(Color.insulin)
                     }
 
                     // Inspected element
@@ -178,7 +198,6 @@ struct InsulinDeliveryChart: View {
                         )
                         .foregroundStyle(.orange.opacity(0.4))
                         .symbolSize(CGSize(width: 15, height: 15))
-
                     }
                 }
                 .chartYScale(domain: chartYDomain)
