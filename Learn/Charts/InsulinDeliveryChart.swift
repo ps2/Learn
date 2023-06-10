@@ -87,6 +87,22 @@ struct InsulinDeliveryChart: View {
     private var numSegments: Int
     @Binding var chartUnitOffset: Int
 
+    struct BasalSchedulePoint: Hashable {
+        let date: Date
+        let rate: Double
+    }
+
+    var basalSchedulePoints: [BasalSchedulePoint] {
+        var points = [BasalSchedulePoint]()
+
+        for item in basalSchedule {
+            points.append(BasalSchedulePoint(date: item.start, rate: item.rate))
+            points.append(BasalSchedulePoint(date: item.end, rate: item.rate))
+        }
+
+        return points
+    }
+
 
     init(bolusDoses: [Bolus], basalDoses: [Basal], basalSchedule: [ScheduledBasal], startTime: Date, endTime: Date, chartUnitOffset: Binding<Int>, numSegments: Int) {
         self.bolusDoses = bolusDoses
@@ -134,6 +150,22 @@ struct InsulinDeliveryChart: View {
                         }
                         .interpolationMethod(.cardinal)
                         .foregroundStyle(.orange.opacity(0.4))
+                    }
+                    if let inspectedElement {
+                        PointMark(
+                            x: .value("Time", inspectedElement.dateForSelection, unit: .second),
+                            y: .value("Value", inspectedElement.selectionValue)
+                        )
+                        .foregroundStyle(.orange.opacity(0.4))
+                        .symbolSize(CGSize(width: 15, height: 15))
+
+                    }
+                    ForEach(basalSchedulePoints, id: \.self) { point in
+                        LineMark(
+                            x: .value("Time", point.date, unit: .second),
+                            y: .value("Rate", point.rate))
+                        .lineStyle(StrokeStyle(dash: [3,3]))
+                        .foregroundStyle(Color.insulin)
                     }
                     if let inspectedElement {
                         PointMark(
@@ -237,9 +269,35 @@ struct InsulinDeliveryChart_Previews: PreviewProvider {
         let endDate = Date()
         let startDate = endDate.addingTimeInterval(-18 * 3600)
 
-        let boluses = [Bolus(date: startDate.addingTimeInterval(7 * 3600), amount: 2.5, automatic: true, id: "1234")]
+        let boluses = [
+            Bolus(date: startDate.addingTimeInterval(7.1 * 3600), amount: 2.5, automatic: true, id: "1234"),
+            Bolus(date: startDate.addingTimeInterval(10.5 * 3600), amount: 0.5, automatic: true, id: "12345")
+        ]
 
-        return InsulinDeliveryChart(bolusDoses: boluses, basalDoses: [], basalSchedule: [], startTime: startDate, endTime: endDate, chartUnitOffset: .constant(0), numSegments: 6)
+        let basalSchedule: [ScheduledBasal] = [
+            ScheduledBasal(
+                start: startDate,
+                end: startDate.addingTimeInterval(5 * 3600),
+                rate: 0.8,
+                automatic: false),
+            ScheduledBasal(
+                start: startDate.addingTimeInterval(5 * 3600),
+                end: startDate.addingTimeInterval(10 * 3600),
+                rate: 1.2,
+                automatic: false),
+            ScheduledBasal(
+                start: startDate.addingTimeInterval(10 * 3600),
+                end: startDate.addingTimeInterval(15 * 3600),
+                rate: 0.5,
+                automatic: false),
+            ScheduledBasal(
+                start: startDate.addingTimeInterval(15 * 3600),
+                end: startDate.addingTimeInterval(18 * 3600),
+                rate: 0.9,
+                automatic: false)
+        ]
+
+        return InsulinDeliveryChart(bolusDoses: boluses, basalDoses: [], basalSchedule: basalSchedule, startTime: startDate, endTime: endDate, chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
     }
 }
