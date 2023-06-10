@@ -139,6 +139,7 @@ struct InsulinDeliveryChart: View {
 
             ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 250, numSegments: numSegments) {
                 Chart {
+                    // Boluses
                     ForEach(bolusDoses) { bolus in
                         PointMark(
                             x: .value("Time", bolus.date, unit: .second),
@@ -151,15 +152,7 @@ struct InsulinDeliveryChart: View {
                         .interpolationMethod(.cardinal)
                         .foregroundStyle(.orange.opacity(0.4))
                     }
-                    if let inspectedElement {
-                        PointMark(
-                            x: .value("Time", inspectedElement.dateForSelection, unit: .second),
-                            y: .value("Value", inspectedElement.selectionValue)
-                        )
-                        .foregroundStyle(.orange.opacity(0.4))
-                        .symbolSize(CGSize(width: 15, height: 15))
-
-                    }
+                    // Basal Schedule
                     ForEach(basalSchedulePoints, id: \.self) { point in
                         LineMark(
                             x: .value("Time", point.date, unit: .second),
@@ -167,6 +160,17 @@ struct InsulinDeliveryChart: View {
                         .lineStyle(StrokeStyle(dash: [3,3]))
                         .foregroundStyle(Color.insulin)
                     }
+                    // Basal Doses
+                    ForEach(basalDoses) { dose in
+                        RectangleMark(
+                            xStart: .value("Start Time", dose.start),
+                            xEnd: .value("End Time", dose.end),
+                            yStart: .value("Base", 0),
+                            yEnd: .value("Base", dose.rate))
+                        .foregroundStyle(Color.insulin.opacity(0.5))
+                    }
+
+                    // Inspected element
                     if let inspectedElement {
                         PointMark(
                             x: .value("Time", inspectedElement.dateForSelection, unit: .second),
@@ -297,7 +301,45 @@ struct InsulinDeliveryChart_Previews: PreviewProvider {
                 automatic: false)
         ]
 
-        return InsulinDeliveryChart(bolusDoses: boluses, basalDoses: [], basalSchedule: basalSchedule, startTime: startDate, endTime: endDate, chartUnitOffset: .constant(0), numSegments: 6)
+        let basalDoses: [Basal] = [
+            Basal(
+                start: startDate,
+                end: startDate.addingTimeInterval(5*3600),
+                rate: 1.1,
+                temporary: true,
+                automatic: true,
+                id: UUID().uuidString),
+            Basal(
+                start: startDate.addingTimeInterval(5*3600),
+                end: startDate.addingTimeInterval(10*3600),
+                rate: 2.1,
+                temporary: true,
+                automatic: true,
+                id: UUID().uuidString),
+            Basal(
+                start: startDate.addingTimeInterval(10*3600),
+                end: startDate.addingTimeInterval(12*3600),
+                rate: 1.1,
+                temporary: true,
+                automatic: true,
+                id: UUID().uuidString),
+            Basal(
+                start: startDate.addingTimeInterval(12*3600),
+                end: startDate.addingTimeInterval(14*3600),
+                rate: 2.1,
+                temporary: true,
+                automatic: true,
+                id: UUID().uuidString),
+            Basal(
+                start: startDate.addingTimeInterval(14*3600),
+                end: startDate.addingTimeInterval(16*3600),
+                rate: 1.1,
+                temporary: true,
+                automatic: true,
+                id: UUID().uuidString),
+        ]
+
+        return InsulinDeliveryChart(bolusDoses: boluses, basalDoses: basalDoses, basalSchedule: basalSchedule, startTime: startDate, endTime: endDate, chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
     }
 }
