@@ -32,6 +32,7 @@
 		C1AD0DC228D4FE40002246E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AD0DC128D4FE40002246E7 /* Assets.xcassets */; };
 		C1AD0DC628D4FE40002246E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */; };
 		C1AD3D132A352C380090972E /* NightscoutTreatment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AD3D122A352C380090972E /* NightscoutTreatment.swift */; };
+		C1AD3D152A3539B90090972E /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AD3D142A3539B90090972E /* Data.swift */; };
 		C1BD5A2529DB9BEC001865A5 /* LoopKit in Frameworks */ = {isa = PBXBuildFile; productRef = C1BD5A2429DB9BEC001865A5 /* LoopKit */; };
 		C1BD5A2729DBAEA7001865A5 /* IssueReportDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */; };
 		C1BD5A2A29DBB337001865A5 /* IssueReportSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */; };
@@ -86,6 +87,7 @@
 		C1AD0DC328D4FE40002246E7 /* Learn.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Learn.entitlements; sourceTree = "<group>"; };
 		C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C1AD3D122A352C380090972E /* NightscoutTreatment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutTreatment.swift; sourceTree = "<group>"; };
+		C1AD3D142A3539B90090972E /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		C1B8E6E32A1B9F9F00AF38D0 /* LoopKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopKit; path = ../LoopKit; sourceTree = "<group>"; };
 		C1BD5A2229DB9A2E001865A5 /* NightscoutKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NightscoutKit; path = ../NightscoutKit; sourceTree = "<group>"; };
 		C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportDataSource.swift; sourceTree = "<group>"; };
@@ -136,6 +138,7 @@
 				C18AF8E129ACF2FA00C40B82 /* TimeInterval.swift */,
 				C156EB5F2A2BDF1900AC9DED /* OSLog.swift */,
 				C185A0F82A34CEEB00F9F86D /* Color.swift */,
+				C1AD3D142A3539B90090972E /* Data.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -428,6 +431,7 @@
 				C1E4BED229A41E7C00B54132 /* InsulinDeliveryChart.swift in Sources */,
 				C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */,
 				C1E4BEE529A425A100B54132 /* NightscoutDataSource.swift in Sources */,
+				C1AD3D152A3539B90090972E /* Data.swift in Sources */,
 				C178C5DB29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift in Sources */,
 				C1DDFAB229A67BEB0019E4CB /* BasicChartsView.swift in Sources */,
 				C1AD0DBE28D4FE40002246E7 /* LearnApp.swift in Sources */,

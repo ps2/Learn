@@ -21,7 +21,10 @@ actor NightscoutDataManager {
     var glucoseStore: GlucoseStore
     var doseStore: DoseStore
     var carbStore: CarbStore
+    var settingsStore: SettingsStore
+
     var nightscoutClient: NightscoutClient
+
 
     private var cacheEndDate: Date?
 
@@ -76,6 +79,8 @@ actor NightscoutDataManager {
             cacheLength: cacheLength,
             defaultAbsorptionTimes: defaultCarbAbsorptionTimes,
             provenanceIdentifier: provenance)
+
+        settingsStore = SettingsStore(store: cacheStore, expireAfter: cacheLength)
     }
 
     // MARK: Local cache retrieval
@@ -143,17 +148,27 @@ actor NightscoutDataManager {
         }
     }
 
-    func fetchHistoricSettings(start: Date, end: Date, completion: @escaping (Result<[StoredSettings], Error>) -> Void) {
+    func syncSettings(start: Date, end: Date) async throws {
         let interval = DateInterval(start: start, end: end)
 
-        nightscoutClient.fetchProfiles(dateInterval: interval) { result in
-            switch result {
-            case .failure(let error):
-                print("Failed to fetch settings: \(error)")
-                completion(.failure(error))
-            case .success(let entries):
-                let samples = entries.compactMap { $0.storedSettings }
-                completion(.success(samples))
+        let settings: [StoredSettings] = try await withCheckedThrowingContinuation({ continuation in
+            nightscoutClient.fetchProfiles(dateInterval: interval) { result in
+                switch result {
+                case .failure(let error):
+                    print("Failed to fetch settings: \(error)")
+                    continuation.resume(throwing: error)
+                case .success(let entries):
+                    let samples = entries.compactMap { $0.storedSettings }
+                    continuation.resume(returning: samples)
+                }
+            }
+        })
+
+        settingsStore.addStoredSettings(settings: settings) { error in
+            if let error {
+                self.log.error("Unable to save settings: %{public}@", error.localizedDescription)
+            } else {
+                print("Added \(settings.count) settings")
             }
         }
     }
@@ -171,7 +186,7 @@ actor NightscoutDataManager {
                 let queryStart = max(cacheEndDate ?? .distantPast, now.addingTimeInterval(-cacheLength))
                 let queryEnd = min(queryStart.addingTimeInterval(maxFetchInterval), now)
 
-                try await fetchAndStoreData(startDate: queryStart, endDate: queryEnd)
+                try await syncData(startDate: queryStart, endDate: queryEnd)
                 if queryEnd == now {
                     fetchedCurrentData = true
                 }
@@ -183,7 +198,8 @@ actor NightscoutDataManager {
         }
     }
 
-    func fetchAndStoreData(startDate: Date, endDate: Date) async throws {
+    func syncData(startDate: Date, endDate: Date) async throws {
+        try await syncSettings(start: startDate, end: endDate)
         try await syncGlucose(start: startDate, end: endDate)
         try await syncTreatments(start: startDate, end: endDate)
     }

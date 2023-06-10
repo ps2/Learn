@@ -16,11 +16,31 @@ extension ProfileSet {
 
         guard let profile = store["Default"],
               let glucoseSafetyLimit = settings.minimumBGGuard,
-              let settingsGlucoseUnit = HKUnit.glucoseUnitFromNightscoutUnitString(units),
-              let syncIdendifierUUID  = UUID(uuidString: syncIdentifier)
+              let settingsGlucoseUnit = HKUnit.glucoseUnitFromNightscoutUnitString(units)
         else {
             return nil
         }
+
+        let uuid: UUID
+        if let syncIdendifierUUID = UUID(uuidString: syncIdentifier) {
+            uuid = syncIdendifierUUID
+        } else if Data(hexadecimalString: syncIdentifier) != nil {
+            var nsId = syncIdentifier
+            if nsId.count < 32 {
+                nsId.append(String(repeating: "0", count: 32-nsId.count))
+            }
+            for offset in [8, 13, 18, 23] {
+                nsId.insert("-", at: nsId.index(nsId.startIndex, offsetBy: offset))
+            }
+            if let convertedUUID = UUID(uuidString: nsId) {
+                uuid = convertedUUID
+            } else {
+                return nil
+            }
+        } else {
+            return nil
+        }
+
 
         // If units are specified on the schedule, prefer those over the units specified on the ProfileSet
         let scheduleGlucoseUnit: HKUnit
@@ -74,6 +94,6 @@ extension ProfileSet {
             insulinSensitivitySchedule: sensitivitySchedule,
             carbRatioSchedule: carbSchedule,
             automaticDosingStrategy: AutomaticDosingStrategy(nightscoutName: settings.dosingStrategy),
-            syncIdentifier: syncIdendifierUUID)
+            syncIdentifier: uuid)
     }
 }
