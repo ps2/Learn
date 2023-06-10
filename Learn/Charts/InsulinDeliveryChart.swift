@@ -311,13 +311,13 @@ struct InsulinDeliveryChart_Previews: PreviewProvider {
                 id: UUID().uuidString),
             Basal(
                 start: startDate.addingTimeInterval(5*3600),
-                end: startDate.addingTimeInterval(10*3600),
-                rate: 2.1,
+                end: startDate.addingTimeInterval(9*3600),
+                rate: 1.4,
                 temporary: true,
                 automatic: true,
                 id: UUID().uuidString),
             Basal(
-                start: startDate.addingTimeInterval(10*3600),
+                start: startDate.addingTimeInterval(9*3600),
                 end: startDate.addingTimeInterval(12*3600),
                 rate: 1.1,
                 temporary: true,
