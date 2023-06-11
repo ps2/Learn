@@ -9,26 +9,14 @@
 import SwiftUI
 
 struct NightscoutMainView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     var dataSource: NightscoutDataSource
-
-    var chartTimeInterval: TimeInterval {
-        if horizontalSizeClass == .compact {
-            return TimeInterval(hours: 6)
-        } else {
-            return TimeInterval(hours: 12)
-        }
-    }
 
     init(dataSource: NightscoutDataSource) {
         self.dataSource = dataSource
     }
 
     var body: some View {
-        BasicChartsView(
-            viewModel: BasicChartsViewModel(displayedTimeInterval: chartTimeInterval),
-            dataSource: dataSource)
+        BasicChartsView(dataSource: dataSource)
     }
 }
 

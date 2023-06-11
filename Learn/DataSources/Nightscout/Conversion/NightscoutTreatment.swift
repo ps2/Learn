@@ -13,7 +13,7 @@ import LoopKit
 extension NightscoutTreatment {
     var carbs: CarbEntry? {
         switch self {
-        case let carbs as CarbCorrectionNightscoutTreatment:
+        case _ as CarbCorrectionNightscoutTreatment:
             print("Carbs!")
             return nil
         default:
@@ -43,7 +43,7 @@ extension NightscoutTreatment {
                 deliveredUnits: bolus.amount,
                 syncIdentifier: bolus.syncIdentifier
             )
-        case let carbs as CarbCorrectionNightscoutTreatment:
+        case _ as CarbCorrectionNightscoutTreatment:
             return nil // ignore
         default:
             print("Converting \(self)")

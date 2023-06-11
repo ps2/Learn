@@ -9,22 +9,10 @@
 import SwiftUI
 
 struct MockMainView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     var dataSource: MockDataSource
 
-    var chartTimeInterval: TimeInterval {
-        if horizontalSizeClass == .compact {
-            return TimeInterval(hours: 6)
-        } else {
-            return TimeInterval(hours: 12)
-        }
-    }
-
     var body: some View {
-        BasicChartsView(
-            viewModel: BasicChartsViewModel(displayedTimeInterval: chartTimeInterval),
-            dataSource: dataSource)
+        BasicChartsView(dataSource: dataSource)
     }
 }
 

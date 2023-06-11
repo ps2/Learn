@@ -9,24 +9,12 @@
 import SwiftUI
 
 struct IssueReportMainView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     var dataSource: IssueReportDataSource
-
-    var chartTimeInterval: TimeInterval {
-        if horizontalSizeClass == .compact {
-            return TimeInterval(hours: 6)
-        } else {
-            return TimeInterval(hours: 12)
-        }
-    }
 
     var body: some View {
         VStack {
             Text("Issue Report")
-            BasicChartsView(
-                viewModel: BasicChartsViewModel(displayedTimeInterval: chartTimeInterval),
-                dataSource: dataSource)
+            BasicChartsView(dataSource: dataSource)
         }
     }
 }

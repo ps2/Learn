@@ -115,6 +115,10 @@ final class NightscoutDataSource: DataSource {
             settingsHistory.append(firstSettings)
         }
 
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
         // Order from oldest to newest
         settingsHistory.reverse()
 
