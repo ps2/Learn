@@ -67,7 +67,7 @@ class MockDataSource: DataSource {
 
         return stride(from: start, through: end, by: spaceBetweenChanges).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
-            return ScheduledBasal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value, automatic: false)
+            return ScheduledBasal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value)
         }
     }
 

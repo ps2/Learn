@@ -18,7 +18,6 @@ class BasicChartsViewModel: ObservableObject {
     @Published var loadingState: LoadingState = .ready
 
     var baseTime: Date {
-        print("dataSource.endOfData = \(String(describing: dataSource.endOfData))")
         return (dataSource.endOfData ?? Date()).roundDownToHour()!
     }
 

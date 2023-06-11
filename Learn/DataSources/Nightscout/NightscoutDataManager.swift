@@ -176,7 +176,7 @@ actor NightscoutDataManager {
     func syncRemoteData() async {
         let maxFetchInterval: TimeInterval = .days(7)
 
-        cacheEndDate = nil
+        //cacheEndDate = nil
 
         var fetchedCurrentData = false
 

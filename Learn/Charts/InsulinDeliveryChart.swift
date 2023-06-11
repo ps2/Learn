@@ -54,16 +54,14 @@ struct ScheduledBasal: Identifiable, DateSelectableValue {
     var start: Date
     var end: Date
     var rate: Double // Units/hr
-    var automatic: Bool
     var dateForSelection: Date
 
     var selectionValue: Double { return rate }
 
-    init(start: Date, end: Date, rate: Double, automatic: Bool) {
+    init(start: Date, end: Date, rate: Double) {
         self.start = start
         self.end = end
         self.rate = rate
-        self.automatic = automatic
 
         let duration = end.timeIntervalSince(start)
         self.dateForSelection = start.addingTimeInterval(duration / 2.0)

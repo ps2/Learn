@@ -107,7 +107,49 @@ final class NightscoutDataSource: DataSource {
     }
 
     func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
-        return []
+        // Get any changes during the period
+        var settingsHistory = try await manager.settingsStore.getStoredSettings(start: start, end: end)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await manager.settingsStore.getStoredSettings(end: start, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat basal rate schedules in settings
+        var lastSchedule: BasalRateSchedule? = nil
+        let schedules: [(date: Date, schedule: BasalRateSchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.basalRateSchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        let idx = schedules.startIndex
+        var date = start
+        var items = [ScheduledBasal]()
+        while date < end {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = end
+            }
+
+            let schedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.between(start: date, end: scheduleActiveEnd)
+
+            items.append(contentsOf: absoluteScheduleValues.map { ScheduledBasal(start: $0.startDate, end: $0.endDate, rate: $0.value) } )
+            date = scheduleActiveEnd
+        }
+
+
+        return items
     }
 
     func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
