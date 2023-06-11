@@ -45,7 +45,6 @@ class DataSourceManager: ObservableObject {
     func loadDataSources() {
         let enumerator = FileManager.default.enumerator(at: storageURL, includingPropertiesForKeys: nil, options: .skipsSubdirectoryDescendants)
         while let file = enumerator?.nextObject() as? NSURL {
-            print("Looking at \(file)")
             do {
                 let data = try Data(contentsOf: file as URL)
                 os_log(.info, "Reading data source state from %{public}@", file)
@@ -57,7 +56,6 @@ class DataSourceManager: ObservableObject {
                    let dataSourceType = dataSourceTypeByIdentifier(identifier: dataSourceTypeIdentifier)
                 {
                     if let dataSource = dataSourceType.init(rawState: dataSourceState) {
-                        print("Instantiated \(dataSourceType)")
                         registerSource(dataSource: dataSource)
                     }
                 } else {

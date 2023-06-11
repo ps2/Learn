@@ -152,7 +152,6 @@ struct ScrollableChart<Content: View, YAxis: View>: View {
         }
         .preference(key: ScrollableChartDragStatePreferenceKey.self, value: dragState)
         .onReceive(dragStatePublisher) { dragState in
-            //print("Receive dragState: \(dragState)")
             switch dragState {
             case .dragging(let offset):
                 self.translationOffset = offset

@@ -10,26 +10,27 @@ import Foundation
 import SwiftUI
 import LoopKit
 import LoopIssueReportParser
+import os.log
 
 enum IssueReportError: Error {
     case permissionDenied
     case couldNotGetDocumentsDirectory
 }
 
-final class IssueReportDataSource: DataSource {
+final class IssueReportDataSource: DataSource, ObservableObject {
     static var localizedTitle = "Issue Report"
 
     static var dataSourceTypeIdentifier = "issuereportdatasource"
 
+    private let log = OSLog(subsystem: "org.loopkit.Learn", category: "IssueReportDataSource")
+
     var dataSourceInstanceIdentifier: String
     var stateStorage: StateStorage?
 
-    @Published var loadingState: LoadingState = .isLoading
+    @Published private var issueReport: IssueReport?
 
-    @MainActor
     var cachedGlucoseSamples: [LoopKit.StoredGlucoseSample]
 
-    @MainActor
     var url: URL
 
     var name: String
@@ -52,7 +53,6 @@ final class IssueReportDataSource: DataSource {
         }
     }
 
-    @MainActor
     func importIssueReportFile() async throws {
 
         guard let localFileURL else {
@@ -74,8 +74,6 @@ final class IssueReportDataSource: DataSource {
         Task {
             let data = try Data(contentsOf: source)
 
-            print("Copying \(source) to \(dest)")
-
             try data.write(to: dest)
         }
     }
@@ -88,9 +86,7 @@ final class IssueReportDataSource: DataSource {
         }.value
     }
 
-    @MainActor
     func loadData() async throws {
-        print("Loading data at \(Date())")
 
         guard let localFileURL = self.localFileURL else {
             throw IssueReportError.couldNotGetDocumentsDirectory
@@ -103,12 +99,13 @@ final class IssueReportDataSource: DataSource {
             } else {
                 targetFile = url
             }
-            let issueReport = try await Self.loadIssueReport(from: targetFile)
-            print("Loaded data from \(targetFile)")
-            self.cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
-            self.loadingState = .ready
+            issueReport = try await Self.loadIssueReport(from: targetFile)
+            if let issueReport {
+                cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
+                print("cached samples count = \(cachedGlucoseSamples.count)")
+            }
         } catch {
-            self.loadingState = .failed(error)
+            log.error("Unable to load issue report: %{public}@", error.localizedDescription)
         }
     }
 
@@ -125,7 +122,6 @@ final class IssueReportDataSource: DataSource {
         self.init(url: url, name: name, instanceIdentifier: instanceIdentifier)
     }
 
-    @MainActor
     var rawState: RawStateValue {
         let raw = [
             "name": name,
@@ -168,12 +164,10 @@ final class IssueReportDataSource: DataSource {
         AnyView(IssueReportMainView(dataSource: self))
     }
 
-    @MainActor
     var endOfData: Date? {
-        return cachedGlucoseSamples.last?.startDate
+        return issueReport?.generatedAt
     }
 
-    @MainActor
     func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue] {
         let samples: [LoopKit.StoredGlucoseSample] = cachedGlucoseSamples.filter { $0.startDate >= start && $0.startDate <= end }
         return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }

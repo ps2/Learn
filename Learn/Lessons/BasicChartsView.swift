@@ -20,15 +20,19 @@ struct BasicChartsView: View {
     @State private var basalDoses: [Basal] = []
 
     // When in inspection mode, the date being inspected
-    @State var inspectionDate: Date?
+    @State private var inspectionDate: Date?
+
+    // This lets us have a more persistent baseTime
+    @State private var viewCreationDate = Date()
+
+    var baseTime: Date {
+        return (dataSource.endOfData ?? viewCreationDate).roundDownToHour()
+    }
 
     private var dataSource: any DataSource
-    private let baseTime: Date
 
     init(dataSource: any DataSource) {
         self.dataSource = dataSource
-        print("DataSource.endOfData = \(String(describing: dataSource.endOfData))")
-        baseTime = (dataSource.endOfData ?? Date()).roundDownToHour()!
     }
 
     var displayedTimeInterval: TimeInterval {
@@ -108,12 +112,14 @@ struct BasicChartsView: View {
         .onChange(of: scrollCoordinator.chartUnitOffset) { newValue in
             refreshData()
         }
+        .onChange(of: baseTime) { newValue in
+            refreshData()
+        }
     }
 
     func refreshData() {
         Task {
             do {
-                print("**** Loading data for offset \(scrollCoordinator.chartUnitOffset)")
                 glucoseDataValues = try await dataSource.getGlucoseValues(start: start, end: end)
                 targetRanges = try await dataSource.getTargetRanges(start: start, end: end)
                 boluses = try await dataSource.getBoluses(start: start, end: end)

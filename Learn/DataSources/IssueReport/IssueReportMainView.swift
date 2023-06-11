@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct IssueReportMainView: View {
-    var dataSource: IssueReportDataSource
+    @ObservedObject var dataSource: IssueReportDataSource
 
     var body: some View {
         VStack {
@@ -20,8 +20,10 @@ struct IssueReportMainView: View {
 }
 
 struct IssueReportMainView_Previews: PreviewProvider {
+    static var dataSource = IssueReportDataSource.mock
+
     static var previews: some View {
-        IssueReportMainView(dataSource: IssueReportDataSource.mock)
+        IssueReportMainView(dataSource: dataSource)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

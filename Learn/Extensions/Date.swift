@@ -10,10 +10,10 @@ import Foundation
 
 
 extension Date {
-    func roundDownToHour() -> Date? {
+    func roundDownToHour() -> Date {
         var components = NSCalendar.current.dateComponents([.minute], from: self)
         let minute = components.minute ?? 0
         components.minute = -minute
-        return Calendar.current.date(byAdding: components, to: self)
+        return Calendar.current.date(byAdding: components, to: self)!
     }
 }

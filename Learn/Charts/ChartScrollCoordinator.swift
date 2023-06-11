@@ -26,7 +26,6 @@ class ChartScrollCoordinator: ObservableObject {
     func dragStateChanged(_ state: ScrollableChartDragState) {
         switch state {
         case .dragging:
-            //print("Dragging state: \(state)")
             chartDragStateSubject.send(state)
         case .settling(let parameters):
             chartDragStateSubject.send(state)

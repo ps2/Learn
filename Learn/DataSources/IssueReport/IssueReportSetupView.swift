@@ -85,7 +85,6 @@ struct IssueReportSetupView: View {
                     print(error.localizedDescription)
                     importURL = nil
                 }
-                print("here")
             }
     }
 }
