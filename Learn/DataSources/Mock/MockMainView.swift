@@ -22,15 +22,15 @@ struct MockMainView: View {
     }
 
     var body: some View {
-        BasicChartsView(viewModel: BasicChartsViewModel(
-            dataSource: dataSource,
-            displayedTimeInterval: chartTimeInterval
-        ), dataSource: dataSource)
+        BasicChartsView(
+            viewModel: BasicChartsViewModel(displayedTimeInterval: chartTimeInterval),
+            dataSource: dataSource)
     }
 }
 
 struct MockMainView_Previews: PreviewProvider {
     static var previews: some View {
         MockMainView(dataSource: MockDataSource())
+            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

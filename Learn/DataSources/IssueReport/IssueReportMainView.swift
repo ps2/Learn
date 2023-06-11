@@ -24,10 +24,9 @@ struct IssueReportMainView: View {
     var body: some View {
         VStack {
             Text("Issue Report")
-            BasicChartsView(viewModel: BasicChartsViewModel(
-                dataSource: dataSource,
-                displayedTimeInterval: chartTimeInterval
-            ), dataSource: dataSource)
+            BasicChartsView(
+                viewModel: BasicChartsViewModel(displayedTimeInterval: chartTimeInterval),
+                dataSource: dataSource)
         }
     }
 }
@@ -35,5 +34,6 @@ struct IssueReportMainView: View {
 struct IssueReportMainView_Previews: PreviewProvider {
     static var previews: some View {
         IssueReportMainView(dataSource: IssueReportDataSource.mock)
+            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

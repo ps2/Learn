@@ -26,10 +26,9 @@ struct NightscoutMainView: View {
     }
 
     var body: some View {
-        BasicChartsView(viewModel: BasicChartsViewModel(
-            dataSource: dataSource,
-            displayedTimeInterval: chartTimeInterval
-        ), dataSource: dataSource)
+        BasicChartsView(
+            viewModel: BasicChartsViewModel(displayedTimeInterval: chartTimeInterval),
+            dataSource: dataSource)
     }
 }
 

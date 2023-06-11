@@ -11,6 +11,13 @@ import SwiftUI
 struct BasicChartsView: View {
     @ObservedObject private var viewModel: BasicChartsViewModel
 
+    @State var glucoseDataValues: [GlucoseValue] = []
+    @State var targetRanges: [TargetRange] = []
+    @State var boluses: [Bolus] = []
+    @State var basalSchedule: [ScheduledBasal] = []
+    @State var basalDoses: [Basal] = []
+
+
     private var dataSource: any DataSource
 
     init(viewModel: BasicChartsViewModel, dataSource: any DataSource) {
@@ -46,13 +53,13 @@ struct BasicChartsView: View {
                         upperRightLabel: viewModel.dateStr,
                         chartUnitOffset: $viewModel.chartUnitOffset,
                         numSegments: viewModel.numSegments,
-                        historicalGlucose: viewModel.glucoseDataValues,
-                        targetRanges: viewModel.targetRanges
+                        historicalGlucose: glucoseDataValues,
+                        targetRanges: targetRanges
                     )
                     InsulinDeliveryChart(
-                        bolusDoses: viewModel.boluses,
-                        basalDoses: viewModel.basalDoses,
-                        basalSchedule: viewModel.basalSchedule,
+                        bolusDoses: boluses,
+                        basalDoses: basalDoses,
+                        basalSchedule: basalSchedule,
                         startTime: viewModel.start,
                         endTime: viewModel.end,
                         chartUnitOffset: $viewModel.chartUnitOffset,
@@ -71,8 +78,24 @@ struct BasicChartsView: View {
         .environment(\.dragStatePublisher, viewModel.dragStatePublisher)
         .environment(\.chartInspectionDate, viewModel.inspectionDate)
         .onAppear {
-            Task {
-                await viewModel.loadData()
+            refreshData()
+        }
+        .onChange(of: viewModel.chartUnitOffset) { newValue in
+            refreshData()
+        }
+    }
+
+    func refreshData() {
+        Task {
+            do {
+                print("**** Loading data for offset \(viewModel.chartUnitOffset)")
+                glucoseDataValues = try await dataSource.getGlucoseValues(start: viewModel.start, end: viewModel.end)
+                targetRanges = try await dataSource.getTargetRanges(start: viewModel.start, end: viewModel.end)
+                boluses = try await dataSource.getBoluses(start: viewModel.start, end: viewModel.end)
+                basalSchedule = try await dataSource.getBasalSchedule(start: viewModel.start, end: viewModel.end)
+                basalDoses = try await dataSource.getBasalDoses(start: viewModel.start, end: viewModel.end)
+            } catch {
+                print("Error refreshing data: \(error)")
             }
         }
     }
@@ -82,7 +105,7 @@ struct MainChartsView_Previews: PreviewProvider {
     static var dataSource = MockDataSource()
 
     static var previews: some View {
-        BasicChartsView(viewModel: BasicChartsViewModel(dataSource: dataSource, displayedTimeInterval: TimeInterval(hours: 6)), dataSource: dataSource)
+        BasicChartsView(viewModel: BasicChartsViewModel(displayedTimeInterval: TimeInterval(hours: 6)), dataSource: dataSource)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

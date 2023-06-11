@@ -59,12 +59,6 @@ class BasicChartsViewModel: ObservableObject {
         }
     }
 
-    @Published var glucoseDataValues: [GlucoseValue] = []
-    @Published var targetRanges: [TargetRange] = []
-    @Published var boluses: [Bolus] = []
-    @Published var basalSchedule: [ScheduledBasal] = []
-    @Published var basalDoses: [Basal] = []
-
     // When in inspection mode, the date being inspected
     @Published var inspectionDate: Date?
 
@@ -74,15 +68,12 @@ class BasicChartsViewModel: ObservableObject {
         return chartDragStateSubject.eraseToAnyPublisher()
     }
 
-    private var dataSource: any DataSource
-
     private var cancellables: Set<AnyCancellable> = []
 
-    init(dataSource: any DataSource, displayedTimeInterval: TimeInterval) {
-        self.dataSource = dataSource
+    init(initialFocusDate: Date? = nil, displayedTimeInterval: TimeInterval) {
         self.displayedTimeInterval = displayedTimeInterval
 
-        baseTime = (dataSource.endOfData ?? Date()).roundDownToHour()!
+        baseTime = (initialFocusDate ?? Date()).roundDownToHour()!
     }
 
     func dragStateChanged(_ state: ScrollableChartDragState) {
@@ -103,17 +94,6 @@ class BasicChartsViewModel: ObservableObject {
     func loadData() async {
 
         // Glucose
-        do {
-            print("**** Loading data for offset \(chartUnitOffset)")
-            self.glucoseDataValues = try await dataSource.getGlucoseValues(start: start, end: end)
-            self.targetRanges = try await dataSource.getTargetRanges(start: start, end: end)
-            self.boluses = try await dataSource.getBoluses(start: start, end: end)
-            self.basalSchedule = try await dataSource.getBasalSchedule(start: start, end: end)
-            self.basalDoses = try await dataSource.getBasalDoses(start: start, end: end)
-        } catch {
-            print("Error refreshing data: \(error)")
-        }
-
     }
 }
 
