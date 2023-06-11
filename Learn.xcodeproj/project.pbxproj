@@ -16,7 +16,7 @@
 		C135B7D429A50BD00012C1F6 /* MockDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D329A50BD00012C1F6 /* MockDataSource.swift */; };
 		C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */; };
 		C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */; };
-		C140C3B72A1593200038BAFD /* NightscoutDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140C3B62A1593200038BAFD /* NightscoutDataManager.swift */; };
+		C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */; };
 		C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9529A93D9A008FB16F /* InspectGestureView.swift */; };
 		C142CF9C29AB2756008FB16F /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9B29AB2756008FB16F /* Date.swift */; };
 		C14F53A229DBE8CF002A0DED /* LoopIssueReportParser in Frameworks */ = {isa = PBXBuildFile; productRef = C14F53A129DBE8CF002A0DED /* LoopIssueReportParser */; };
@@ -68,7 +68,7 @@
 		C135B7D329A50BD00012C1F6 /* MockDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataSource.swift; sourceTree = "<group>"; };
 		C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceManager.swift; sourceTree = "<group>"; };
 		C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDosingStrategy.swift; sourceTree = "<group>"; };
-		C140C3B62A1593200038BAFD /* NightscoutDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataManager.swift; sourceTree = "<group>"; };
+		C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataCache.swift; sourceTree = "<group>"; };
 		C142CF9529A93D9A008FB16F /* InspectGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectGestureView.swift; sourceTree = "<group>"; };
 		C142CF9B29AB2756008FB16F /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		C14F53A329DBE9AD002A0DED /* LoopIssueReportParser */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopIssueReportParser; path = ../LoopIssueReportParser; sourceTree = "<group>"; };
@@ -296,7 +296,7 @@
 			children = (
 				C1AD3D112A352BE40090972E /* Conversion */,
 				C140C3B42A1592D80038BAFD /* Views */,
-				C140C3B62A1593200038BAFD /* NightscoutDataManager.swift */,
+				C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */,
 				C1E4BEE429A425A100B54132 /* NightscoutDataSource.swift */,
 				C1EA322B29A6CB0700949EA3 /* KeyboardObserver.swift */,
 				C1EA323129A7AC7800949EA3 /* NightscoutConfigurationChecker.swift */,
@@ -446,7 +446,7 @@
 				C1E4BECC29A41D6B00B54132 /* ScrollableChart.swift in Sources */,
 				C135B7D229A50B710012C1F6 /* DataSourceListItemView.swift in Sources */,
 				C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */,
-				C140C3B72A1593200038BAFD /* NightscoutDataManager.swift in Sources */,
+				C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */,
 				C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */,
 				C1EA323029A72DE900949EA3 /* GlucoseEntry.swift in Sources */,
 				C1EF206528D5033B007A8097 /* GlucoseChart.swift in Sources */,

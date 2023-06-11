@@ -27,7 +27,7 @@ final class NightscoutDataSource: DataSource {
     var cacheEndDate: Date?
     var stateStorage: StateStorage?
 
-    private var manager: NightscoutDataManager
+    private var cache: NightscoutDataCache
 
     init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil, cacheEndDate: Date = .distantPast) {
         self.name = name
@@ -36,12 +36,12 @@ final class NightscoutDataSource: DataSource {
         self.dataSourceInstanceIdentifier = instanceIdentifier ?? UUID().uuidString
         self.cacheEndDate = cacheEndDate
         nightscoutClient = NightscoutClient(siteURL: url, apiSecret: apiSecret)
-        manager = NightscoutDataManager(instanceIdentifier: self.dataSourceInstanceIdentifier, nightscoutClient: nightscoutClient, cacheEndDate: cacheEndDate)
+        cache = NightscoutDataCache(instanceIdentifier: self.dataSourceInstanceIdentifier, nightscoutClient: nightscoutClient, cacheEndDate: cacheEndDate)
 
         Task { @MainActor in
-            await manager.setDelegate(self)
+            await cache.setDelegate(self)
             self.loadingState = .isLoading
-            await manager.syncRemoteData()
+            await cache.syncRemoteData()
             self.loadingState = .ready
         }
     }
@@ -95,11 +95,59 @@ final class NightscoutDataSource: DataSource {
     }
 
     func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue] {
-        return try await manager.getGlucoseSamples(start: start, end: end).map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
+        return try await cache.getGlucoseSamples(start: start, end: end).map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
     }
 
     func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
-        return []
+        // Get any changes during the period
+        var settingsHistory = try await cache.settingsStore.getStoredSettings(start: start, end: end)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await cache.settingsStore.getStoredSettings(end: start, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat target schedules in settings
+        var lastSchedule: GlucoseRangeSchedule? = nil
+        let schedules: [(date: Date, schedule: GlucoseRangeSchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.glucoseTargetRangeSchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        var idx = schedules.startIndex
+        var date = start
+        var items = [TargetRange]()
+        while date < end {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = end
+            }
+
+            let schedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
+
+            items.append(contentsOf: absoluteScheduleValues.map { entry in
+                let quantityRange = entry.value.quantityRange(for: schedule.unit)
+                return TargetRange(min: quantityRange.lowerBound, max: quantityRange.upperBound, startTime: entry.startDate, endTime: entry.endDate)
+            })
+            date = scheduleActiveEnd
+            idx += 1
+        }
+        return items
     }
 
     func getBasalDoses(start: Date, end: Date) async throws -> [Basal] {
@@ -108,10 +156,10 @@ final class NightscoutDataSource: DataSource {
 
     func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
         // Get any changes during the period
-        var settingsHistory = try await manager.settingsStore.getStoredSettings(start: start, end: end)
+        var settingsHistory = try await cache.settingsStore.getStoredSettings(start: start, end: end)
 
         // Also need to get the one in effect before the start of the period
-        if let firstSettings = try await manager.settingsStore.getStoredSettings(end: start, limit: 1).first {
+        if let firstSettings = try await cache.settingsStore.getStoredSettings(end: start, limit: 1).first {
             settingsHistory.append(firstSettings)
         }
 
@@ -158,14 +206,14 @@ final class NightscoutDataSource: DataSource {
     }
 
     func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
-        return try await manager.doseStore.getBoluses(start: start, end: end).map { dose in
+        return try await cache.doseStore.getBoluses(start: start, end: end).map { dose in
             Bolus(date: dose.startDate, amount: dose.deliveredUnits ?? dose.programmedUnits, automatic: dose.automatic ?? false, id: dose.syncIdentifier ?? UUID().uuidString)
         }
     }
 }
 
 
-extension NightscoutDataSource: NightscoutDataManagerDelegate {
+extension NightscoutDataSource: NightscoutDataCacheDelegate {
     func didUpdateCache(cacheEndDate: Date) {
         DispatchQueue.main.async {
             self.cacheEndDate = cacheEndDate

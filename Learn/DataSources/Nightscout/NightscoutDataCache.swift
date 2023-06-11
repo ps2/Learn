@@ -12,11 +12,11 @@ import HealthKit
 import NightscoutKit
 import os.log
 
-protocol NightscoutDataManagerDelegate: AnyObject {
+protocol NightscoutDataCacheDelegate: AnyObject {
     func didUpdateCache(cacheEndDate: Date)
 }
 
-actor NightscoutDataManager {
+actor NightscoutDataCache {
 
     var glucoseStore: GlucoseStore
     var doseStore: DoseStore
@@ -28,13 +28,13 @@ actor NightscoutDataManager {
 
     private var cacheEndDate: Date?
 
-    func setDelegate(_ delegate: NightscoutDataManagerDelegate) {
+    func setDelegate(_ delegate: NightscoutDataCacheDelegate) {
         self.delegate = delegate
     }
 
     let cacheLength: TimeInterval = .days(365)
 
-    weak var delegate: NightscoutDataManagerDelegate?
+    weak var delegate: NightscoutDataCacheDelegate?
 
     private let log = OSLog(subsystem: "org.loopkit.Learn", category: "NightscoutDataManager")
 
@@ -127,7 +127,7 @@ actor NightscoutDataManager {
 
     func syncTreatments(start: Date, end: Date) async throws {
         let interval = DateInterval(start: start, end: end)
-        print("Fetching \(interval) glucose samples")
+        print("Fetching \(interval) for treatments samples")
 
         let treatments: [NightscoutTreatment] = try await withCheckedThrowingContinuation { continuation in
             nightscoutClient.fetchTreatments(dateInterval: interval) { result in
@@ -135,6 +135,7 @@ actor NightscoutDataManager {
                 case .failure(let error):
                     continuation.resume(throwing: error)
                 case .success(let entries):
+                    print("Fetched \(entries.count) treatments")
                     continuation.resume(returning: entries)
                 }
             }
