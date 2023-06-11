@@ -104,6 +104,7 @@ class BasicChartsViewModel: ObservableObject {
 
         // Glucose
         do {
+            print("**** Loading data for offset \(chartUnitOffset)")
             self.glucoseDataValues = try await dataSource.getGlucoseValues(start: start, end: end)
             self.targetRanges = try await dataSource.getTargetRanges(start: start, end: end)
             self.boluses = try await dataSource.getBoluses(start: start, end: end)

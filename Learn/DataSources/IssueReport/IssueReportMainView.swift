@@ -27,7 +27,7 @@ struct IssueReportMainView: View {
             BasicChartsView(viewModel: BasicChartsViewModel(
                 dataSource: dataSource,
                 displayedTimeInterval: chartTimeInterval
-            ))
+            ), dataSource: dataSource)
         }
     }
 }

@@ -35,7 +35,9 @@ class MockDataSource: DataSource {
     func getMockTargetRanges(start: Date, end: Date) -> [TargetRange] {
         let targetTimeInterval = TimeInterval(90 * 60)
 
-        return stride(from: start, through: end, by: targetTimeInterval).map { date in
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: targetTimeInterval)
+
+        return stride(from: intervalStart, through: end, by: targetTimeInterval).map { date in
             let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 2) / (3600*3) * Double.pi * 2) * 10
 
             let min = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value-5)
@@ -50,10 +52,12 @@ class MockDataSource: DataSource {
     }
 
     func getMockBasalDoses(start: Date, end: Date) -> [Basal] {
-        let spaceBetweenChanges = TimeInterval(0.3 * 3600)
+        let spaceBetweenChanges = TimeInterval(10 * 60)
 
-        return stride(from: start, through: end, by: spaceBetweenChanges).map { date in
-            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1.5
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
+
+        return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) + 1.1
             return Basal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value, temporary: false, automatic: false, id: UUID().uuidString)
         }
     }
@@ -63,10 +67,12 @@ class MockDataSource: DataSource {
     }
 
     func getMockBasalSchedule(start: Date, end: Date) -> [ScheduledBasal] {
-        let spaceBetweenChanges = TimeInterval(2 * 3600)
+        let spaceBetweenChanges = TimeInterval(3 * 3600)
 
-        return stride(from: start, through: end, by: spaceBetweenChanges).map { date in
-            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
+
+        return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 1.5) + 1
             return ScheduledBasal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value)
         }
     }
@@ -78,7 +84,9 @@ class MockDataSource: DataSource {
     func getMockBoluses(start: Date, end: Date) -> [Bolus] {
         let spaceBetweenBoluses = TimeInterval(2.2 * 3600)
 
-        return stride(from: start, through: end, by: spaceBetweenBoluses).map { date in
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses)
+
+        return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
             return Bolus(date: date, amount: value, automatic: false, id: UUID().uuidString)
         }

@@ -11,8 +11,11 @@ import SwiftUI
 struct BasicChartsView: View {
     @ObservedObject private var viewModel: BasicChartsViewModel
 
-    init(viewModel: BasicChartsViewModel) {
+    private var dataSource: any DataSource
+
+    init(viewModel: BasicChartsViewModel, dataSource: any DataSource) {
         self.viewModel = viewModel
+        self.dataSource = dataSource
     }
 
     var isLoading: Bool {
@@ -76,8 +79,10 @@ struct BasicChartsView: View {
 }
 
 struct MainChartsView_Previews: PreviewProvider {
+    static var dataSource = MockDataSource()
+
     static var previews: some View {
-        BasicChartsView(viewModel: BasicChartsViewModel(dataSource: MockDataSource(), displayedTimeInterval: TimeInterval(hours: 6)))
+        BasicChartsView(viewModel: BasicChartsViewModel(dataSource: dataSource, displayedTimeInterval: TimeInterval(hours: 6)), dataSource: dataSource)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }
