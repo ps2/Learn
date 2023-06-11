@@ -49,6 +49,7 @@ struct GlucoseChart: View {
     private var targetRanges: [TargetRange]
 
     init(startTime: Date, endTime: Date, upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange])  {
+
         self.startTime = startTime
         self.endTime = endTime
         self.upperRightLabel = upperRightLabel

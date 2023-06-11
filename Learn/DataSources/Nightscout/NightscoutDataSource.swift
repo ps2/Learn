@@ -129,7 +129,7 @@ final class NightscoutDataSource: DataSource {
             }
         }
 
-        let idx = schedules.startIndex
+        var idx = schedules.startIndex
         var date = start
         var items = [ScheduledBasal]()
         while date < end {
@@ -142,10 +142,11 @@ final class NightscoutDataSource: DataSource {
 
             let schedule = schedules[idx].schedule
 
-            let absoluteScheduleValues = schedule.between(start: date, end: scheduleActiveEnd)
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
 
             items.append(contentsOf: absoluteScheduleValues.map { ScheduledBasal(start: $0.startDate, end: $0.endDate, rate: $0.value) } )
             date = scheduleActiveEnd
+            idx += 1
         }
 
 
@@ -158,6 +159,7 @@ final class NightscoutDataSource: DataSource {
         }
     }
 }
+
 
 extension NightscoutDataSource: NightscoutDataManagerDelegate {
     func didUpdateCache(cacheEndDate: Date) {

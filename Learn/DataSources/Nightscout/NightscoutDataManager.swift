@@ -85,7 +85,9 @@ actor NightscoutDataManager {
 
     // MARK: Local cache retrieval
     func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample] {
-        return try await glucoseStore.getGlucoseSamples(start: start, end: end)
+        let samples = try await glucoseStore.getGlucoseSamples(start: start, end: end)
+        print("Loaded glucose samples: \(start) - \(end), \(samples.count) total")
+        return samples
     }
 
     func getHistoricSettings(start: Date, end: Date) async throws -> [StoredSettings] {

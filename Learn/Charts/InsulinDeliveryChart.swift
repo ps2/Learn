@@ -106,19 +106,7 @@ struct InsulinDeliveryChart: View {
         let type: BasalRatePointType
     }
 
-    var basalPoints: [BasalRatePoint] {
-        var points = [BasalRatePoint]()
-
-        for dose in basalDoses {
-            points.append(BasalRatePoint(date: dose.start, rate: dose.rate, type: .dose))
-            points.append(BasalRatePoint(date: dose.end, rate: dose.rate, type: .dose))
-        }
-        for item in basalSchedule {
-            points.append(BasalRatePoint(date: item.start, rate: item.rate, type: .schedule))
-            points.append(BasalRatePoint(date: item.end, rate: item.rate, type: .schedule))
-        }
-        return points
-    }
+    var basalPoints: [BasalRatePoint]
 
 
     init(bolusDoses: [Bolus], basalDoses: [Basal], basalSchedule: [ScheduledBasal], startTime: Date, endTime: Date, chartUnitOffset: Binding<Int>, numSegments: Int) {
@@ -129,6 +117,18 @@ struct InsulinDeliveryChart: View {
         self.endTime = endTime
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
+
+        var points = [BasalRatePoint]()
+
+        for dose in basalDoses {
+            points.append(BasalRatePoint(date: dose.start, rate: dose.rate, type: .dose))
+            points.append(BasalRatePoint(date: dose.end, rate: dose.rate, type: .dose))
+        }
+        for item in basalSchedule {
+            points.append(BasalRatePoint(date: item.start, rate: item.rate, type: .schedule))
+            points.append(BasalRatePoint(date: item.end, rate: item.rate, type: .schedule))
+        }
+        basalPoints = points
     }
 
     var yAxis: some View {

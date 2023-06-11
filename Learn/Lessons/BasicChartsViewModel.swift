@@ -17,18 +17,16 @@ class BasicChartsViewModel: ObservableObject {
 
     @Published var loadingState: LoadingState = .ready
 
-    var baseTime: Date {
-        return (dataSource.endOfData ?? Date()).roundDownToHour()!
-    }
+    let baseTime: Date
 
-    var displayedTimeInterval: TimeInterval
-    var segmentSize = TimeInterval(hours: 1) // Panning "snaps" to these segments
+    private var displayedTimeInterval: TimeInterval
+    private var segmentSize = TimeInterval(hours: 1) // Panning "snaps" to these segments
 
     var numSegments: Int {
         return Int((displayedTimeInterval / segmentSize).rounded())
     }
 
-    var scrolledToTime: Date {
+    private var scrolledToTime: Date {
         return baseTime.addingTimeInterval(segmentSize * Double(chartUnitOffset))
     }
 
@@ -38,10 +36,6 @@ class BasicChartsViewModel: ObservableObject {
 
     var end: Date {
         return scrolledToTime.addingTimeInterval(displayedTimeInterval * 1.5)
-    }
-
-    var timeRange: ClosedRange<Date> {
-        return start...end
     }
 
     private var dateIntervalFormatter = {
@@ -87,6 +81,8 @@ class BasicChartsViewModel: ObservableObject {
     init(dataSource: any DataSource, displayedTimeInterval: TimeInterval) {
         self.dataSource = dataSource
         self.displayedTimeInterval = displayedTimeInterval
+
+        baseTime = (dataSource.endOfData ?? Date()).roundDownToHour()!
     }
 
     func dragStateChanged(_ state: ScrollableChartDragState) {

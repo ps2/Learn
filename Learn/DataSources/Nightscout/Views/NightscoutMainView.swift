@@ -21,6 +21,10 @@ struct NightscoutMainView: View {
         }
     }
 
+    init(dataSource: NightscoutDataSource) {
+        self.dataSource = dataSource
+    }
+
     var body: some View {
         BasicChartsView(viewModel: BasicChartsViewModel(
             dataSource: dataSource,
@@ -32,5 +36,6 @@ struct NightscoutMainView: View {
 struct NightscoutMainView_Previews: PreviewProvider {
     static var previews: some View {
         NightscoutMainView(dataSource: NightscoutDataSource(name: "Nightscout Mock", url: URL(string: "https://test.com")!))
+            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }
