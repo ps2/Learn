@@ -30,6 +30,7 @@ enum LoadingState: Equatable {
 
 protocol StateStorage {
     func store(rawState: DataSource.RawStateValue)
+    func remove() throws
 }
 
 protocol DataSource: AnyObject, ObservableObject, Identifiable {

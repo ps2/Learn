@@ -37,7 +37,15 @@ struct DataSourcesSummaryView: View {
                             } label: {
                                 source.summaryView
                             }
+                            .contextMenu {
+                                Button(action: {
+                                    dataSourceManager.removeDataSource(dataSource: source)
+                                }){
+                                    Text("Delete")
+                                }
+                            }
                         }
+                        .onDelete(perform: delete)
                     }
                     Button(role: .none, action: {
                         showingAvailableDataSources = true
@@ -60,6 +68,13 @@ struct DataSourcesSummaryView: View {
                     })
                 }
             }
+        }
+    }
+
+    func delete(at offsets: IndexSet) {
+        let sources = offsets.map { dataSourceManager.dataSources[$0] }
+        for source in sources {
+            dataSourceManager.removeDataSource(dataSource: source)
         }
     }
 }

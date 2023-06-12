@@ -25,7 +25,7 @@ class DataSourceManager: ObservableObject {
         do {
             try FileManager.default.createDirectory(at: storageURL, withIntermediateDirectories: true)
         } catch {
-            os_log(.error, "Unable to create directory for storing datasources", error.localizedDescription)
+            log.error("Unable to create directory for storing datasources", error.localizedDescription)
         }
 
         loadDataSources()
@@ -59,10 +59,10 @@ class DataSourceManager: ObservableObject {
                         registerSource(dataSource: dataSource)
                     }
                 } else {
-                    os_log(.error, "Unable to determine data source type for: %{public}@", file)
+                    log.error("Unable to determine data source type for: %{public}@", file)
                 }
             } catch {
-                os_log(.error, "Error reading data source state: %{public}@", error.localizedDescription)
+                log.error("Error reading data source state: %{public}@", error.localizedDescription)
             }
         }
     }
@@ -79,5 +79,14 @@ class DataSourceManager: ObservableObject {
             storageURL: storageURL)
         dataSource.stateStorage = storage
         dataSources.append(dataSource)
+    }
+
+    func removeDataSource(dataSource: any DataSource) {
+        do {
+            try dataSource.stateStorage?.remove()
+            dataSources.removeAll { $0.dataSourceInstanceIdentifier == dataSource.dataSourceInstanceIdentifier }
+        } catch {
+            log.error("Unable to remove datasource: %{public}@", error.localizedDescription)
+        }
     }
 }

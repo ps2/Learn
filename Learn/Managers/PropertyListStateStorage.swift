@@ -16,8 +16,11 @@ struct PropertyListStateStorage: StateStorage {
     let instanceIdentifier: String
     let storageURL: URL
 
+    var path: URL {
+        storageURL.appendingPathComponent(instanceIdentifier + ".plist")
+    }
+
     func store(rawState: DataSource.RawStateValue) {
-        let path = storageURL.appendingPathComponent(instanceIdentifier + ".plist")
         do {
             let wrapped: [String : Any] = [
                 "dataSourceTypeIdentifier": typeIdentifier,
@@ -30,5 +33,9 @@ struct PropertyListStateStorage: StateStorage {
         } catch {
             log.error("Error saving state: %{public}@", error.localizedDescription)
         }
+    }
+
+    func remove() throws {
+        try FileManager.default.removeItem(at: path)
     }
 }
