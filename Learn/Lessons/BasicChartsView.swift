@@ -80,18 +80,18 @@ struct BasicChartsView: View {
                 GlucoseChart(
                     startTime: start,
                     endTime: end,
+                    historicalGlucose: glucoseDataValues,
+                    targetRanges: targetRanges,
                     upperRightLabel: dateStr,
                     chartUnitOffset: $scrollCoordinator.chartUnitOffset,
-                    numSegments: numSegments,
-                    historicalGlucose: glucoseDataValues,
-                    targetRanges: targetRanges
+                    numSegments: numSegments
                 )
                 InsulinDeliveryChart(
+                    startTime: start,
+                    endTime: end,
                     bolusDoses: boluses,
                     basalDoses: basalDoses,
                     basalSchedule: basalSchedule,
-                    startTime: start,
-                    endTime: end,
                     chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                     numSegments: numSegments
                 )

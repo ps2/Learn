@@ -109,12 +109,12 @@ struct InsulinDeliveryChart: View {
     var basalPoints: [BasalRatePoint]
 
 
-    init(bolusDoses: [Bolus], basalDoses: [BasalDose], basalSchedule: [ScheduledBasal], startTime: Date, endTime: Date, chartUnitOffset: Binding<Int>, numSegments: Int) {
+    init(startTime: Date, endTime: Date, bolusDoses: [Bolus], basalDoses: [BasalDose], basalSchedule: [ScheduledBasal], chartUnitOffset: Binding<Int>, numSegments: Int) {
+        self.startTime = startTime
+        self.endTime = endTime
         self.bolusDoses = bolusDoses
         self.basalDoses = basalDoses
         self.basalSchedule = basalSchedule
-        self.startTime = startTime
-        self.endTime = endTime
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
 
@@ -304,7 +304,7 @@ struct InsulinDeliveryChart_Previews: PreviewProvider {
         let basalSchedule = mockDataSource.getMockBasalSchedule(start: startDate, end: endDate)
         let basalDoses = mockDataSource.getMockBasalDoses(start: startDate, end: endDate)
 
-        return InsulinDeliveryChart(bolusDoses: boluses, basalDoses: basalDoses, basalSchedule: basalSchedule, startTime: startDate, endTime: endDate, chartUnitOffset: .constant(0), numSegments: 6)
+        return InsulinDeliveryChart(startTime: startDate, endTime: endDate, bolusDoses: boluses, basalDoses: basalDoses, basalSchedule: basalSchedule, chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
     }
 }

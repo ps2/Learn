@@ -48,7 +48,7 @@ struct GlucoseChart: View {
     private var historicalGlucose: [GlucoseValue]
     private var targetRanges: [TargetRange]
 
-    init(startTime: Date, endTime: Date, upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange])  {
+    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
 
         self.startTime = startTime
         self.endTime = endTime
@@ -211,7 +211,7 @@ struct GlucoseChart_Previews: PreviewProvider {
         let glucose = mockDataSource.getMockGlucoseValues(start: startDate, end: endDate)
         let targets = mockDataSource.getMockTargetRanges(start: startDate, end: endDate)
 
-        return GlucoseChart(startTime: startDate, endTime:endDate, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6, historicalGlucose: glucose, targetRanges: targets)
+        return GlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
             .environmentObject(QuantityFormatters(glucoseUnit: .millimolesPerLiter))
     }
