@@ -150,8 +150,54 @@ final class NightscoutDataSource: DataSource {
         return items
     }
 
-    func getBasalDoses(start: Date, end: Date) async throws -> [Basal] {
-        return []
+    func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose] {
+        let doseEntries = try await cache.doseStore.getBasalDoses(start: start, end: end)
+        // Loop does not store basal records in NS, so overlay basal segments
+        let schedule = try await getBasalSchedule(start: start, end: end)
+
+        var lastBasalEnd = start
+        var insertedScheduleEntries = [ScheduledBasal]()
+
+        for dose in doseEntries {
+            // Ignore gaps of < 3 seconds
+            if dose.startDate > lastBasalEnd && dose.startDate.timeIntervalSince(lastBasalEnd) > .seconds(3) {
+                let trimmedSchedule = schedule.trim(start: lastBasalEnd, end: dose.startDate)
+                insertedScheduleEntries.append(contentsOf: trimmedSchedule)
+            }
+            lastBasalEnd = dose.endDate
+        }
+
+        // Do not infer basal past current time
+        let scheduledBasalMax = min(end, Date())
+
+        if lastBasalEnd < scheduledBasalMax {
+            insertedScheduleEntries.append(contentsOf: schedule.trim(start: lastBasalEnd, end: scheduledBasalMax))
+        }
+
+        let insertedDoses = insertedScheduleEntries.map { item in
+            BasalDose(
+                start: item.start,
+                end: item.end,
+                rate: item.rate,
+                temporary: false,
+                automatic: false,
+                id: UUID().uuidString)
+        }
+
+        var basalDoses = doseEntries.map { dose in
+            return BasalDose(
+                start: dose.startDate,
+                end: dose.endDate,
+                rate: dose.unitsPerHour,
+                temporary: dose.type == .tempBasal,
+                automatic: dose.automatic ?? false,
+                id: dose.syncIdentifier ?? UUID().uuidString)
+        }
+
+        basalDoses.append(contentsOf: insertedDoses)
+        basalDoses.sort(by: { $0.start < $1.start })
+
+        return basalDoses
     }
 
     func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
@@ -212,6 +258,19 @@ final class NightscoutDataSource: DataSource {
     }
 }
 
+extension Collection where Element == ScheduledBasal {
+    func trim(start: Date, end: Date) -> [ScheduledBasal] {
+        var selected = [ScheduledBasal]()
+        for entry in self {
+            if entry.start < end && entry.end > start {
+                let clippedStart = Swift.max(entry.start, start)
+                let clippedEnd = Swift.min(entry.end, end)
+                selected.append(ScheduledBasal(start: clippedStart, end: clippedEnd, rate: entry.rate))
+            }
+        }
+        return selected
+    }
+}
 
 extension NightscoutDataSource: NightscoutDataCacheDelegate {
     func didUpdateCache(cacheEndDate: Date) {

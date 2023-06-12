@@ -26,7 +26,7 @@ struct Bolus: Identifiable, DateSelectableValue {
     var selectionValue: Double { return amount }
 }
 
-struct Basal: Identifiable, DateSelectableValue {
+struct BasalDose: Identifiable, DateSelectableValue {
     var start: Date
     var end: Date
     var rate: Double // Units/hr
@@ -78,7 +78,7 @@ struct InsulinDeliveryChart: View {
     private var xScale: ClosedRange<Date> { startTime...endTime }
 
     private var bolusDoses: [Bolus]
-    private var basalDoses: [Basal]
+    private var basalDoses: [BasalDose]
     private var basalSchedule: [ScheduledBasal]
 
     private var startTime: Date
@@ -109,7 +109,7 @@ struct InsulinDeliveryChart: View {
     var basalPoints: [BasalRatePoint]
 
 
-    init(bolusDoses: [Bolus], basalDoses: [Basal], basalSchedule: [ScheduledBasal], startTime: Date, endTime: Date, chartUnitOffset: Binding<Int>, numSegments: Int) {
+    init(bolusDoses: [Bolus], basalDoses: [BasalDose], basalSchedule: [ScheduledBasal], startTime: Date, endTime: Date, chartUnitOffset: Binding<Int>, numSegments: Int) {
         self.bolusDoses = bolusDoses
         self.basalDoses = basalDoses
         self.basalSchedule = basalSchedule

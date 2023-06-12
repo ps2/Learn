@@ -22,6 +22,9 @@ extension NightscoutTreatment {
     }
 
     var dose: DoseEntry? {
+        if syncIdentifier == "74656d70426173616c20302e30373520323032332d30362d31315431373a30303a33375a" {
+            print("Here")
+        }
         switch self {
         case let tempBasal as TempBasalNightscoutTreatment:
             return DoseEntry(

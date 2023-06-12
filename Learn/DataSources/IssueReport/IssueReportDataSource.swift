@@ -177,7 +177,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return []
     }
 
-    func getBasalDoses(start: Date, end: Date) async throws -> [Basal] {
+    func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose] {
         return []
     }
 

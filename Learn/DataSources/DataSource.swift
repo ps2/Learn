@@ -61,7 +61,7 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
     // Data fetching apis
     func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue]
     func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange]
-    func getBasalDoses(start: Date, end: Date) async throws -> [Basal]
+    func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose]
     func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal]
     func getBoluses(start: Date, end: Date) async throws -> [Bolus]
 }

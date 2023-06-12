@@ -59,6 +59,7 @@ struct NightscoutSetupView: View {
             TextField("Site URL", text: $urlString)
                 .keyboardType(.URL)
                 .autocapitalization(.none)
+                .disableAutocorrection(true)
                 .padding()
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(5.0)

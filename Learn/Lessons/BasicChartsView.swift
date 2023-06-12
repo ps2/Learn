@@ -17,7 +17,7 @@ struct BasicChartsView: View {
     @State private var targetRanges: [TargetRange] = []
     @State private var boluses: [Bolus] = []
     @State private var basalSchedule: [ScheduledBasal] = []
-    @State private var basalDoses: [Basal] = []
+    @State private var basalDoses: [BasalDose] = []
 
     // When in inspection mode, the date being inspected
     @State private var inspectionDate: Date?

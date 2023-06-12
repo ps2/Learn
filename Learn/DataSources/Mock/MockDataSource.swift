@@ -51,18 +51,18 @@ class MockDataSource: DataSource {
         return getMockTargetRanges(start: start, end: end)
     }
 
-    func getMockBasalDoses(start: Date, end: Date) -> [Basal] {
+    func getMockBasalDoses(start: Date, end: Date) -> [BasalDose] {
         let spaceBetweenChanges = TimeInterval(10 * 60)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
 
         return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) + 1.1
-            return Basal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value, temporary: false, automatic: false, id: UUID().uuidString)
+            return BasalDose(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value, temporary: false, automatic: false, id: UUID().uuidString)
         }
     }
 
-    func getBasalDoses(start: Date, end: Date) async throws -> [Basal] {
+    func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose] {
         return getMockBasalDoses(start: start, end: end)
     }
 

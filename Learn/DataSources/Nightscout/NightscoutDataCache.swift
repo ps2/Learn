@@ -86,7 +86,6 @@ actor NightscoutDataCache {
     // MARK: Local cache retrieval
     func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample] {
         let samples = try await glucoseStore.getGlucoseSamples(start: start, end: end)
-        print("Loaded glucose samples: \(start) - \(end), \(samples.count) total")
         return samples
     }
 
@@ -126,7 +125,7 @@ actor NightscoutDataCache {
     }
 
     func syncTreatments(start: Date, end: Date) async throws {
-        let interval = DateInterval(start: start, end: end)
+        let interval = DateInterval(start: start.addingTimeInterval(-.hours(2)), end: end)
         print("Fetching \(interval) for treatments samples")
 
         let treatments: [NightscoutTreatment] = try await withCheckedThrowingContinuation { continuation in
@@ -143,12 +142,8 @@ actor NightscoutDataCache {
 
         let doses = treatments.compactMap { $0.dose }
 
-        doseStore.addDoses(doses, from: nil) { error in
-            if let error {
-                self.log.error("Unable to store doses: %{public}@", error.localizedDescription)
-            }
-            print("added \(doses.count) doses")
-        }
+        try await doseStore.syncDoseEntries(doses)
+        print("added \(doses.count) doses")
     }
 
     func syncSettings(start: Date, end: Date) async throws {
