@@ -68,6 +68,7 @@ struct GlucoseChart: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks))
         }
+        .frame(width:30, alignment: .trailing)
     }
 
     var body: some View {
@@ -213,6 +214,6 @@ struct GlucoseChart_Previews: PreviewProvider {
 
         return GlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
-            .environmentObject(QuantityFormatters(glucoseUnit: .millimolesPerLiter))
+            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

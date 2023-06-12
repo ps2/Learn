@@ -95,7 +95,7 @@ struct InsulinDeliveryChart: View {
             case .dose:
                 return StrokeStyle()
             case .schedule:
-                return StrokeStyle(dash: [3,3])
+                return StrokeStyle(dash: [2,2])
             }
         }
     }
@@ -140,6 +140,7 @@ struct InsulinDeliveryChart: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks))
         }
+        .frame(width:30, alignment: .trailing)
     }
 
     var body: some View {
