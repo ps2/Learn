@@ -17,6 +17,10 @@ struct NightscoutMainView: View {
 
     var body: some View {
         BasicChartsView(dataSource: dataSource)
+            .refreshable {
+                await dataSource.syncRemoteData()
+            }
+
     }
 }
 

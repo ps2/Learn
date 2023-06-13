@@ -77,6 +77,22 @@ class MockDataSource: DataSource {
         }
     }
 
+    func getCarbEntries(start: Date, end: Date) async throws -> [CarbEntry] {
+        return getMockCarbEntries(start: start, end: end)
+    }
+
+    func getMockCarbEntries(start: Date, end: Date) -> [CarbEntry] {
+        let spaceBetweenEntries = TimeInterval(2.2 * 3600)
+
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenEntries)
+
+        return stride(from: intervalStart, through: end, by: spaceBetweenEntries).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 80) + 10
+            return CarbEntry(date: date, amount: HKQuantity(unit: .gram(), doubleValue: value))
+        }
+    }
+
+
     func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
         return getMockBasalSchedule(start: start, end: end)
     }

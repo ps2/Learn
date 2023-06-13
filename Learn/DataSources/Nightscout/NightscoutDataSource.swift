@@ -16,8 +16,6 @@ final class NightscoutDataSource: DataSource {
 
     var dataSourceInstanceIdentifier: String
 
-    @Published var loadingState: LoadingState = .isLoading
-
     typealias RawValue = [String: Any]
     let nightscoutClient: NightscoutClient
 
@@ -40,9 +38,7 @@ final class NightscoutDataSource: DataSource {
 
         Task { @MainActor in
             await cache.setDelegate(self)
-            self.loadingState = .isLoading
-            await cache.syncRemoteData()
-            self.loadingState = .ready
+            await syncRemoteData()
         }
     }
 
@@ -74,7 +70,11 @@ final class NightscoutDataSource: DataSource {
         return raw
     }
 
-    @MainActor static func setupView(didSetupDataSource: @escaping (any DataSource) -> Void) -> AnyView {
+    func syncRemoteData() async {
+        await cache.syncRemoteData()
+    }
+
+    static func setupView(didSetupDataSource: @escaping (any DataSource) -> Void) -> AnyView {
         let configurationChecker = NightscoutConfigurationChecker()
         return AnyView(NightscoutSetupView(configurationChecker: configurationChecker, didFinishSetup: { url, nickname, apiSecret in
             let dataSource = NightscoutDataSource(name: nickname, url: url, apiSecret: apiSecret)
@@ -95,7 +95,8 @@ final class NightscoutDataSource: DataSource {
     }
 
     func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue] {
-        return try await cache.getGlucoseSamples(start: start, end: end).map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
+        let samples = try await cache.glucoseStore.getGlucoseSamples(start: start, end: end)
+        return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
     }
 
     func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
@@ -255,6 +256,11 @@ final class NightscoutDataSource: DataSource {
         return try await cache.doseStore.getBoluses(start: start, end: end).map { dose in
             Bolus(date: dose.startDate, amount: dose.deliveredUnits ?? dose.programmedUnits, automatic: dose.automatic ?? false, id: dose.syncIdentifier ?? UUID().uuidString)
         }
+    }
+
+    func getCarbEntries(start: Date, end: Date) async throws -> [CarbEntry] {
+        let entries = try await cache.carbStore.getCarbEntries(start: start, end: end)
+        return entries.map { CarbEntry(date: $0.startDate, amount: $0.quantity) }
     }
 }
 

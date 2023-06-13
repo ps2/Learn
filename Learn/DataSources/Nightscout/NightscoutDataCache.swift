@@ -83,21 +83,6 @@ actor NightscoutDataCache {
         settingsStore = SettingsStore(store: cacheStore, expireAfter: cacheLength)
     }
 
-    // MARK: Local cache retrieval
-    func getGlucoseSamples(start: Date, end: Date) async throws -> [StoredGlucoseSample] {
-        let samples = try await glucoseStore.getGlucoseSamples(start: start, end: end)
-        return samples
-    }
-
-    func getHistoricSettings(start: Date, end: Date) async throws -> [StoredSettings] {
-        return []
-    }
-
-    func getInsulinDelivery(start: Date, end: Date) async throws -> [DoseEntry] {
-        //return try await doseStore.getNormalizedDoseEntries(start: start, end: end)
-        return []
-    }
-
     // MARK: Remote fetching
     func syncGlucose(start: Date, end: Date) async throws {
         let interval = DateInterval(start: start, end: end)
@@ -140,9 +125,58 @@ actor NightscoutDataCache {
             }
         }
 
-        let doses = treatments.compactMap { $0.dose }
+        var doses = [DoseEntry]()
+        var carbs = [SyncCarbObject]()
+
+        for treatment in treatments {
+            switch treatment {
+            case let tempBasal as TempBasalNightscoutTreatment:
+                doses.append(DoseEntry(
+                    type: .tempBasal,
+                    startDate: tempBasal.timestamp,
+                    endDate: tempBasal.timestamp.addingTimeInterval(tempBasal.duration),
+                    value: tempBasal.rate,
+                    unit: .unitsPerHour,
+                    deliveredUnits: tempBasal.amount,
+                    syncIdentifier: tempBasal.syncIdentifier
+                ))
+            case let bolus as BolusNightscoutTreatment:
+                doses.append(DoseEntry(
+                    type: .bolus,
+                    startDate: bolus.timestamp,
+                    endDate: bolus.timestamp.addingTimeInterval(bolus.duration),
+                    value: bolus.programmed,
+                    unit: .unitsPerHour,
+                    deliveredUnits: bolus.amount,
+                    syncIdentifier: bolus.syncIdentifier
+                ))
+            case let entry as CarbCorrectionNightscoutTreatment:
+                carbs.append(SyncCarbObject(
+                    absorptionTime: entry.absorptionTime,
+                    createdByCurrentApp: false,
+                    foodType: entry.notes,
+                    grams: Double(entry.carbs),
+                    startDate: entry.timestamp,
+                    uuid: nil,
+                    provenanceIdentifier: "nightscout",
+                    syncIdentifier: entry.syncIdentifier,
+                    syncVersion: nil,
+                    userCreatedDate: entry.userEnteredAt,
+                    userUpdatedDate: nil,
+                    userDeletedDate: nil,
+                    operation: .create,
+                    addedDate: entry.userEnteredAt,
+                    supercededDate: nil))
+                break
+            default:
+                print("Converting \(self)")
+                break
+            }
+        }
 
         try await doseStore.syncDoseEntries(doses)
+        try await carbStore.setSyncCarbObjects(carbs)
+
         print("added \(doses.count) doses")
     }
 

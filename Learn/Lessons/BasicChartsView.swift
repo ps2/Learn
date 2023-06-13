@@ -18,6 +18,7 @@ struct BasicChartsView: View {
     @State private var boluses: [Bolus] = []
     @State private var basalSchedule: [ScheduledBasal] = []
     @State private var basalDoses: [BasalDose] = []
+    @State private var carbEntries: [CarbEntry] = []
 
     // When in inspection mode, the date being inspected
     @State private var inspectionDate: Date?
@@ -82,6 +83,7 @@ struct BasicChartsView: View {
                     endTime: end,
                     historicalGlucose: glucoseDataValues,
                     targetRanges: targetRanges,
+                    carbEntries: carbEntries,
                     upperRightLabel: dateStr,
                     chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                     numSegments: numSegments
@@ -125,6 +127,7 @@ struct BasicChartsView: View {
                 boluses = try await dataSource.getBoluses(start: start, end: end)
                 basalSchedule = try await dataSource.getBasalSchedule(start: start, end: end)
                 basalDoses = try await dataSource.getBasalDoses(start: start, end: end)
+                carbEntries = try await dataSource.getCarbEntries(start: start, end: end)
             } catch {
                 print("Error refreshing data: \(error)")
             }

@@ -15,6 +15,11 @@ struct GlucoseValue: Equatable {
     let date: Date
 }
 
+struct CarbEntry: Equatable {
+    let date: Date
+    let amount: HKQuantity
+}
+
 struct TargetRange: Equatable {
     let min: HKQuantity
     let max: HKQuantity
@@ -47,16 +52,18 @@ struct GlucoseChart: View {
 
     private var historicalGlucose: [GlucoseValue]
     private var targetRanges: [TargetRange]
+    private var carbEntries: [CarbEntry]
 
-    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
+    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange], carbEntries: [CarbEntry], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
 
         self.startTime = startTime
         self.endTime = endTime
+        self.historicalGlucose = historicalGlucose
+        self.targetRanges = targetRanges
+        self.carbEntries = carbEntries
         self.upperRightLabel = upperRightLabel
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
-        self.historicalGlucose = historicalGlucose
-        self.targetRanges = targetRanges
     }
 
     var yAxis: some View {
@@ -91,6 +98,21 @@ struct GlucoseChart: View {
                         )
                         .foregroundStyle(Color.glucose)
                         .symbolSize(CGSize(width: 5, height: 5))
+                    }
+                    ForEach(carbEntries, id: \.date) { entry in
+                        PointMark(
+                            x: .value("Time", entry.date, unit: .second),
+                            y: 12
+                        )
+                        .symbol {
+                            Image(systemName: "fork.knife.circle")
+                                .foregroundColor(.carbs)
+                        }
+                        .annotation(position: .bottom, spacing: 0) {
+                            Text(formatters.carbFormatter.string(from: entry.amount)!)
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
                     }
                     if let inspectedElement {
                         PointMark(
@@ -211,8 +233,9 @@ struct GlucoseChart_Previews: PreviewProvider {
         let startDate = endDate.addingTimeInterval(-18 * 3600)
         let glucose = mockDataSource.getMockGlucoseValues(start: startDate, end: endDate)
         let targets = mockDataSource.getMockTargetRanges(start: startDate, end: endDate)
+        let carbEntries = mockDataSource.getMockCarbEntries(start: startDate, end: endDate)
 
-        return GlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
+        return GlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, carbEntries: carbEntries, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }

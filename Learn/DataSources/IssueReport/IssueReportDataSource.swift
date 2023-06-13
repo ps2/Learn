@@ -188,6 +188,10 @@ final class IssueReportDataSource: DataSource, ObservableObject {
     func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
         return []
     }
+
+    func getCarbEntries(start: Date, end: Date) async throws -> [CarbEntry] {
+        return []
+    }
 }
 
 extension LoopIssueReportParser.GlucoseCondition {

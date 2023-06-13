@@ -65,6 +65,7 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
     func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose]
     func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal]
     func getBoluses(start: Date, end: Date) async throws -> [Bolus]
+    func getCarbEntries(start: Date, end: Date) async throws -> [CarbEntry] 
 }
 
 extension DataSource {
