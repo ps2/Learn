@@ -20,20 +20,6 @@
                ReferencedContainer = "container:Learn.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "43D8FDCA1C728FDF0073BE78"
-               BuildableName = "LoopKit.framework"
-               BlueprintName = "LoopKit"
-               ReferencedContainer = "container:../LoopKit/LoopKit.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

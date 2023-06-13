@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "loopissuereportparser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LoopKit/LoopIssueReportParser.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "acd5f4ffa84e320432ccdfb6f814e7977b92e14c"
+      }
+    },
+    {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",

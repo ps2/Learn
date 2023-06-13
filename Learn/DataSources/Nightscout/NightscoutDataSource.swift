@@ -22,19 +22,19 @@ final class NightscoutDataSource: DataSource {
     let name: String
     var url: URL
     var apiSecret: String?
-    var cacheEndDate: Date?
+    var cacheCoverage: ClosedRange<Date>?
     var stateStorage: StateStorage?
 
     private var cache: NightscoutDataCache
 
-    init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil, cacheEndDate: Date = .distantPast) {
+    init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil, cacheCoverage: ClosedRange<Date>? = nil) {
         self.name = name
         self.url = url
         self.apiSecret = apiSecret
         self.dataSourceInstanceIdentifier = instanceIdentifier ?? UUID().uuidString
-        self.cacheEndDate = cacheEndDate
+        self.cacheCoverage = cacheCoverage
         nightscoutClient = NightscoutClient(siteURL: url, apiSecret: apiSecret)
-        cache = NightscoutDataCache(instanceIdentifier: self.dataSourceInstanceIdentifier, nightscoutClient: nightscoutClient, cacheEndDate: cacheEndDate)
+        cache = NightscoutDataCache(instanceIdentifier: self.dataSourceInstanceIdentifier, nightscoutClient: nightscoutClient, cacheCoverage: cacheCoverage)
 
         Task { @MainActor in
             await cache.setDelegate(self)
@@ -54,9 +54,17 @@ final class NightscoutDataSource: DataSource {
 
         let apiSecret = rawState["apiSecret"] as? String
 
-        let cacheEndDate = rawState["cacheEndDate"] as? Date ?? .distantPast
+        let cacheCoverage: ClosedRange<Date>?
 
-        self.init(name: name, url: url, apiSecret: apiSecret, instanceIdentifier: instanceIdentifier, cacheEndDate: cacheEndDate)
+        if let cacheStart = rawState["cacheStartDate"] as? Date,
+           let cacheEnd = rawState["cacheEndDate"] as? Date
+        {
+            cacheCoverage = cacheStart...cacheEnd
+        } else {
+            cacheCoverage = nil
+        }
+
+        self.init(name: name, url: url, apiSecret: apiSecret, instanceIdentifier: instanceIdentifier, cacheCoverage: cacheCoverage)
     }
 
     var rawState: RawStateValue {
@@ -66,7 +74,8 @@ final class NightscoutDataSource: DataSource {
             "instanceIdentifier": dataSourceInstanceIdentifier,
         ]
         raw["apiSecret"] = apiSecret
-        raw["cacheEndDate"] = cacheEndDate
+        raw["cacheStartDate"] = cacheCoverage?.lowerBound
+        raw["cacheEndDate"] = cacheCoverage?.upperBound
         return raw
     }
 
@@ -279,9 +288,9 @@ extension Collection where Element == ScheduledBasal {
 }
 
 extension NightscoutDataSource: NightscoutDataCacheDelegate {
-    func didUpdateCache(cacheEndDate: Date) {
+    func didUpdateCache(coverage: ClosedRange<Date>) {
         DispatchQueue.main.async {
-            self.cacheEndDate = cacheEndDate
+            self.cacheCoverage = coverage
             self.stateStorage?.store(rawState: self.rawState)
         }
     }

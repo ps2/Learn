@@ -13,7 +13,7 @@ import NightscoutKit
 import os.log
 
 protocol NightscoutDataCacheDelegate: AnyObject {
-    func didUpdateCache(cacheEndDate: Date)
+    func didUpdateCache(coverage: ClosedRange<Date>)
 }
 
 actor NightscoutDataCache {
@@ -26,7 +26,7 @@ actor NightscoutDataCache {
     var nightscoutClient: NightscoutClient
 
 
-    private var cacheEndDate: Date?
+    private var cacheCoverage: ClosedRange<Date>?
 
     func setDelegate(_ delegate: NightscoutDataCacheDelegate) {
         self.delegate = delegate
@@ -38,14 +38,14 @@ actor NightscoutDataCache {
 
     private let log = OSLog(subsystem: "org.loopkit.Learn", category: "NightscoutDataManager")
 
-    init(instanceIdentifier: String, nightscoutClient: NightscoutClient, cacheEndDate: Date?) {
+    init(instanceIdentifier: String, nightscoutClient: NightscoutClient, cacheCoverage: ClosedRange<Date>?) {
 
         guard let directoryURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
             fatalError("Could not access the document directory of the current process")
         }
 
         self.nightscoutClient = nightscoutClient
-        self.cacheEndDate = cacheEndDate
+        self.cacheCoverage = cacheCoverage
 
         let storeURL = directoryURL.appendingPathComponent("nightscout_" + instanceIdentifier)
         print("Caching nightscout data in \(storeURL)")
@@ -109,7 +109,7 @@ actor NightscoutDataCache {
         }
     }
 
-    func syncTreatments(start: Date, end: Date) async throws {
+    func syncTreatments(start: Date, end: Date, updateExistingRecords: Bool) async throws {
         let interval = DateInterval(start: start.addingTimeInterval(-.hours(2)), end: end)
         print("Fetching \(interval) for treatments samples")
 
@@ -174,7 +174,7 @@ actor NightscoutDataCache {
             }
         }
 
-        try await doseStore.syncDoseEntries(doses)
+        try await doseStore.syncDoseEntries(doses, updateExistingRecords: updateExistingRecords)
         try await carbStore.setSyncCarbObjects(carbs)
 
         print("added \(doses.count) doses")
@@ -208,32 +208,38 @@ actor NightscoutDataCache {
     func syncRemoteData() async {
         let maxFetchInterval: TimeInterval = .days(7)
 
-        //cacheEndDate = nil
-
-        var fetchedCurrentData = false
+        let now = Date()
+        let coverageStart = now.addingTimeInterval(-cacheLength)
+        let fullCoverage: ClosedRange<Date> = coverageStart...now
 
         do {
-            while(!fetchedCurrentData) {
-                let now = Date()
-                let queryStart = max(cacheEndDate ?? .distantPast, now.addingTimeInterval(-cacheLength))
-                let queryEnd = min(queryStart.addingTimeInterval(maxFetchInterval), now)
+            // First sync current data (last 6 hours)
+            let refreshStart = now.addingTimeInterval(-.hours(6))
+            try await syncData(startDate: refreshStart, endDate: now)
+            cacheCoverage = min(cacheCoverage?.lowerBound ?? .distantFuture, refreshStart)...now
+            delegate?.didUpdateCache(coverage: cacheCoverage!)
 
-                try await syncData(startDate: queryStart, endDate: queryEnd)
-                if queryEnd == now {
-                    fetchedCurrentData = true
+            // Now backfill missing data
+            while(cacheCoverage != fullCoverage) {
+                let queryEnd = cacheCoverage!.lowerBound
+                let queryStart = max(queryEnd.addingTimeInterval(-maxFetchInterval), coverageStart)
+
+                if queryStart < queryEnd {
+                    try await syncData(startDate: queryStart, endDate: queryEnd, updateExistingRecords: false)
                 }
-                cacheEndDate = queryEnd
-                delegate?.didUpdateCache(cacheEndDate: queryEnd)
+                cacheCoverage = queryStart...cacheCoverage!.upperBound
+                print("***** Coverage = \(String(describing: cacheCoverage))")
+                delegate?.didUpdateCache(coverage: cacheCoverage!)
             }
         } catch {
             self.log.error("Error fetching data: %{public}@", error.localizedDescription)
         }
     }
 
-    func syncData(startDate: Date, endDate: Date) async throws {
+    func syncData(startDate: Date, endDate: Date, updateExistingRecords: Bool = true) async throws {
         try await syncSettings(start: startDate, end: endDate)
         try await syncGlucose(start: startDate, end: endDate)
-        try await syncTreatments(start: startDate, end: endDate)
+        try await syncTreatments(start: startDate, end: endDate, updateExistingRecords: updateExistingRecords)
     }
 
 }
