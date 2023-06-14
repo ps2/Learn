@@ -213,9 +213,9 @@ actor NightscoutDataCache {
         let fullCoverage: ClosedRange<Date> = coverageStart...now
 
         do {
-            // First sync current data (last 6 hours)
-            let refreshStart = now.addingTimeInterval(-.hours(6))
-            try await syncData(startDate: refreshStart, endDate: now)
+            // First sync current data (last 6 hours), or if end of cache coverage is older, go further back, up to one maxFetchInterval (7 days)
+            let refreshStart = max(now.addingTimeInterval(-maxFetchInterval), min(cacheCoverage?.upperBound ?? .distantPast, now.addingTimeInterval(-.hours(6))))
+            try await syncDataChunk(startDate: refreshStart, endDate: now, updateExistingRecords: true)
             cacheCoverage = min(cacheCoverage?.lowerBound ?? .distantFuture, refreshStart)...now
             delegate?.didUpdateCache(coverage: cacheCoverage!)
 
@@ -225,7 +225,7 @@ actor NightscoutDataCache {
                 let queryStart = max(queryEnd.addingTimeInterval(-maxFetchInterval), coverageStart)
 
                 if queryStart < queryEnd {
-                    try await syncData(startDate: queryStart, endDate: queryEnd, updateExistingRecords: false)
+                    try await syncDataChunk(startDate: queryStart, endDate: queryEnd, updateExistingRecords: false)
                 }
                 cacheCoverage = queryStart...cacheCoverage!.upperBound
                 print("***** Coverage = \(String(describing: cacheCoverage))")
@@ -236,7 +236,7 @@ actor NightscoutDataCache {
         }
     }
 
-    func syncData(startDate: Date, endDate: Date, updateExistingRecords: Bool = true) async throws {
+    private func syncDataChunk(startDate: Date, endDate: Date, updateExistingRecords: Bool) async throws {
         try await syncSettings(start: startDate, end: endDate)
         try await syncGlucose(start: startDate, end: endDate)
         try await syncTreatments(start: startDate, end: endDate, updateExistingRecords: updateExistingRecords)
