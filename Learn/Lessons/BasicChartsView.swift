@@ -88,7 +88,7 @@ struct BasicChartsView: View {
                     chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                     numSegments: numSegments
                 )
-                InsulinDeliveryChart(
+                InsulinDosesChart(
                     startTime: start,
                     endTime: end,
                     bolusDoses: boluses,

@@ -27,7 +27,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
     var dataSourceInstanceIdentifier: String
     var stateStorage: StateStorage?
 
-    @Published private var issueReport: IssueReport?
+    @Published public var issueReport: IssueReport?
 
     var cachedGlucoseSamples: [LoopKit.StoredGlucoseSample]
 
@@ -99,9 +99,10 @@ final class IssueReportDataSource: DataSource, ObservableObject {
             } else {
                 targetFile = url
             }
-            issueReport = try await Self.loadIssueReport(from: targetFile)
-            if let issueReport {
-                cachedGlucoseSamples = issueReport.cachedGlucoseSamples.map { $0.loopKitSample }
+            let report = try await Self.loadIssueReport(from: targetFile)
+            Task { @MainActor in
+                issueReport = report
+                cachedGlucoseSamples = report.cachedGlucoseSamples.map { $0.loopKitSample }
                 print("cached samples count = \(cachedGlucoseSamples.count)")
             }
         } catch {
@@ -251,5 +252,15 @@ extension IssueReportDataSource {
     static var mock: IssueReportDataSource {
         let issueReport = Bundle.main.url(forResource: "Example-Issue-Report", withExtension: "md")!
         return IssueReportDataSource(url: issueReport, name: "Example Issue Report")
+    }
+}
+
+extension IssueReport {
+    static var mock: IssueReport {
+        let issueReportURL = Bundle.main.url(forResource: "Example-Issue-Report", withExtension: "md")!
+        let data = try! Data(contentsOf: issueReportURL)
+        let reportStr = String(data: data, encoding: .utf8)!
+        return try! IssueReportParser(skipDeviceLog: true).parse(reportStr)
+
     }
 }

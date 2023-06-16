@@ -1,8 +1,8 @@
 //
-//  InsulinDeliveryChart.swift
+//  InsulinChart.swift
 //  Learn
 //
-//  Created by Pete Schwamb on 6/13/23.
+//  Created by Pete Schwamb on 1/15/23.
 //  Copyright © 2023 LoopKit Authors. All rights reserved.
 //
 
@@ -10,7 +10,65 @@ import SwiftUI
 import Charts
 import HealthKit
 
- struct InsulinDeliveryChart: View {
+protocol DateSelectableValue {
+    var dateForSelection: Date { get }
+    var selectionValue: Double { get }
+}
+
+struct Bolus: Identifiable, DateSelectableValue {
+    var date: Date
+    var amount: Double // Units
+    var programmedAmount: Double? // Units
+    var automatic: Bool
+    var id: String
+
+    var dateForSelection: Date { return date }
+    var selectionValue: Double { return amount }
+}
+
+struct BasalDose: Identifiable, DateSelectableValue {
+    var start: Date
+    var end: Date
+    var rate: Double // Units/hr
+    var temporary: Bool
+    var automatic: Bool
+    var id: String
+    var dateForSelection: Date
+
+    var selectionValue: Double { return rate }
+
+    init(start: Date, end: Date, rate: Double, temporary: Bool, automatic: Bool, id: String) {
+        self.start = start
+        self.end = end
+        self.rate = rate
+        self.temporary = temporary
+        self.automatic = automatic
+        self.id = id
+        let duration = end.timeIntervalSince(start)
+        self.dateForSelection = start.addingTimeInterval(duration / 2.0)
+    }
+}
+
+struct ScheduledBasal: Identifiable, DateSelectableValue {
+    var id: Date { return start }
+    var start: Date
+    var end: Date
+    var rate: Double // Units/hr
+    var dateForSelection: Date
+
+    var selectionValue: Double { return rate }
+
+    init(start: Date, end: Date, rate: Double) {
+        self.start = start
+        self.end = end
+        self.rate = rate
+
+        let duration = end.timeIntervalSince(start)
+        self.dateForSelection = start.addingTimeInterval(duration / 2.0)
+    }
+}
+
+struct InsulinDosesChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
 
@@ -236,7 +294,7 @@ import HealthKit
 }
 
 
-struct InsulinDeliveryChart_Previews: PreviewProvider {
+struct InsulinDosesChart_Previews: PreviewProvider {
     static var previews: some View {
         let endDate = Date()
         let startDate = endDate.addingTimeInterval(-18 * 3600)

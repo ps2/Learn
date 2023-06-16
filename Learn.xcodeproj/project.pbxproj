@@ -19,6 +19,9 @@
 		C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */; };
 		C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9529A93D9A008FB16F /* InspectGestureView.swift */; };
 		C142CF9C29AB2756008FB16F /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9B29AB2756008FB16F /* Date.swift */; };
+		C1449B3D2A3BD192009F7AB3 /* IssueReportDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B3C2A3BD192009F7AB3 /* IssueReportDetailsView.swift */; };
+		C1449B3F2A3BF5F9009F7AB3 /* BuildDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B3E2A3BF5F9009F7AB3 /* BuildDetailsView.swift */; };
+		C1449B422A3BF652009F7AB3 /* BuildDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B412A3BF652009F7AB3 /* BuildDetails.swift */; };
 		C156EB602A2BDF1900AC9DED /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C156EB5F2A2BDF1900AC9DED /* OSLog.swift */; };
 		C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D629AB9C55004B7C32 /* ProfileSet.swift */; };
 		C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */; };
@@ -36,13 +39,14 @@
 		C1BD5A2729DBAEA7001865A5 /* IssueReportDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */; };
 		C1BD5A2A29DBB337001865A5 /* IssueReportSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */; };
 		C1BD5A2D29DBB81A001865A5 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */; };
+		C1C09D662A39657D00BA082D /* InsulinDeliveryChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C09D652A39657D00BA082D /* InsulinDeliveryChart.swift */; };
 		C1DDFAB229A67BEB0019E4CB /* BasicChartsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DDFAB129A67BEB0019E4CB /* BasicChartsView.swift */; };
 		C1DDFAB529A6878C0019E4CB /* DataSourceDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DDFAB429A6878C0019E4CB /* DataSourceDescription.swift */; };
 		C1E4BECA29A41D4800B54132 /* ChartLongPressInspectionModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BEC929A41D4800B54132 /* ChartLongPressInspectionModifier.swift */; };
 		C1E4BECC29A41D6B00B54132 /* ScrollableChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BECB29A41D6B00B54132 /* ScrollableChart.swift */; };
 		C1E4BECE29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BECD29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift */; };
 		C1E4BED029A41E3C00B54132 /* ChartScrollCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BECF29A41E3C00B54132 /* ChartScrollCoordinator.swift */; };
-		C1E4BED229A41E7C00B54132 /* InsulinDeliveryChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BED129A41E7C00B54132 /* InsulinDeliveryChart.swift */; };
+		C1E4BED229A41E7C00B54132 /* InsulinDosesChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */; };
 		C1E4BEE329A4243200B54132 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BEE229A4243200B54132 /* DataSource.swift */; };
 		C1E4BEE529A425A100B54132 /* NightscoutDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E4BEE429A425A100B54132 /* NightscoutDataSource.swift */; };
 		C1E595572A3832730040288A /* LoopIssueReportParser in Frameworks */ = {isa = PBXBuildFile; productRef = C1E595562A3832730040288A /* LoopIssueReportParser */; };
@@ -71,6 +75,10 @@
 		C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataCache.swift; sourceTree = "<group>"; };
 		C142CF9529A93D9A008FB16F /* InspectGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectGestureView.swift; sourceTree = "<group>"; };
 		C142CF9B29AB2756008FB16F /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
+		C1449B3C2A3BD192009F7AB3 /* IssueReportDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportDetailsView.swift; sourceTree = "<group>"; };
+		C1449B3E2A3BF5F9009F7AB3 /* BuildDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildDetailsView.swift; sourceTree = "<group>"; };
+		C1449B412A3BF652009F7AB3 /* BuildDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildDetails.swift; sourceTree = "<group>"; };
+		C1449B432A3BF694009F7AB3 /* LoopIssueReportParser */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopIssueReportParser; path = ../LoopIssueReportParser; sourceTree = "<group>"; };
 		C156EB5F2A2BDF1900AC9DED /* OSLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLog.swift; sourceTree = "<group>"; };
 		C15C323A29A437B600CFE6F9 /* LoopKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LoopKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C178C5D629AB9C55004B7C32 /* ProfileSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSet.swift; sourceTree = "<group>"; };
@@ -93,13 +101,14 @@
 		C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportSetupView.swift; sourceTree = "<group>"; };
 		C1BD5A2B29DBB48F001865A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPicker.swift; sourceTree = "<group>"; };
+		C1C09D652A39657D00BA082D /* InsulinDeliveryChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinDeliveryChart.swift; sourceTree = "<group>"; };
 		C1DDFAB129A67BEB0019E4CB /* BasicChartsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicChartsView.swift; sourceTree = "<group>"; };
 		C1DDFAB429A6878C0019E4CB /* DataSourceDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceDescription.swift; sourceTree = "<group>"; };
 		C1E4BEC929A41D4800B54132 /* ChartLongPressInspectionModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartLongPressInspectionModifier.swift; sourceTree = "<group>"; };
 		C1E4BECB29A41D6B00B54132 /* ScrollableChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableChart.swift; sourceTree = "<group>"; };
 		C1E4BECD29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontallyPositionedViewContainer.swift; sourceTree = "<group>"; };
 		C1E4BECF29A41E3C00B54132 /* ChartScrollCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartScrollCoordinator.swift; sourceTree = "<group>"; };
-		C1E4BED129A41E7C00B54132 /* InsulinDeliveryChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinDeliveryChart.swift; sourceTree = "<group>"; };
+		C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinDosesChart.swift; sourceTree = "<group>"; };
 		C1E4BEE229A4243200B54132 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		C1E4BEE429A425A100B54132 /* NightscoutDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataSource.swift; sourceTree = "<group>"; };
 		C1EA322729A6C7A800949EA3 /* NightscoutSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutSetupView.swift; sourceTree = "<group>"; };
@@ -180,6 +189,14 @@
 			path = Lessons;
 			sourceTree = "<group>";
 		};
+		C1449B402A3BF649009F7AB3 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				C1449B412A3BF652009F7AB3 /* BuildDetails.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		C14F53A429DC6A59002A0DED /* Mock */ = {
 			isa = PBXGroup;
 			children = (
@@ -216,6 +233,7 @@
 				C15C323929A437B600CFE6F9 /* Frameworks */,
 				C1BD5A2229DB9A2E001865A5 /* NightscoutKit */,
 				C1B8E6E32A1B9F9F00AF38D0 /* LoopKit */,
+				C1449B432A3BF694009F7AB3 /* LoopIssueReportParser */,
 			);
 			sourceTree = "<group>";
 		};
@@ -272,10 +290,13 @@
 		C1BD5A2829DBB322001865A5 /* IssueReport */ = {
 			isa = PBXGroup;
 			children = (
+				C1449B402A3BF649009F7AB3 /* Extensions */,
 				C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */,
 				C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */,
 				C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */,
 				C1F298C82A315C4600372926 /* IssueReportMainView.swift */,
+				C1449B3C2A3BD192009F7AB3 /* IssueReportDetailsView.swift */,
+				C1449B3E2A3BF5F9009F7AB3 /* BuildDetailsView.swift */,
 			);
 			path = IssueReport;
 			sourceTree = "<group>";
@@ -316,7 +337,8 @@
 			children = (
 				C1E4BECF29A41E3C00B54132 /* ChartScrollCoordinator.swift */,
 				C1EF206428D5033B007A8097 /* GlucoseChart.swift */,
-				C1E4BED129A41E7C00B54132 /* InsulinDeliveryChart.swift */,
+				C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */,
+				C1C09D652A39657D00BA082D /* InsulinDeliveryChart.swift */,
 			);
 			path = Charts;
 			sourceTree = "<group>";
@@ -418,7 +440,9 @@
 				C135B7D029A508C20012C1F6 /* DataSourcesSummaryView.swift in Sources */,
 				C1E4BECA29A41D4800B54132 /* ChartLongPressInspectionModifier.swift in Sources */,
 				C1EA323229A7AC7800949EA3 /* NightscoutConfigurationChecker.swift in Sources */,
+				C1449B3F2A3BF5F9009F7AB3 /* BuildDetailsView.swift in Sources */,
 				C135B7D429A50BD00012C1F6 /* MockDataSource.swift in Sources */,
+				C1449B3D2A3BD192009F7AB3 /* IssueReportDetailsView.swift in Sources */,
 				C1EA322E29A6CB8200949EA3 /* ActionButtonStyle.swift in Sources */,
 				C1BD5A2D29DBB81A001865A5 /* DocumentPicker.swift in Sources */,
 				C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */,
@@ -426,7 +450,7 @@
 				C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */,
 				C11EB29E29BE733100FCDB24 /* OpaquePadding.swift in Sources */,
 				C18AF8E229ACF2FA00C40B82 /* TimeInterval.swift in Sources */,
-				C1E4BED229A41E7C00B54132 /* InsulinDeliveryChart.swift in Sources */,
+				C1E4BED229A41E7C00B54132 /* InsulinDosesChart.swift in Sources */,
 				C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */,
 				C1E4BEE529A425A100B54132 /* NightscoutDataSource.swift in Sources */,
 				C1AD3D152A3539B90090972E /* Data.swift in Sources */,
@@ -436,6 +460,7 @@
 				C1BD5A2A29DBB337001865A5 /* IssueReportSetupView.swift in Sources */,
 				C1F298C72A315B5E00372926 /* MockMainView.swift in Sources */,
 				C135B7CD29A45A050012C1F6 /* HKUnit.swift in Sources */,
+				C1C09D662A39657D00BA082D /* InsulinDeliveryChart.swift in Sources */,
 				C1F298CB2A315CFD00372926 /* NightscoutMainView.swift in Sources */,
 				C185A0F92A34CEEB00F9F86D /* Color.swift in Sources */,
 				C1EA323429A7C8DE00949EA3 /* NightscoutConfigurationError.swift in Sources */,
@@ -446,6 +471,7 @@
 				C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */,
 				C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */,
 				C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */,
+				C1449B422A3BF652009F7AB3 /* BuildDetails.swift in Sources */,
 				C1EA323029A72DE900949EA3 /* GlucoseEntry.swift in Sources */,
 				C1EF206528D5033B007A8097 /* GlucoseChart.swift in Sources */,
 				C1AD3D132A352C380090972E /* NightscoutTreatment.swift in Sources */,
