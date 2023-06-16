@@ -22,6 +22,8 @@
 		C1449B3D2A3BD192009F7AB3 /* IssueReportDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B3C2A3BD192009F7AB3 /* IssueReportDetailsView.swift */; };
 		C1449B3F2A3BF5F9009F7AB3 /* BuildDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B3E2A3BF5F9009F7AB3 /* BuildDetailsView.swift */; };
 		C1449B422A3BF652009F7AB3 /* BuildDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B412A3BF652009F7AB3 /* BuildDetails.swift */; };
+		C1449B482A3BF98D009F7AB3 /* DoseEntriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B472A3BF98D009F7AB3 /* DoseEntriesView.swift */; };
+		C1449B4A2A3BFB17009F7AB3 /* DoseEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1449B492A3BFB17009F7AB3 /* DoseEntry.swift */; };
 		C156EB602A2BDF1900AC9DED /* OSLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C156EB5F2A2BDF1900AC9DED /* OSLog.swift */; };
 		C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D629AB9C55004B7C32 /* ProfileSet.swift */; };
 		C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */; };
@@ -79,6 +81,8 @@
 		C1449B3E2A3BF5F9009F7AB3 /* BuildDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildDetailsView.swift; sourceTree = "<group>"; };
 		C1449B412A3BF652009F7AB3 /* BuildDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildDetails.swift; sourceTree = "<group>"; };
 		C1449B432A3BF694009F7AB3 /* LoopIssueReportParser */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopIssueReportParser; path = ../LoopIssueReportParser; sourceTree = "<group>"; };
+		C1449B472A3BF98D009F7AB3 /* DoseEntriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseEntriesView.swift; sourceTree = "<group>"; };
+		C1449B492A3BFB17009F7AB3 /* DoseEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseEntry.swift; sourceTree = "<group>"; };
 		C156EB5F2A2BDF1900AC9DED /* OSLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLog.swift; sourceTree = "<group>"; };
 		C15C323A29A437B600CFE6F9 /* LoopKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LoopKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C178C5D629AB9C55004B7C32 /* ProfileSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSet.swift; sourceTree = "<group>"; };
@@ -193,8 +197,21 @@
 			isa = PBXGroup;
 			children = (
 				C1449B412A3BF652009F7AB3 /* BuildDetails.swift */,
+				C1449B492A3BFB17009F7AB3 /* DoseEntry.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		C1449B442A3BF957009F7AB3 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */,
+				C1F298C82A315C4600372926 /* IssueReportMainView.swift */,
+				C1449B3C2A3BD192009F7AB3 /* IssueReportDetailsView.swift */,
+				C1449B3E2A3BF5F9009F7AB3 /* BuildDetailsView.swift */,
+				C1449B472A3BF98D009F7AB3 /* DoseEntriesView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		C14F53A429DC6A59002A0DED /* Mock */ = {
@@ -290,13 +307,10 @@
 		C1BD5A2829DBB322001865A5 /* IssueReport */ = {
 			isa = PBXGroup;
 			children = (
+				C1449B442A3BF957009F7AB3 /* Views */,
 				C1449B402A3BF649009F7AB3 /* Extensions */,
 				C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */,
-				C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */,
 				C1BD5A2C29DBB81A001865A5 /* DocumentPicker.swift */,
-				C1F298C82A315C4600372926 /* IssueReportMainView.swift */,
-				C1449B3C2A3BD192009F7AB3 /* IssueReportDetailsView.swift */,
-				C1449B3E2A3BF5F9009F7AB3 /* BuildDetailsView.swift */,
 			);
 			path = IssueReport;
 			sourceTree = "<group>";
@@ -471,6 +485,7 @@
 				C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */,
 				C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */,
 				C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */,
+				C1449B482A3BF98D009F7AB3 /* DoseEntriesView.swift in Sources */,
 				C1449B422A3BF652009F7AB3 /* BuildDetails.swift in Sources */,
 				C1EA323029A72DE900949EA3 /* GlucoseEntry.swift in Sources */,
 				C1EF206528D5033B007A8097 /* GlucoseChart.swift in Sources */,
@@ -484,6 +499,7 @@
 				C1BD5A2729DBAEA7001865A5 /* IssueReportDataSource.swift in Sources */,
 				C1EA322C29A6CB0700949EA3 /* KeyboardObserver.swift in Sources */,
 				C1EA323629A7D42E00949EA3 /* NightscoutSummaryView.swift in Sources */,
+				C1449B4A2A3BFB17009F7AB3 /* DoseEntry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

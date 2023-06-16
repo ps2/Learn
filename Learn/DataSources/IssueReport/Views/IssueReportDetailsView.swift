@@ -18,6 +18,22 @@ struct IssueReportDetailsView: View {
             NavigationLink("Build Details") {
                 BuildDetailsView(buildDetails: issueReport.buildDetails)
             }
+            NavigationLink("Device Logs") {
+                Text("Not Implemented Yet")
+            }
+            NavigationLink("Loop Settings") {
+                Text("Not Implemented Yet")
+            }
+            NavigationLink("Cached Glucose Samples") {
+                Text("Not Implemented Yet")
+            }
+            NavigationLink("Cached Carb Entries") {
+                Text("Not Implemented Yet")
+            }
+            NavigationLink("Cached Dose Entries") {
+                DoseEntriesView(doseEntries: issueReport.cachedDoseEntries)
+            }
+
         }
     }
 }
