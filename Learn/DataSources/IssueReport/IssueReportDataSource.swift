@@ -11,6 +11,7 @@ import SwiftUI
 import LoopKit
 import LoopIssueReportParser
 import os.log
+import HealthKit
 
 enum IssueReportError: Error {
     case permissionDenied
@@ -82,7 +83,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return try await Task {
             let data = try Data(contentsOf: url)
             let reportStr = String(data: data, encoding: .utf8)!
-            return try IssueReportParser(skipDeviceLog: true).parse(reportStr)
+            return try IssueReportParser(skipDeviceLog: false).parse(reportStr)
         }.value
     }
 
@@ -175,7 +176,18 @@ final class IssueReportDataSource: DataSource, ObservableObject {
     }
 
     func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
-        return []
+        guard let report = issueReport,
+              let parsedSchedule = report.loopSettings.glucoseTargetRangeSchedule,
+              let schedule = parsedSchedule.loopKitRangeSchedule else
+        {
+            return []
+        }
+
+        return schedule.truncatingBetween(start: start, end: end).map { entry in
+            let min = HKQuantity(unit: schedule.unit, doubleValue: entry.value.minValue)
+            let max = HKQuantity(unit: schedule.unit, doubleValue: entry.value.maxValue)
+            return TargetRange(min: min, max: max, startTime: entry.startDate, endTime: entry.endDate)
+        }
     }
 
     func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose] {
@@ -260,7 +272,7 @@ extension IssueReport {
         let issueReportURL = Bundle.main.url(forResource: "Example-Issue-Report", withExtension: "md")!
         let data = try! Data(contentsOf: issueReportURL)
         let reportStr = String(data: data, encoding: .utf8)!
-        return try! IssueReportParser(skipDeviceLog: true).parse(reportStr)
+        return try! IssueReportParser(skipDeviceLog: false).parse(reportStr)
 
     }
 }

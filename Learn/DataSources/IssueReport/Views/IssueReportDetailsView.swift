@@ -19,7 +19,7 @@ struct IssueReportDetailsView: View {
                 BuildDetailsView(buildDetails: issueReport.buildDetails)
             }
             NavigationLink("Device Logs") {
-                Text("Not Implemented Yet")
+                DeviceLogsView(deviceLogs: issueReport.deviceLogs)
             }
             NavigationLink("Loop Settings") {
                 Text("Not Implemented Yet")
