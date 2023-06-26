@@ -111,7 +111,8 @@ class MockDataSource: DataSource {
     func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
         return getMockBoluses(start: start, end: end)
     }
-
+    
+    func syncData(interval: DateInterval) async { }
 
 
     static var localizedTitle: String = "MockDataSource"

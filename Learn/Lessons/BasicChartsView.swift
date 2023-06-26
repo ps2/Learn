@@ -122,6 +122,8 @@ struct BasicChartsView: View {
     func refreshData() {
         Task {
             do {
+                let interval = DateInterval(start: start, end: end)
+                await dataSource.syncData(interval: interval)
                 glucoseDataValues = try await dataSource.getGlucoseValues(start: start, end: end)
                 targetRanges = try await dataSource.getTargetRanges(start: start, end: end)
                 boluses = try await dataSource.getBoluses(start: start, end: end)

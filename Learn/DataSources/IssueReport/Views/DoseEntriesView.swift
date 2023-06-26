@@ -8,6 +8,7 @@
 
 import SwiftUI
 import LoopIssueReportParser
+import LoopKit
 
 struct DoseEntriesView: View {
 
@@ -15,7 +16,7 @@ struct DoseEntriesView: View {
 
     var body: some View {
         List {
-            ForEach(doseEntries, id: \.self) { entry in
+            ForEach(doseEntries, id: \.syncIdentifier) { entry in
                 NavigationLink("\(entry.description)") {
                     Text("Not Implemented Yet")
                 }
@@ -32,6 +33,6 @@ struct DoseEntriesView_Previews: PreviewProvider {
 
 extension DoseEntry {
     var description: String {
-        "\(startDate.formatted()) \(type) \(value)"
+        "\(startDate.formatted()) \(type) \(String(describing: deliveredUnits))"
     }
 }

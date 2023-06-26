@@ -19,6 +19,7 @@ enum IssueReportError: Error {
 }
 
 final class IssueReportDataSource: DataSource, ObservableObject {
+
     static var localizedTitle = "Issue Report"
 
     static var dataSourceTypeIdentifier = "issuereportdatasource"
@@ -111,6 +112,8 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         }
     }
 
+    func syncData(interval: DateInterval) async { }
+
     convenience init?(rawState: RawStateValue) {
         guard let name = rawState["name"] as? String,
               let urlStr = rawState["url"] as? String,
@@ -177,8 +180,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
 
     func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
         guard let report = issueReport,
-              let parsedSchedule = report.loopSettings.glucoseTargetRangeSchedule,
-              let schedule = parsedSchedule.loopKitRangeSchedule else
+              let schedule = report.loopSettings.glucoseTargetRangeSchedule else
         {
             return []
         }
@@ -207,38 +209,6 @@ final class IssueReportDataSource: DataSource, ObservableObject {
     }
 }
 
-extension LoopIssueReportParser.GlucoseCondition {
-    var loopKitGlucoseCondition: LoopKit.GlucoseCondition {
-        switch self {
-        case .aboveRange:
-            return .aboveRange
-        case .belowRange:
-            return .belowRange
-        }
-    }
-}
-
-extension LoopIssueReportParser.GlucoseTrend {
-    var loopKitGlucoseTrend: LoopKit.GlucoseTrend {
-        switch self {
-        case .down:
-            return .down
-        case .upUpUp:
-            return .upUpUp
-        case .upUp:
-            return .upUp
-        case .up:
-            return .up
-        case .flat:
-            return .flat
-        case .downDown:
-            return .downDown
-        case .downDownDown:
-            return .downDownDown
-        }
-    }
-}
-
 extension LoopIssueReportParser.StoredGlucoseSample {
 
     var loopKitSample: LoopKit.StoredGlucoseSample {
@@ -249,8 +219,8 @@ extension LoopIssueReportParser.StoredGlucoseSample {
             syncVersion: syncVersion,
             startDate: startDate,
             quantity: quantity,
-            condition: condition?.loopKitGlucoseCondition,
-            trend: trend?.loopKitGlucoseTrend,
+            condition: condition,
+            trend: trend,
             trendRate: trendRate,
             isDisplayOnly: isDisplayOnly,
             wasUserEntered: wasUserEntered,

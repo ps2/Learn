@@ -13,7 +13,7 @@ import NightscoutKit
 import os.log
 
 protocol NightscoutDataCacheDelegate: AnyObject {
-    func didUpdateCache(coverage: ClosedRange<Date>)
+    func didUpdateCache(coverage: DateInterval)
 }
 
 actor NightscoutDataCache {
@@ -26,7 +26,7 @@ actor NightscoutDataCache {
     var nightscoutClient: NightscoutClient
 
 
-    private var cacheCoverage: ClosedRange<Date>?
+    private var cacheCoverage: DateInterval?
 
     func setDelegate(_ delegate: NightscoutDataCacheDelegate) {
         self.delegate = delegate
@@ -38,7 +38,7 @@ actor NightscoutDataCache {
 
     private let log = OSLog(subsystem: "org.loopkit.Learn", category: "NightscoutDataManager")
 
-    init(instanceIdentifier: String, nightscoutClient: NightscoutClient, cacheCoverage: ClosedRange<Date>?) {
+    init(instanceIdentifier: String, nightscoutClient: NightscoutClient, cacheCoverage: DateInterval?) {
 
         guard let directoryURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
             fatalError("Could not access the document directory of the current process")
@@ -207,27 +207,28 @@ actor NightscoutDataCache {
 
     func syncRemoteData() async {
         let maxFetchInterval: TimeInterval = .days(7)
+        print("***** Syncing data ******")
 
         let now = Date()
         let coverageStart = now.addingTimeInterval(-cacheLength)
-        let fullCoverage: ClosedRange<Date> = coverageStart...now
+        let fullCoverage = DateInterval(start: coverageStart, end: now)
 
         do {
             // First sync current data (last 6 hours), or if end of cache coverage is older, go further back, up to one maxFetchInterval (7 days)
-            let refreshStart = max(now.addingTimeInterval(-maxFetchInterval), min(cacheCoverage?.upperBound ?? .distantPast, now.addingTimeInterval(-.hours(6))))
+            let refreshStart = max(now.addingTimeInterval(-maxFetchInterval), min(cacheCoverage?.end ?? .distantPast, now.addingTimeInterval(-.hours(6))))
             try await syncDataChunk(startDate: refreshStart, endDate: now, updateExistingRecords: true)
-            cacheCoverage = min(cacheCoverage?.lowerBound ?? .distantFuture, refreshStart)...now
+            cacheCoverage = DateInterval(start: min(cacheCoverage?.start ?? .distantFuture, refreshStart), end: now)
             delegate?.didUpdateCache(coverage: cacheCoverage!)
 
             // Now backfill missing data
             while(cacheCoverage != fullCoverage) {
-                let queryEnd = cacheCoverage!.lowerBound
+                let queryEnd = cacheCoverage!.start
                 let queryStart = max(queryEnd.addingTimeInterval(-maxFetchInterval), coverageStart)
 
                 if queryStart < queryEnd {
                     try await syncDataChunk(startDate: queryStart, endDate: queryEnd, updateExistingRecords: false)
                 }
-                cacheCoverage = queryStart...cacheCoverage!.upperBound
+                cacheCoverage = DateInterval(start: queryStart, end: cacheCoverage!.end)
                 print("***** Coverage = \(String(describing: cacheCoverage))")
                 delegate?.didUpdateCache(coverage: cacheCoverage!)
             }

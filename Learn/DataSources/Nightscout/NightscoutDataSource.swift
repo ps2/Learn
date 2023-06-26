@@ -22,12 +22,12 @@ final class NightscoutDataSource: DataSource {
     let name: String
     var url: URL
     var apiSecret: String?
-    var cacheCoverage: ClosedRange<Date>?
+    var cacheCoverage: DateInterval?
     var stateStorage: StateStorage?
 
     private var cache: NightscoutDataCache
 
-    init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil, cacheCoverage: ClosedRange<Date>? = nil) {
+    init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil, cacheCoverage: DateInterval? = nil) {
         self.name = name
         self.url = url
         self.apiSecret = apiSecret
@@ -54,12 +54,12 @@ final class NightscoutDataSource: DataSource {
 
         let apiSecret = rawState["apiSecret"] as? String
 
-        let cacheCoverage: ClosedRange<Date>?
+        let cacheCoverage: DateInterval?
 
         if let cacheStart = rawState["cacheStartDate"] as? Date,
            let cacheEnd = rawState["cacheEndDate"] as? Date
         {
-            cacheCoverage = cacheStart...cacheEnd
+            cacheCoverage = DateInterval(start: cacheStart, end: cacheEnd)
         } else {
             cacheCoverage = nil
         }
@@ -74,14 +74,26 @@ final class NightscoutDataSource: DataSource {
             "instanceIdentifier": dataSourceInstanceIdentifier,
         ]
         raw["apiSecret"] = apiSecret
-        raw["cacheStartDate"] = cacheCoverage?.lowerBound
-        raw["cacheEndDate"] = cacheCoverage?.upperBound
+        raw["cacheStartDate"] = cacheCoverage?.start
+        raw["cacheEndDate"] = cacheCoverage?.end
         return raw
     }
 
     func syncRemoteData() async {
         await cache.syncRemoteData()
     }
+
+    func syncData(interval: DateInterval) async {
+        guard let cacheCoverage else {
+            await syncRemoteData()
+            return
+        }
+
+        if cacheCoverage.intersection(with: interval) != interval {
+            await syncRemoteData()
+        }
+    }
+
 
     static func setupView(didSetupDataSource: @escaping (any DataSource) -> Void) -> AnyView {
         let configurationChecker = NightscoutConfigurationChecker()
@@ -288,7 +300,7 @@ extension Collection where Element == ScheduledBasal {
 }
 
 extension NightscoutDataSource: NightscoutDataCacheDelegate {
-    func didUpdateCache(coverage: ClosedRange<Date>) {
+    func didUpdateCache(coverage: DateInterval) {
         DispatchQueue.main.async {
             self.cacheCoverage = coverage
             self.stateStorage?.store(rawState: self.rawState)
