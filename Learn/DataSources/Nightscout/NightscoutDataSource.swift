@@ -38,7 +38,6 @@ final class NightscoutDataSource: DataSource {
 
         Task { @MainActor in
             await cache.setDelegate(self)
-            await syncRemoteData()
         }
     }
 

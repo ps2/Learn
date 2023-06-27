@@ -25,6 +25,11 @@ actor NightscoutDataCache {
 
     var nightscoutClient: NightscoutClient
 
+    enum RemoteSyncStatus {
+        case idle
+        case syncing(Task<Void, Error>)
+    }
+    private var remoteSyncStatus: RemoteSyncStatus = .idle
 
     private var cacheCoverage: DateInterval?
 
@@ -206,6 +211,24 @@ actor NightscoutDataCache {
     }
 
     func syncRemoteData() async {
+        do {
+            switch remoteSyncStatus {
+            case .idle:
+                let task: Task<Void, Error> = Task {
+                    return await doRemoteSync()
+                }
+                remoteSyncStatus = .syncing(task)
+                try await task.value
+                remoteSyncStatus = .idle
+            case .syncing(let task):
+                try await task.value
+            }
+        } catch {
+            // no errors actually thrown
+        }
+    }
+
+    func doRemoteSync() async {
         let maxFetchInterval: TimeInterval = .days(7)
         print("***** Syncing data ******")
 
