@@ -61,12 +61,12 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
 
     // Data fetching apis
     func syncData(interval: DateInterval) async
-    func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue]
-    func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange]
-    func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose]
-    func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal]
-    func getBoluses(start: Date, end: Date) async throws -> [Bolus]
-    func getCarbEntries(start: Date, end: Date) async throws -> [CarbEntry] 
+    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue]
+    func getTargetRanges(interval: DateInterval) async throws -> [TargetRange]
+    func getBasalDoses(interval: DateInterval) async throws -> [BasalDose]
+    func getBasalSchedule(interval: DateInterval) async throws -> [ScheduledBasal]
+    func getBoluses(interval: DateInterval) async throws -> [Bolus]
+    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry]
 }
 
 extension DataSource {

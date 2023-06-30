@@ -124,12 +124,12 @@ struct BasicChartsView: View {
             do {
                 let interval = DateInterval(start: start, end: end)
                 await dataSource.syncData(interval: interval)
-                glucoseDataValues = try await dataSource.getGlucoseValues(start: start, end: end)
-                targetRanges = try await dataSource.getTargetRanges(start: start, end: end)
-                boluses = try await dataSource.getBoluses(start: start, end: end)
-                basalSchedule = try await dataSource.getBasalSchedule(start: start, end: end)
-                basalDoses = try await dataSource.getBasalDoses(start: start, end: end)
-                carbEntries = try await dataSource.getCarbEntries(start: start, end: end)
+                glucoseDataValues = try await dataSource.getGlucoseValues(interval: interval)
+                targetRanges = try await dataSource.getTargetRanges(interval: interval)
+                boluses = try await dataSource.getBoluses(interval: interval)
+                basalSchedule = try await dataSource.getBasalSchedule(interval: interval)
+                basalDoses = try await dataSource.getBasalDoses(interval: interval)
+                carbEntries = try await dataSource.getCarbEntries(interval: interval)
             } catch {
                 print("Error refreshing data: \(error)")
             }

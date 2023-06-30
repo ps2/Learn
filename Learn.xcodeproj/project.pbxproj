@@ -17,6 +17,7 @@
 		C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */; };
 		C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */; };
 		C14013272A4F3869008F7412 /* LoopLessons.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14013262A4F3869008F7412 /* LoopLessons.swift */; };
+		C14013292A4F3E53008F7412 /* LoopAlgorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14013282A4F3E53008F7412 /* LoopAlgorithm.swift */; };
 		C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */; };
 		C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9529A93D9A008FB16F /* InspectGestureView.swift */; };
 		C142CF9C29AB2756008FB16F /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9B29AB2756008FB16F /* Date.swift */; };
@@ -78,6 +79,7 @@
 		C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceManager.swift; sourceTree = "<group>"; };
 		C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDosingStrategy.swift; sourceTree = "<group>"; };
 		C14013262A4F3869008F7412 /* LoopLessons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopLessons.swift; sourceTree = "<group>"; };
+		C14013282A4F3E53008F7412 /* LoopAlgorithm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopAlgorithm.swift; sourceTree = "<group>"; };
 		C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataCache.swift; sourceTree = "<group>"; };
 		C142CF9529A93D9A008FB16F /* InspectGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectGestureView.swift; sourceTree = "<group>"; };
 		C142CF9B29AB2756008FB16F /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 			children = (
 				C185A0FA2A34EE9F00F9F86D /* QuantityFormatters.swift */,
 				C1DDFAB429A6878C0019E4CB /* DataSourceDescription.swift */,
+				C14013282A4F3E53008F7412 /* LoopAlgorithm.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -472,6 +475,7 @@
 				C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */,
 				C11EB29E29BE733100FCDB24 /* OpaquePadding.swift in Sources */,
 				C18AF8E229ACF2FA00C40B82 /* TimeInterval.swift in Sources */,
+				C14013292A4F3E53008F7412 /* LoopAlgorithm.swift in Sources */,
 				C1E4BED229A41E7C00B54132 /* InsulinDosesChart.swift in Sources */,
 				C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */,
 				C1E4BEE529A425A100B54132 /* NightscoutDataSource.swift in Sources */,

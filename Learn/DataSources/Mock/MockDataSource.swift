@@ -28,8 +28,8 @@ class MockDataSource: DataSource {
         }
     }
 
-    func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue] {
-        return getMockGlucoseValues(start: start, end: end)
+    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue] {
+        return getMockGlucoseValues(start: interval.start, end: interval.end)
     }
 
     func getMockTargetRanges(start: Date, end: Date) -> [TargetRange] {
@@ -47,8 +47,8 @@ class MockDataSource: DataSource {
         }
     }
 
-    func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
-        return getMockTargetRanges(start: start, end: end)
+    func getTargetRanges(interval: DateInterval) async throws -> [TargetRange] {
+        return getMockTargetRanges(start: interval.start, end: interval.end)
     }
 
     func getMockBasalDoses(start: Date, end: Date) -> [BasalDose] {
@@ -62,8 +62,8 @@ class MockDataSource: DataSource {
         }
     }
 
-    func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose] {
-        return getMockBasalDoses(start: start, end: end)
+    func getBasalDoses(interval: DateInterval) async throws -> [BasalDose] {
+        return getMockBasalDoses(start: interval.start, end: interval.end)
     }
 
     func getMockBasalSchedule(start: Date, end: Date) -> [ScheduledBasal] {
@@ -77,8 +77,8 @@ class MockDataSource: DataSource {
         }
     }
 
-    func getCarbEntries(start: Date, end: Date) async throws -> [CarbEntry] {
-        return getMockCarbEntries(start: start, end: end)
+    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
+        return getMockCarbEntries(start: interval.start, end: interval.end)
     }
 
     func getMockCarbEntries(start: Date, end: Date) -> [CarbEntry] {
@@ -93,8 +93,8 @@ class MockDataSource: DataSource {
     }
 
 
-    func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
-        return getMockBasalSchedule(start: start, end: end)
+    func getBasalSchedule(interval: DateInterval) async throws -> [ScheduledBasal] {
+        return getMockBasalSchedule(start: interval.start, end: interval.end)
     }
 
     func getMockBoluses(start: Date, end: Date) -> [Bolus] {
@@ -108,8 +108,8 @@ class MockDataSource: DataSource {
         }
     }
 
-    func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
-        return getMockBoluses(start: start, end: end)
+    func getBoluses(interval: DateInterval) async throws -> [Bolus] {
+        return getMockBoluses(start: interval.start, end: interval.end)
     }
     
     func syncData(interval: DateInterval) async { }

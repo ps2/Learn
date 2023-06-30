@@ -173,38 +173,38 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return issueReport?.generatedAt
     }
 
-    func getGlucoseValues(start: Date, end: Date) async throws -> [GlucoseValue] {
-        let samples: [LoopKit.StoredGlucoseSample] = cachedGlucoseSamples.filter { $0.startDate >= start && $0.startDate <= end }
+    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue] {
+        let samples: [LoopKit.StoredGlucoseSample] = cachedGlucoseSamples.filter { $0.startDate >= interval.start && $0.startDate <= interval.end }
         return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
     }
 
-    func getTargetRanges(start: Date, end: Date) async throws -> [TargetRange] {
+    func getTargetRanges(interval: DateInterval) async throws -> [TargetRange] {
         guard let report = issueReport,
               let schedule = report.loopSettings.glucoseTargetRangeSchedule else
         {
             return []
         }
 
-        return schedule.truncatingBetween(start: start, end: end).map { entry in
+        return schedule.truncatingBetween(start: interval.start, end: interval.end).map { entry in
             let min = HKQuantity(unit: schedule.unit, doubleValue: entry.value.minValue)
             let max = HKQuantity(unit: schedule.unit, doubleValue: entry.value.maxValue)
             return TargetRange(min: min, max: max, startTime: entry.startDate, endTime: entry.endDate)
         }
     }
 
-    func getBasalDoses(start: Date, end: Date) async throws -> [BasalDose] {
+    func getBasalDoses(interval: DateInterval) async throws -> [BasalDose] {
         return []
     }
 
-    func getBasalSchedule(start: Date, end: Date) async throws -> [ScheduledBasal] {
+    func getBasalSchedule(interval: DateInterval) async throws -> [ScheduledBasal] {
         return []
     }
 
-    func getBoluses(start: Date, end: Date) async throws -> [Bolus] {
+    func getBoluses(interval: DateInterval) async throws -> [Bolus] {
         return []
     }
 
-    func getCarbEntries(start: Date, end: Date) async throws -> [CarbEntry] {
+    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
         return []
     }
 }
