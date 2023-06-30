@@ -47,6 +47,13 @@ struct DataSourcesSummaryView: View {
                         }
                         .onDelete(perform: delete)
                     }
+                    NavigationLink {
+                        LoopLessons()
+                            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+                    } label: {
+                        Text("Loop Lessons")
+                    }
+
                     Button(role: .none, action: {
                         showingAvailableDataSources = true
                     }) {

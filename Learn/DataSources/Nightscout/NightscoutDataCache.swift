@@ -214,6 +214,7 @@ actor NightscoutDataCache {
         do {
             switch remoteSyncStatus {
             case .idle:
+                print("***** Syncing data ******")
                 let task: Task<Void, Error> = Task {
                     return await doRemoteSync()
                 }
@@ -221,6 +222,7 @@ actor NightscoutDataCache {
                 try await task.value
                 remoteSyncStatus = .idle
             case .syncing(let task):
+                print("***** Syncing data (waiting) ******")
                 try await task.value
             }
         } catch {
@@ -230,7 +232,6 @@ actor NightscoutDataCache {
 
     func doRemoteSync() async {
         let maxFetchInterval: TimeInterval = .days(7)
-        print("***** Syncing data ******")
 
         let now = Date()
         let coverageStart = now.addingTimeInterval(-cacheLength)

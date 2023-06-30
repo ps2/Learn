@@ -16,6 +16,7 @@
 		C135B7D429A50BD00012C1F6 /* MockDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D329A50BD00012C1F6 /* MockDataSource.swift */; };
 		C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */; };
 		C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */; };
+		C14013272A4F3869008F7412 /* LoopLessons.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14013262A4F3869008F7412 /* LoopLessons.swift */; };
 		C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */; };
 		C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9529A93D9A008FB16F /* InspectGestureView.swift */; };
 		C142CF9C29AB2756008FB16F /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = C142CF9B29AB2756008FB16F /* Date.swift */; };
@@ -38,6 +39,7 @@
 		C1AD0DC628D4FE40002246E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */; };
 		C1AD3D132A352C380090972E /* NightscoutTreatment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AD3D122A352C380090972E /* NightscoutTreatment.swift */; };
 		C1AD3D152A3539B90090972E /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AD3D142A3539B90090972E /* Data.swift */; };
+		C1AF1D172A4DDA1100F46A26 /* MidAbsorptionISFChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AF1D162A4DDA1100F46A26 /* MidAbsorptionISFChange.swift */; };
 		C1BD5A2529DB9BEC001865A5 /* LoopKit in Frameworks */ = {isa = PBXBuildFile; productRef = C1BD5A2429DB9BEC001865A5 /* LoopKit */; };
 		C1BD5A2729DBAEA7001865A5 /* IssueReportDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */; };
 		C1BD5A2A29DBB337001865A5 /* IssueReportSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */; };
@@ -75,6 +77,7 @@
 		C135B7D329A50BD00012C1F6 /* MockDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataSource.swift; sourceTree = "<group>"; };
 		C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceManager.swift; sourceTree = "<group>"; };
 		C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDosingStrategy.swift; sourceTree = "<group>"; };
+		C14013262A4F3869008F7412 /* LoopLessons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopLessons.swift; sourceTree = "<group>"; };
 		C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataCache.swift; sourceTree = "<group>"; };
 		C142CF9529A93D9A008FB16F /* InspectGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectGestureView.swift; sourceTree = "<group>"; };
 		C142CF9B29AB2756008FB16F /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
@@ -100,6 +103,7 @@
 		C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C1AD3D122A352C380090972E /* NightscoutTreatment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutTreatment.swift; sourceTree = "<group>"; };
 		C1AD3D142A3539B90090972E /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
+		C1AF1D162A4DDA1100F46A26 /* MidAbsorptionISFChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MidAbsorptionISFChange.swift; sourceTree = "<group>"; };
 		C1B8E6E32A1B9F9F00AF38D0 /* LoopKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopKit; path = ../LoopKit; sourceTree = "<group>"; };
 		C1BD5A2229DB9A2E001865A5 /* NightscoutKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NightscoutKit; path = ../NightscoutKit; sourceTree = "<group>"; };
 		C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportDataSource.swift; sourceTree = "<group>"; };
@@ -189,7 +193,8 @@
 		C142CF9D29AB979D008FB16F /* Lessons */ = {
 			isa = PBXGroup;
 			children = (
-				C1DDFAB129A67BEB0019E4CB /* BasicChartsView.swift */,
+				C1AF1D162A4DDA1100F46A26 /* MidAbsorptionISFChange.swift */,
+				C14013262A4F3869008F7412 /* LoopLessons.swift */,
 			);
 			path = Lessons;
 			sourceTree = "<group>";
@@ -350,6 +355,7 @@
 		C1E4BEDE29A41F3200B54132 /* Charts */ = {
 			isa = PBXGroup;
 			children = (
+				C1DDFAB129A67BEB0019E4CB /* BasicChartsView.swift */,
 				C1E4BECF29A41E3C00B54132 /* ChartScrollCoordinator.swift */,
 				C1EF206428D5033B007A8097 /* GlucoseChart.swift */,
 				C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */,
@@ -451,6 +457,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1AF1D172A4DDA1100F46A26 /* MidAbsorptionISFChange.swift in Sources */,
 				C1E4BED029A41E3C00B54132 /* ChartScrollCoordinator.swift in Sources */,
 				C135B7D029A508C20012C1F6 /* DataSourcesSummaryView.swift in Sources */,
 				C1E4BECA29A41D4800B54132 /* ChartLongPressInspectionModifier.swift in Sources */,
@@ -479,6 +486,7 @@
 				C1C09D662A39657D00BA082D /* InsulinDeliveryChart.swift in Sources */,
 				C1F298CB2A315CFD00372926 /* NightscoutMainView.swift in Sources */,
 				C185A0F92A34CEEB00F9F86D /* Color.swift in Sources */,
+				C14013272A4F3869008F7412 /* LoopLessons.swift in Sources */,
 				C1EA323429A7C8DE00949EA3 /* NightscoutConfigurationError.swift in Sources */,
 				C156EB602A2BDF1900AC9DED /* OSLog.swift in Sources */,
 				C11E62C72A2EDC6900F9BECF /* PropertyListStateStorage.swift in Sources */,
@@ -648,8 +656,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "NO UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -692,8 +700,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "NO UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
