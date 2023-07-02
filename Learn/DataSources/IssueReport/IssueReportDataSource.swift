@@ -192,15 +192,11 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         }
     }
 
-    func getBasalDoses(interval: DateInterval) async throws -> [BasalDose] {
+    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry] {
         return []
     }
 
-    func getBasalSchedule(interval: DateInterval) async throws -> [ScheduledBasal] {
-        return []
-    }
-
-    func getBoluses(interval: DateInterval) async throws -> [Bolus] {
+    func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
         return []
     }
 

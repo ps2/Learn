@@ -171,58 +171,12 @@ final class NightscoutDataSource: DataSource {
         return items
     }
 
-    func getBasalDoses(interval: DateInterval) async throws -> [BasalDose] {
-        let doseEntries = try await cache.doseStore.getBasalDoses(start: interval.start, end: interval.end)
-        // Loop does not store basal records in NS, so overlay basal segments
-        let schedule = try await getBasalSchedule(interval: interval)
-
-        var lastBasalEnd = interval.start
-        var insertedScheduleEntries = [ScheduledBasal]()
-
-        for dose in doseEntries {
-            // Ignore gaps of < 3 seconds
-            if dose.startDate > lastBasalEnd && dose.startDate.timeIntervalSince(lastBasalEnd) > .seconds(3) {
-                let trimmedSchedule = schedule.trim(start: lastBasalEnd, end: dose.startDate)
-                insertedScheduleEntries.append(contentsOf: trimmedSchedule)
-            }
-            lastBasalEnd = dose.endDate
-        }
-
-        // Do not infer basal past current time
-        let scheduledBasalMax = min(interval.end, Date())
-
-        if lastBasalEnd < scheduledBasalMax {
-            insertedScheduleEntries.append(contentsOf: schedule.trim(start: lastBasalEnd, end: scheduledBasalMax))
-        }
-
-        let insertedDoses = insertedScheduleEntries.map { item in
-            BasalDose(
-                start: item.start,
-                end: item.end,
-                rate: item.rate,
-                temporary: false,
-                automatic: false,
-                id: UUID().uuidString)
-        }
-
-        var basalDoses = doseEntries.map { dose in
-            return BasalDose(
-                start: dose.startDate,
-                end: dose.endDate,
-                rate: dose.unitsPerHour,
-                temporary: dose.type == .tempBasal,
-                automatic: dose.automatic ?? false,
-                id: dose.syncIdentifier ?? UUID().uuidString)
-        }
-
-        basalDoses.append(contentsOf: insertedDoses)
-        basalDoses.sort(by: { $0.start < $1.start })
-
-        return basalDoses
+    func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
+        return try await cache.doseStore.getDoses(start: interval.start, end: interval.end)
     }
 
-    func getBasalSchedule(interval: DateInterval) async throws -> [ScheduledBasal] {
-        // Get any changes during the period
+    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry] {
+        // Get any settings changes during the period
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
         // Also need to get the one in effect before the start of the period
@@ -250,7 +204,7 @@ final class NightscoutDataSource: DataSource {
 
         var idx = schedules.startIndex
         var date = interval.start
-        var items = [ScheduledBasal]()
+        var items = [BasalRateHistoryEntry]()
         while date < interval.end {
             let scheduleActiveEnd: Date
             if idx+1 < schedules.endIndex {
@@ -263,38 +217,17 @@ final class NightscoutDataSource: DataSource {
 
             let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
 
-            items.append(contentsOf: absoluteScheduleValues.map { ScheduledBasal(start: $0.startDate, end: $0.endDate, rate: $0.value) } )
+            items.append(contentsOf: absoluteScheduleValues.map { BasalRateHistoryEntry(startTime: $0.startDate, rate: $0.value) } )
             date = scheduleActiveEnd
             idx += 1
         }
 
-
         return items
-    }
-
-    func getBoluses(interval: DateInterval) async throws -> [Bolus] {
-        return try await cache.doseStore.getBoluses(start: interval.start, end: interval.end).map { dose in
-            Bolus(date: dose.startDate, amount: dose.deliveredUnits ?? dose.programmedUnits, automatic: dose.automatic ?? false, id: dose.syncIdentifier ?? UUID().uuidString)
-        }
     }
 
     func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
         let entries = try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
         return entries.map { CarbEntry(date: $0.startDate, amount: $0.quantity) }
-    }
-}
-
-extension Collection where Element == ScheduledBasal {
-    func trim(start: Date, end: Date) -> [ScheduledBasal] {
-        var selected = [ScheduledBasal]()
-        for entry in self {
-            if entry.start < end && entry.end > start {
-                let clippedStart = Swift.max(entry.start, start)
-                let clippedEnd = Swift.min(entry.end, end)
-                selected.append(ScheduledBasal(start: clippedStart, end: clippedEnd, rate: entry.rate))
-            }
-        }
-        return selected
     }
 }
 

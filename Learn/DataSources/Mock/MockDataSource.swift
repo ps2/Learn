@@ -12,6 +12,8 @@ import LoopKit
 import HealthKit
 
 class MockDataSource: DataSource {
+
+
     @Published var loadingState: LoadingState = .isLoading
 
     var stateStorage: StateStorage?
@@ -51,29 +53,42 @@ class MockDataSource: DataSource {
         return getMockTargetRanges(start: interval.start, end: interval.end)
     }
 
-    func getMockBasalDoses(start: Date, end: Date) -> [BasalDose] {
+    func getMockDoses(interval: DateInterval) -> [DoseEntry] {
+        let boluses = getMockBoluses(start: interval.start, end: interval.end)
+        let basal = getMockBasalDoses(start: interval.start, end: interval.end)
+        return (basal + boluses).sorted { a, b in
+            a.startDate > b.startDate
+        }
+    }
+
+    func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
+        return getMockDoses(interval: interval)
+    }
+
+    func getMockBasalDoses(start: Date, end: Date) -> [DoseEntry] {
         let spaceBetweenChanges = TimeInterval(10 * 60)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
 
         return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) + 1.1
-            return BasalDose(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value, temporary: false, automatic: false, id: UUID().uuidString)
+            return DoseEntry(
+                type: .tempBasal,
+                startDate: date,
+                endDate: date.addingTimeInterval(spaceBetweenChanges),
+                value: value,
+                unit: .unitsPerHour)
         }
     }
 
-    func getBasalDoses(interval: DateInterval) async throws -> [BasalDose] {
-        return getMockBasalDoses(start: interval.start, end: interval.end)
-    }
-
-    func getMockBasalSchedule(start: Date, end: Date) -> [ScheduledBasal] {
+    func getMockBasalHistory(start: Date, end: Date) -> [BasalRateHistoryEntry] {
         let spaceBetweenChanges = TimeInterval(3 * 3600)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
 
         return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 1.5) + 1
-            return ScheduledBasal(start: date, end: date.addingTimeInterval(spaceBetweenChanges), rate: value)
+            return BasalRateHistoryEntry(startTime: date, rate: value)
         }
     }
 
@@ -93,25 +108,26 @@ class MockDataSource: DataSource {
     }
 
 
-    func getBasalSchedule(interval: DateInterval) async throws -> [ScheduledBasal] {
-        return getMockBasalSchedule(start: interval.start, end: interval.end)
+    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry] {
+        return getMockBasalHistory(start: interval.start, end: interval.end)
     }
 
-    func getMockBoluses(start: Date, end: Date) -> [Bolus] {
+    func getMockBoluses(start: Date, end: Date) -> [DoseEntry] {
         let spaceBetweenBoluses = TimeInterval(2.2 * 3600)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses)
 
         return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
-            return Bolus(date: date, amount: value, automatic: false, id: UUID().uuidString)
+            return DoseEntry(
+                type: .bolus,
+                startDate: date,
+                value: value,
+                unit: .units
+            )
         }
     }
 
-    func getBoluses(interval: DateInterval) async throws -> [Bolus] {
-        return getMockBoluses(start: interval.start, end: interval.end)
-    }
-    
     func syncData(interval: DateInterval) async { }
 
 

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import LoopKit
 
 struct BasicChartsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -15,9 +16,8 @@ struct BasicChartsView: View {
 
     @State private var glucoseDataValues: [GlucoseValue] = []
     @State private var targetRanges: [TargetRange] = []
-    @State private var boluses: [Bolus] = []
-    @State private var basalSchedule: [ScheduledBasal] = []
-    @State private var basalDoses: [BasalDose] = []
+    @State private var basalHistory: [BasalRateHistoryEntry] = []
+    @State private var doses: [DoseEntry] = []
     @State private var carbEntries: [CarbEntry] = []
 
     // When in inspection mode, the date being inspected
@@ -91,9 +91,8 @@ struct BasicChartsView: View {
                 InsulinDosesChart(
                     startTime: start,
                     endTime: end,
-                    bolusDoses: boluses,
-                    basalDoses: basalDoses,
-                    basalSchedule: basalSchedule,
+                    doses: doses,
+                    basalHistory: basalHistory,
                     chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                     numSegments: numSegments
                 )
@@ -126,9 +125,8 @@ struct BasicChartsView: View {
                 await dataSource.syncData(interval: interval)
                 glucoseDataValues = try await dataSource.getGlucoseValues(interval: interval)
                 targetRanges = try await dataSource.getTargetRanges(interval: interval)
-                boluses = try await dataSource.getBoluses(interval: interval)
-                basalSchedule = try await dataSource.getBasalSchedule(interval: interval)
-                basalDoses = try await dataSource.getBasalDoses(interval: interval)
+                basalHistory = try await dataSource.getBasalHistory(interval: interval)
+                doses = try await dataSource.getDoses(interval: interval)
                 carbEntries = try await dataSource.getCarbEntries(interval: interval)
             } catch {
                 print("Error refreshing data: \(error)")

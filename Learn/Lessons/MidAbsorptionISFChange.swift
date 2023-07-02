@@ -58,7 +58,7 @@ struct MidAbsorptionISFChange: View {
             insulinModelProvider:  PresetInsulinModelProvider(defaultRapidActingModel: nil),
             longestEffectDuration: .hours(6), insulinSensitivity: schedule)
 
-        effectsWithInflection = [dose].glucoseEffectsAccountingForScheduledSensitivityChanges(
+        effectsWithInflection = [dose].glucoseEffectsApplyingSensitivityChangesDuringDoseAbsorption(
             insulinModelProvider:  PresetInsulinModelProvider(defaultRapidActingModel: nil),
             longestEffectDuration: .hours(6), insulinSensitivity: schedule)
 

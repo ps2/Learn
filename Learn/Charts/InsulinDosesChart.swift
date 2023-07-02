@@ -9,62 +9,46 @@
 import SwiftUI
 import Charts
 import HealthKit
+import LoopKit
 
 protocol DateSelectableValue {
     var dateForSelection: Date { get }
     var selectionValue: Double { get }
 }
 
-struct Bolus: Identifiable, DateSelectableValue {
-    var date: Date
-    var amount: Double // Units
-    var programmedAmount: Double? // Units
-    var automatic: Bool
-    var id: String
-
-    var dateForSelection: Date { return date }
-    var selectionValue: Double { return amount }
-}
-
-struct BasalDose: Identifiable, DateSelectableValue {
-    var start: Date
-    var end: Date
+struct BasalRateHistoryEntry: Identifiable, DateSelectableValue, BasalRateEntry {
+    var startTime: Date
     var rate: Double // Units/hr
-    var temporary: Bool
-    var automatic: Bool
-    var id: String
-    var dateForSelection: Date
+
+    var id: Date { return startTime }
+    var dateForSelection: Date { return startTime }
 
     var selectionValue: Double { return rate }
 
-    init(start: Date, end: Date, rate: Double, temporary: Bool, automatic: Bool, id: String) {
-        self.start = start
-        self.end = end
+    init(startTime: Date, rate: Double) {
+        self.startTime = startTime
         self.rate = rate
-        self.temporary = temporary
-        self.automatic = automatic
-        self.id = id
-        let duration = end.timeIntervalSince(start)
-        self.dateForSelection = start.addingTimeInterval(duration / 2.0)
     }
 }
 
-struct ScheduledBasal: Identifiable, DateSelectableValue {
-    var id: Date { return start }
-    var start: Date
-    var end: Date
-    var rate: Double // Units/hr
-    var dateForSelection: Date
+extension DoseEntry: Identifiable {
+    public var id: String {
+        return syncIdentifier ?? startDate.description
+    }
+}
 
-    var selectionValue: Double { return rate }
+extension DoseEntry: DateSelectableValue {
+    var dateForSelection: Date {
+        return startDate
+    }
 
-    init(start: Date, end: Date, rate: Double) {
-        self.start = start
-        self.end = end
-        self.rate = rate
-
-        let duration = end.timeIntervalSince(start)
-        self.dateForSelection = start.addingTimeInterval(duration / 2.0)
+    var selectionValue: Double {
+        switch type {
+        case .bolus:
+            return deliveredUnits ?? programmedUnits
+        default:
+            return unitsPerHour
+        }
     }
 }
 
@@ -77,9 +61,8 @@ struct InsulinDosesChart: View {
 
     private var xScale: ClosedRange<Date> { startTime...endTime }
 
-    private var bolusDoses: [Bolus]
-    private var basalDoses: [BasalDose]
-    private var basalSchedule: [ScheduledBasal]
+    private var doses: [DoseEntry]
+    private var basalHistory: [BasalRateHistoryEntry]
 
     private var startTime: Date
     private var endTime: Date
@@ -107,28 +90,45 @@ struct InsulinDosesChart: View {
     }
 
     var basalPoints: [BasalRatePoint]
+    var basalDoses: [DoseEntry]
 
 
-    init(startTime: Date, endTime: Date, bolusDoses: [Bolus], basalDoses: [BasalDose], basalSchedule: [ScheduledBasal], chartUnitOffset: Binding<Int>, numSegments: Int) {
+    init(startTime: Date, endTime: Date, doses: [DoseEntry], basalHistory: [BasalRateHistoryEntry], chartUnitOffset: Binding<Int>, numSegments: Int) {
         self.startTime = startTime
         self.endTime = endTime
-        self.bolusDoses = bolusDoses
-        self.basalDoses = basalDoses
-        self.basalSchedule = basalSchedule
+        self.doses = doses
+        self.basalHistory = basalHistory
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
 
-        var points = [BasalRatePoint]()
+        // Fill in missing basal doses with basal history
+        basalDoses = doses.infill(with: basalHistory, endDate: min(endTime, Date()), gapPatchInterval: .seconds(10))
+
+        // Includes points for both scheduled (dotted) and dose (solid) lines.
+        var basalLines = [BasalRatePoint]()
 
         for dose in basalDoses {
-            points.append(BasalRatePoint(date: dose.start, rate: dose.rate, type: .dose))
-            points.append(BasalRatePoint(date: dose.end, rate: dose.rate, type: .dose))
+            switch dose.type {
+            case .basal, .tempBasal, .suspend:
+                basalLines.append(BasalRatePoint(date: dose.startDate, rate: dose.unitsPerHour, type: .dose))
+                basalLines.append(BasalRatePoint(date: dose.endDate, rate: dose.unitsPerHour, type: .dose))
+            default:
+                break
+            }
         }
-        for item in basalSchedule {
-            points.append(BasalRatePoint(date: item.start, rate: item.rate, type: .schedule))
-            points.append(BasalRatePoint(date: item.end, rate: item.rate, type: .schedule))
+        if var previousItem = basalHistory.first {
+            for item in basalHistory {
+                if item.startTime != previousItem.startTime {
+                    basalLines.append(BasalRatePoint(date: item.startTime, rate: previousItem.rate, type: .schedule))
+                }
+                basalLines.append(BasalRatePoint(date: item.startTime, rate: item.rate, type: .schedule))
+                previousItem = item
+            }
+            if previousItem.startTime < endTime {
+                basalLines.append(BasalRatePoint(date: endTime, rate: previousItem.rate, type: .schedule))
+            }
         }
-        basalPoints = points
+        basalPoints = basalLines
     }
 
     var yAxis: some View {
@@ -158,28 +158,30 @@ struct InsulinDosesChart: View {
             ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 250, numSegments: numSegments) {
                 Chart {
                     // Boluses
-                    ForEach(bolusDoses) { bolus in
-                        PointMark(
-                            x: .value("Time", bolus.date, unit: .second),
-                            y: .value("Value", bolus.amount)
-                        )
-                        .symbol {
-                            Image("bolus")
-                                .foregroundColor(.insulin)
+                    ForEach(doses) { dose in
+                        if dose.type == .bolus {
+                            PointMark(
+                                x: .value("Time", dose.startDate, unit: .second),
+                                y: .value("Value", dose.deliveredUnits ?? dose.programmedUnits)
+                            )
+                            .symbol {
+                                Image("bolus")
+                                    .foregroundColor(.insulin)
+                            }
+                            .interpolationMethod(.cardinal)
+                            .foregroundStyle(.orange.opacity(0.4))
                         }
-                        .interpolationMethod(.cardinal)
-                        .foregroundStyle(.orange.opacity(0.4))
                     }
-                    // Basal Schedule
                     // Basal Doses
                     ForEach(basalDoses) { dose in
                         RectangleMark(
-                            xStart: .value("Start Time", dose.start),
-                            xEnd: .value("End Time", dose.end),
+                            xStart: .value("Start Time", dose.startDate),
+                            xEnd: .value("End Time", dose.endDate),
                             yStart: .value("Base", 0),
-                            yEnd: .value("Base", dose.rate))
+                            yEnd: .value("Base", dose.unitsPerHour))
                         .foregroundStyle(Color.insulin.opacity(0.5))
                     }
+                    // Basal Schedule
                     ForEach(basalPoints, id: \.self) { point in
                         LineMark(
                             x: .value("Time", point.date, unit: .second),
@@ -225,17 +227,16 @@ struct InsulinDosesChart: View {
             GeometryReader { geometry in
                 preferences.map { anchor in
                     VStack {
-                        if let bolus = inspectedElement as? Bolus {
+                        if let inspectedElement {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
 
-                                Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: bolus.amount))!)
-                                    .bold()
-                            }
-                        } else if let inspectedElement {
-                            HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
-
-                                Text(formatters.insulinRateFormatter.string(from: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: inspectedElement.selectionValue))!)
-                                    .bold()
+                                if let dose = inspectedElement as? DoseEntry, dose.type == .bolus {
+                                    Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
+                                        .bold()
+                                } else {
+                                    Text(formatters.insulinRateFormatter.string(from: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: inspectedElement.selectionValue))!)
+                                        .bold()
+                                }
                             }
                         }
                     }
@@ -265,28 +266,27 @@ struct InsulinDosesChart: View {
         var minDistance: TimeInterval = .infinity
         var selection: DateSelectableValue?
 
-        for bolus in bolusDoses {
-            let distance = abs(bolus.dateForSelection.distance(to: date))
-            if distance < minDistance {
-                minDistance = distance
-                selection = bolus
+        for dose in doses + basalDoses {
+            if dose.dateForSelection < date {
+                let distance = abs(dose.dateForSelection.distance(to: date))
+                if distance < minDistance {
+                    minDistance = distance
+                    selection = dose
+                }
             }
         }
 
-        for basal in basalDoses {
-            let distance = abs(basal.dateForSelection.distance(to: date))
-            if distance < minDistance {
-                minDistance = distance
-                selection = basal
-            }
-        }
+        var rate: Double? = nil
 
-        for scheduledBasal in basalSchedule {
-            let distance = abs(scheduledBasal.dateForSelection.distance(to: date))
-            if distance < minDistance {
-                minDistance = distance
-                selection = scheduledBasal
+        for basal in basalHistory {
+            if rate != basal.rate && basal.dateForSelection < date {
+                let distance = abs(basal.dateForSelection.distance(to: date))
+                if distance < minDistance {
+                    minDistance = distance
+                    selection = basal
+                }
             }
+            rate = basal.rate
         }
 
         return selection
@@ -300,12 +300,12 @@ struct InsulinDosesChart_Previews: PreviewProvider {
         let startDate = endDate.addingTimeInterval(-18 * 3600)
 
         let mockDataSource = MockDataSource()
+        let interval = DateInterval(start: startDate, end: endDate)
 
-        let boluses = mockDataSource.getMockBoluses(start: startDate, end: endDate)
-        let basalSchedule = mockDataSource.getMockBasalSchedule(start: startDate, end: endDate)
-        let basalDoses = mockDataSource.getMockBasalDoses(start: startDate, end: endDate)
+        let doses = mockDataSource.getMockDoses(interval: interval)
+        let basalHistory = mockDataSource.getMockBasalHistory(start: interval.start, end: interval.end)
 
-        return InsulinDosesChart(startTime: startDate, endTime: endDate, bolusDoses: boluses, basalDoses: basalDoses, basalSchedule: basalSchedule, chartUnitOffset: .constant(0), numSegments: 6)
+        return InsulinDosesChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
     }
 }

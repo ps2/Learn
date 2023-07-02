@@ -63,9 +63,8 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
     func syncData(interval: DateInterval) async
     func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue]
     func getTargetRanges(interval: DateInterval) async throws -> [TargetRange]
-    func getBasalDoses(interval: DateInterval) async throws -> [BasalDose]
-    func getBasalSchedule(interval: DateInterval) async throws -> [ScheduledBasal]
-    func getBoluses(interval: DateInterval) async throws -> [Bolus]
+    func getDoses(interval: DateInterval) async throws -> [DoseEntry]
+    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry]
     func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry]
 }
 
