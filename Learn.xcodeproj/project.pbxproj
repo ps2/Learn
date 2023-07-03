@@ -106,7 +106,6 @@
 		C1AD3D142A3539B90090972E /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		C1AF1D162A4DDA1100F46A26 /* MidAbsorptionISFChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MidAbsorptionISFChange.swift; sourceTree = "<group>"; };
 		C1B8E6E32A1B9F9F00AF38D0 /* LoopKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopKit; path = ../LoopKit; sourceTree = "<group>"; };
-		C1BD5A2229DB9A2E001865A5 /* NightscoutKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NightscoutKit; path = ../NightscoutKit; sourceTree = "<group>"; };
 		C1BD5A2629DBAEA7001865A5 /* IssueReportDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportDataSource.swift; sourceTree = "<group>"; };
 		C1BD5A2929DBB337001865A5 /* IssueReportSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportSetupView.swift; sourceTree = "<group>"; };
 		C1BD5A2B29DBB48F001865A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -255,7 +254,6 @@
 				C1AD0DBC28D4FE40002246E7 /* Learn */,
 				C1AD0DBB28D4FE40002246E7 /* Products */,
 				C15C323929A437B600CFE6F9 /* Frameworks */,
-				C1BD5A2229DB9A2E001865A5 /* NightscoutKit */,
 				C1B8E6E32A1B9F9F00AF38D0 /* LoopKit */,
 			);
 			sourceTree = "<group>";

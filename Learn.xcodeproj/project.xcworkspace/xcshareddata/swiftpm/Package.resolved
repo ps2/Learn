@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "nightscoutkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LoopKit/NightscoutKit",
+      "state" : {
+        "branch" : "main",
+        "revision" : "651ac7600dae75754202f8b16f92c0f037dfd092"
+      }
+    },
+    {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",

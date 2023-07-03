@@ -137,7 +137,7 @@ actor NightscoutDataCache {
             switch treatment {
             case let tempBasal as TempBasalNightscoutTreatment:
                 doses.append(DoseEntry(
-                    type: .tempBasal,
+                    type: tempBasal.reason == "suspend" ? .suspend : .tempBasal,
                     startDate: tempBasal.timestamp,
                     endDate: tempBasal.timestamp.addingTimeInterval(tempBasal.duration),
                     value: tempBasal.rate,
