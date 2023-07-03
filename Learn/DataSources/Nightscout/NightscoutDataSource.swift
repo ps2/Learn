@@ -9,8 +9,10 @@ import Foundation
 import LoopKit
 import NightscoutKit
 import SwiftUI
+import HealthKit
 
 final class NightscoutDataSource: DataSource {
+
     static var localizedTitle: String = "Nightscout"
     static var dataSourceTypeIdentifier: String = "nightscout"
 
@@ -119,7 +121,17 @@ final class NightscoutDataSource: DataSource {
         return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
     }
 
-    func getTargetRanges(interval: DateInterval) async throws -> [TargetRange] {
+    func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
+        return try await cache.doseStore.getDoses(start: interval.start, end: interval.end)
+    }
+
+    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
+        let entries = try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
+        return entries.map { CarbEntry(date: $0.startDate, amount: $0.quantity) }
+    }
+
+
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [TargetRange] {
         // Get any changes during the period
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
@@ -171,11 +183,7 @@ final class NightscoutDataSource: DataSource {
         return items
     }
 
-    func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
-        return try await cache.doseStore.getDoses(start: interval.start, end: interval.end)
-    }
-
-    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry] {
+    func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
         // Get any settings changes during the period
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
@@ -204,7 +212,7 @@ final class NightscoutDataSource: DataSource {
 
         var idx = schedules.startIndex
         var date = interval.start
-        var items = [BasalRateHistoryEntry]()
+        var items = [AbsoluteScheduleValue<Double>]()
         while date < interval.end {
             let scheduleActiveEnd: Date
             if idx+1 < schedules.endIndex {
@@ -217,7 +225,7 @@ final class NightscoutDataSource: DataSource {
 
             let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
 
-            items.append(contentsOf: absoluteScheduleValues.map { BasalRateHistoryEntry(startTime: $0.startDate, rate: $0.value) } )
+            items.append(contentsOf: absoluteScheduleValues)
             date = scheduleActiveEnd
             idx += 1
         }
@@ -225,9 +233,59 @@ final class NightscoutDataSource: DataSource {
         return items
     }
 
-    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
-        let entries = try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
-        return entries.map { CarbEntry(date: $0.startDate, amount: $0.quantity) }
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>] {
+        // Get any settings changes during the period
+        var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await cache.settingsStore.getStoredSettings(end: interval.start, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat basal rate schedules in settings
+        var lastSchedule: InsulinSensitivitySchedule? = nil
+        let schedules: [(date: Date, schedule: InsulinSensitivitySchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.insulinSensitivitySchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        var idx = schedules.startIndex
+        var date = interval.start
+        var items = [AbsoluteScheduleValue<HKQuantity>]()
+        while date < interval.end {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = interval.end
+            }
+
+            let schedule: InsulinSensitivitySchedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd).map {
+                AbsoluteScheduleValue(
+                    startDate: $0.startDate,
+                    endDate: $0.endDate,
+                    value: HKQuantity(unit: schedule.unit, doubleValue: $0.value))
+            }
+
+            items.append(contentsOf: absoluteScheduleValues)
+            date = scheduleActiveEnd
+            idx += 1
+        }
+
+        return items
     }
 }
 

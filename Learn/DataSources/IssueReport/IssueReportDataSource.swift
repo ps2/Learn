@@ -178,7 +178,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
     }
 
-    func getTargetRanges(interval: DateInterval) async throws -> [TargetRange] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [TargetRange] {
         guard let report = issueReport,
               let schedule = report.loopSettings.glucoseTargetRangeSchedule else
         {
@@ -192,7 +192,11 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         }
     }
 
-    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry] {
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<HKQuantity>] {
+        return []
+    }
+
+    func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
         return []
     }
 

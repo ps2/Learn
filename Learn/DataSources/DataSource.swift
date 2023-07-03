@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import LoopKit
+import HealthKit
 
 enum LoadingState: Equatable {
     static func == (lhs: LoadingState, rhs: LoadingState) -> Bool {
@@ -61,11 +62,16 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
 
     // Data fetching apis
     func syncData(interval: DateInterval) async
+
+    // Base diabetes data
     func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue]
-    func getTargetRanges(interval: DateInterval) async throws -> [TargetRange]
     func getDoses(interval: DateInterval) async throws -> [DoseEntry]
-    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry]
     func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry]
+
+    // Algorithm settings
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [TargetRange]
+    func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>]
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>]
 }
 
 extension DataSource {

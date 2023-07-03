@@ -16,7 +16,7 @@ struct BasicChartsView: View {
 
     @State private var glucoseDataValues: [GlucoseValue] = []
     @State private var targetRanges: [TargetRange] = []
-    @State private var basalHistory: [BasalRateHistoryEntry] = []
+    @State private var basalHistory: [AbsoluteScheduleValue<Double>] = []
     @State private var doses: [DoseEntry] = []
     @State private var carbEntries: [CarbEntry] = []
 
@@ -124,7 +124,7 @@ struct BasicChartsView: View {
                 let interval = DateInterval(start: start, end: end)
                 await dataSource.syncData(interval: interval)
                 glucoseDataValues = try await dataSource.getGlucoseValues(interval: interval)
-                targetRanges = try await dataSource.getTargetRanges(interval: interval)
+                targetRanges = try await dataSource.getTargetRangeHistory(interval: interval)
                 basalHistory = try await dataSource.getBasalHistory(interval: interval)
                 doses = try await dataSource.getDoses(interval: interval)
                 carbEntries = try await dataSource.getCarbEntries(interval: interval)

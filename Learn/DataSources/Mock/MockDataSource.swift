@@ -12,8 +12,6 @@ import LoopKit
 import HealthKit
 
 class MockDataSource: DataSource {
-
-
     @Published var loadingState: LoadingState = .isLoading
 
     var stateStorage: StateStorage?
@@ -34,35 +32,20 @@ class MockDataSource: DataSource {
         return getMockGlucoseValues(start: interval.start, end: interval.end)
     }
 
-    func getMockTargetRanges(start: Date, end: Date) -> [TargetRange] {
-        let targetTimeInterval = TimeInterval(90 * 60)
+    func getMockBoluses(start: Date, end: Date) -> [DoseEntry] {
+        let spaceBetweenBoluses = TimeInterval(2.2 * 3600)
 
-        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: targetTimeInterval)
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses)
 
-        return stride(from: intervalStart, through: end, by: targetTimeInterval).map { date in
-            let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 2) / (3600*3) * Double.pi * 2) * 10
-
-            let min = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value-5)
-            let max = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value+5)
-
-            return TargetRange(min: min, max: max, startTime: date, endTime: date.addingTimeInterval(targetTimeInterval))
+        return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
+            return DoseEntry(
+                type: .bolus,
+                startDate: date,
+                value: value,
+                unit: .units
+            )
         }
-    }
-
-    func getTargetRanges(interval: DateInterval) async throws -> [TargetRange] {
-        return getMockTargetRanges(start: interval.start, end: interval.end)
-    }
-
-    func getMockDoses(interval: DateInterval) -> [DoseEntry] {
-        let boluses = getMockBoluses(start: interval.start, end: interval.end)
-        let basal = getMockBasalDoses(start: interval.start, end: interval.end)
-        return (basal + boluses).sorted { a, b in
-            a.startDate > b.startDate
-        }
-    }
-
-    func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
-        return getMockDoses(interval: interval)
     }
 
     func getMockBasalDoses(start: Date, end: Date) -> [DoseEntry] {
@@ -81,20 +64,22 @@ class MockDataSource: DataSource {
         }
     }
 
-    func getMockBasalHistory(start: Date, end: Date) -> [BasalRateHistoryEntry] {
-        let spaceBetweenChanges = TimeInterval(3 * 3600)
-
-        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
-
-        return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
-            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 1.5) + 1
-            return BasalRateHistoryEntry(startTime: date, rate: value)
+    func getMockDoses(interval: DateInterval) -> [DoseEntry] {
+        let boluses = getMockBoluses(start: interval.start, end: interval.end)
+        let basal = getMockBasalDoses(start: interval.start, end: interval.end)
+        return (basal + boluses).sorted { a, b in
+            a.startDate < b.startDate
         }
     }
 
-    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
-        return getMockCarbEntries(start: interval.start, end: interval.end)
+    func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
+        return getMockDoses(interval: interval)
     }
+
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [TargetRange] {
+        return getMockTargetRanges(start: interval.start, end: interval.end)
+    }
+
 
     func getMockCarbEntries(start: Date, end: Date) -> [CarbEntry] {
         let spaceBetweenEntries = TimeInterval(2.2 * 3600)
@@ -107,24 +92,54 @@ class MockDataSource: DataSource {
         }
     }
 
+    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
+        return getMockCarbEntries(start: interval.start, end: interval.end)
+    }
 
-    func getBasalHistory(interval: DateInterval) async throws -> [BasalRateHistoryEntry] {
+    func getMockTargetRanges(start: Date, end: Date) -> [TargetRange] {
+        let targetTimeInterval = TimeInterval(90 * 60)
+
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: targetTimeInterval)
+
+        return stride(from: intervalStart, through: end, by: targetTimeInterval).map { date in
+            let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 2) / (3600*3) * Double.pi * 2) * 10
+
+            let min = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value-5)
+            let max = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value+5)
+
+            return TargetRange(min: min, max: max, startTime: date, endTime: date.addingTimeInterval(targetTimeInterval))
+        }
+    }
+
+    func getMockBasalHistory(start: Date, end: Date) -> [AbsoluteScheduleValue<Double>] {
+        let spaceBetweenChanges = TimeInterval(3 * 3600)
+
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
+
+        return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 1.5) + 1
+            return AbsoluteScheduleValue(startDate: date, endDate: start.addingTimeInterval(spaceBetweenChanges), value: value)
+        }
+    }
+
+    func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
         return getMockBasalHistory(start: interval.start, end: interval.end)
     }
 
-    func getMockBoluses(start: Date, end: Date) -> [DoseEntry] {
-        let spaceBetweenBoluses = TimeInterval(2.2 * 3600)
 
-        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses)
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>] {
+        let insulinSensitivitySchedule = InsulinSensitivitySchedule(
+            unit: .milligramsPerDeciliter,
+            dailyItems: [
+                RepeatingScheduleValue(startTime: .hours(0), value: 50),
+                RepeatingScheduleValue(startTime: .hours(6), value: 40),
+                RepeatingScheduleValue(startTime: .hours(12), value: 45),
+                RepeatingScheduleValue(startTime: .hours(18), value: 55)
+            ]
+        )!
 
-        return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
-            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
-            return DoseEntry(
-                type: .bolus,
-                startDate: date,
-                value: value,
-                unit: .units
-            )
+        return insulinSensitivitySchedule.truncatingBetween(start: interval.start, end: interval.end).map {
+            return AbsoluteScheduleValue(startDate: $0.startDate, endDate: $0.endDate, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: $0.value))
         }
     }
 

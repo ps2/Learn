@@ -16,21 +16,6 @@ protocol DateSelectableValue {
     var selectionValue: Double { get }
 }
 
-struct BasalRateHistoryEntry: Identifiable, DateSelectableValue, BasalRateEntry {
-    var startTime: Date
-    var rate: Double // Units/hr
-
-    var id: Date { return startTime }
-    var dateForSelection: Date { return startTime }
-
-    var selectionValue: Double { return rate }
-
-    init(startTime: Date, rate: Double) {
-        self.startTime = startTime
-        self.rate = rate
-    }
-}
-
 extension DoseEntry: Identifiable {
     public var id: String {
         return syncIdentifier ?? startDate.description
@@ -62,7 +47,7 @@ struct InsulinDosesChart: View {
     private var xScale: ClosedRange<Date> { startTime...endTime }
 
     private var doses: [DoseEntry]
-    private var basalHistory: [BasalRateHistoryEntry]
+    private var basalHistory: [AbsoluteScheduleValue<Double>]
 
     private var startTime: Date
     private var endTime: Date
@@ -93,7 +78,7 @@ struct InsulinDosesChart: View {
     var basalDoses: [DoseEntry]
 
 
-    init(startTime: Date, endTime: Date, doses: [DoseEntry], basalHistory: [BasalRateHistoryEntry], chartUnitOffset: Binding<Int>, numSegments: Int) {
+    init(startTime: Date, endTime: Date, doses: [DoseEntry], basalHistory: [AbsoluteScheduleValue<Double>], chartUnitOffset: Binding<Int>, numSegments: Int) {
         self.startTime = startTime
         self.endTime = endTime
         self.doses = doses
@@ -118,14 +103,14 @@ struct InsulinDosesChart: View {
         }
         if var previousItem = basalHistory.first {
             for item in basalHistory {
-                if item.startTime != previousItem.startTime {
-                    basalLines.append(BasalRatePoint(date: item.startTime, rate: previousItem.rate, type: .schedule))
+                if item.startDate != previousItem.startDate {
+                    basalLines.append(BasalRatePoint(date: item.startDate, rate: previousItem.value, type: .schedule))
                 }
-                basalLines.append(BasalRatePoint(date: item.startTime, rate: item.rate, type: .schedule))
+                basalLines.append(BasalRatePoint(date: item.startDate, rate: item.value, type: .schedule))
                 previousItem = item
             }
-            if previousItem.startTime < endTime {
-                basalLines.append(BasalRatePoint(date: endTime, rate: previousItem.rate, type: .schedule))
+            if previousItem.startDate < endTime {
+                basalLines.append(BasalRatePoint(date: endTime, rate: previousItem.value, type: .schedule))
             }
         }
         basalPoints = basalLines
@@ -279,17 +264,27 @@ struct InsulinDosesChart: View {
         var rate: Double? = nil
 
         for basal in basalHistory {
-            if rate != basal.rate && basal.dateForSelection < date {
-                let distance = abs(basal.dateForSelection.distance(to: date))
+            if rate != basal.value && basal.startDate < date {
+                let distance = abs(basal.startDate.distance(to: date))
                 if distance < minDistance {
                     minDistance = distance
                     selection = basal
                 }
             }
-            rate = basal.rate
+            rate = basal.value
         }
 
         return selection
+    }
+}
+
+extension AbsoluteScheduleValue<Double>: DateSelectableValue {
+    var dateForSelection: Date {
+        return startDate
+    }
+
+    var selectionValue: Double {
+        return value
     }
 }
 
