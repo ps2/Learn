@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct LoopLessons: View {
+    var dataSource = MockDataSource()
+
     var body: some View {
         List {
             NavigationLink {
@@ -17,12 +19,20 @@ struct LoopLessons: View {
             } label: {
                 Text("Mid-Absorption ISF Change")
             }
+            NavigationLink {
+                BasicChartsView(dataSource: dataSource)
+                    .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+            } label: {
+                Text("Algo Effects from Mock Data Source")
+            }
         }
     }
 }
 
 struct LoopLessons_Previews: PreviewProvider {
     static var previews: some View {
-        LoopLessons()
+        NavigationView {
+            LoopLessons()
+        }
     }
 }

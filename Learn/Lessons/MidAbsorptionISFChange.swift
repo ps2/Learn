@@ -75,7 +75,7 @@ struct MidAbsorptionISFChange: View {
             Chart {
                 RuleMark(x: .value("ISF Changed from 50 to 75 mg/dL/U", 2))
                     .annotation(position: .trailing, alignment: .top) {
-                        Text("ISF schedule changes from 50 to 75 mg/dL/U")
+                        Text("ISF changes from 50 to 75 mg/dL/U")
                             .padding(5)
                             .foregroundColor(.secondary)
                     }

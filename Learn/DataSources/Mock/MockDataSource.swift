@@ -35,7 +35,7 @@ class MockDataSource: DataSource {
     func getMockBoluses(start: Date, end: Date) -> [DoseEntry] {
         let spaceBetweenBoluses = TimeInterval(2.2 * 3600)
 
-        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses)
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses) + spaceBetweenBoluses
 
         return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
@@ -118,7 +118,7 @@ class MockDataSource: DataSource {
 
         return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 1.5) + 1
-            return AbsoluteScheduleValue(startDate: date, endDate: start.addingTimeInterval(spaceBetweenChanges), value: value)
+            return AbsoluteScheduleValue(startDate: date, endDate: date.addingTimeInterval(spaceBetweenChanges), value: value)
         }
     }
 
@@ -139,7 +139,7 @@ class MockDataSource: DataSource {
         )!
 
         return insulinSensitivitySchedule.truncatingBetween(start: interval.start, end: interval.end).map {
-            return AbsoluteScheduleValue(startDate: $0.startDate, endDate: $0.endDate, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: $0.value))
+            AbsoluteScheduleValue(startDate: $0.startDate, endDate: $0.endDate, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: $0.value))
         }
     }
 
