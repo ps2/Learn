@@ -127,7 +127,7 @@ final class NightscoutDataSource: DataSource {
 
     func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
         let entries = try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
-        return entries.map { CarbEntry(date: $0.startDate, amount: $0.quantity) }
+        return entries.map { CarbEntry(startDate: $0.startDate, absorptionTime: $0.absorptionTime, quantity: $0.quantity) }
     }
 
 

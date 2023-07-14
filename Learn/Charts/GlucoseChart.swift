@@ -9,15 +9,17 @@
 import SwiftUI
 import Charts
 import HealthKit
+import LoopKit
 
 struct GlucoseValue: Equatable {
     let quantity: HKQuantity
     let date: Date
 }
 
-struct CarbEntry: Equatable {
-    let date: Date
-    let amount: HKQuantity
+struct CarbEntry: Equatable, LoopKit.CarbEntry {
+    var startDate: Date
+    var absorptionTime: TimeInterval?
+    var quantity: HKQuantity
 }
 
 struct TargetRange: Equatable {
@@ -99,9 +101,9 @@ struct GlucoseChart: View {
                         .foregroundStyle(Color.glucose)
                         .symbolSize(CGSize(width: 5, height: 5))
                     }
-                    ForEach(carbEntries, id: \.date) { entry in
+                    ForEach(carbEntries, id: \.startDate) { entry in
                         PointMark(
-                            x: .value("Time", entry.date, unit: .second),
+                            x: .value("Time", entry.startDate, unit: .second),
                             y: 12
                         )
                         .symbol {
@@ -109,7 +111,7 @@ struct GlucoseChart: View {
                                 .foregroundColor(.carbs)
                         }
                         .annotation(position: .bottom, spacing: 0) {
-                            Text(formatters.carbFormatter.string(from: entry.amount)!)
+                            Text(formatters.carbFormatter.string(from: entry.quantity)!)
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }

@@ -1,17 +1,19 @@
 //
-//  ForecastScenario.swift
+//  LoopDosingExample.swift
 //  Learn
 //
-//  Created by Pete Schwamb on 6/29/23.
+//  Created by Pete Schwamb on 7/13/23.
 //  Copyright © 2023 LoopKit Authors. All rights reserved.
 //
+
+import SwiftUI
 
 import SwiftUI
 import Charts
 import HealthKit
 import LoopKit
 
-struct MidAbsorptionISFChange: View {
+struct LoopDosingExample: View {
 
     @EnvironmentObject private var formatters: QuantityFormatters
 
@@ -131,11 +133,9 @@ struct MidAbsorptionISFChange: View {
     }
 }
 
-
-struct MidAbsorptionISFChange_Previews: PreviewProvider {
+struct LoopDosingExample_Previews: PreviewProvider {
     static var previews: some View {
-        MidAbsorptionISFChange()
+        LoopDosingExample()
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }
-

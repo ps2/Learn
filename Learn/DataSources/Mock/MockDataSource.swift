@@ -88,7 +88,7 @@ class MockDataSource: DataSource {
 
         return stride(from: intervalStart, through: end, by: spaceBetweenEntries).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 80) + 10
-            return CarbEntry(date: date, amount: HKQuantity(unit: .gram(), doubleValue: value))
+            return CarbEntry(startDate: date, quantity: HKQuantity(unit: .gram(), doubleValue: value))
         }
     }
 

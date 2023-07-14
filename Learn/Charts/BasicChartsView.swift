@@ -25,18 +25,16 @@ struct BasicChartsView: View {
 
     // This lets us have a more persistent baseTime
     @State private var viewCreationDate = Date()
-    @State private var algorithmEffects: AlgorithmEffects?
+    @State private var algorithmEffects: AlgorithmEffectsTimeline?
 
     var baseTime: Date {
         return (dataSource.endOfData ?? viewCreationDate).roundDownToHour()
     }
 
     private var dataSource: any DataSource
-    @State private var algorithm: LoopAlgorithm
 
     init(dataSource: any DataSource) {
         self.dataSource = dataSource
-        self._algorithm = State(initialValue: LoopAlgorithm(dataSource: dataSource))
     }
 
     var displayedTimeInterval: TimeInterval {
@@ -140,7 +138,7 @@ struct BasicChartsView: View {
                 basalHistory = try await dataSource.getBasalHistory(interval: interval)
                 doses = try await dataSource.getDoses(interval: interval)
                 carbEntries = try await dataSource.getCarbEntries(interval: interval)
-                algorithmEffects = try await algorithm.getEffects(effectsInterval: interval)
+                algorithmEffects = try await LoopAlgorithm.getEffectsTimeline(effectsInterval: interval, dataSource: dataSource)
             } catch {
                 print("Error refreshing data: \(error)")
             }

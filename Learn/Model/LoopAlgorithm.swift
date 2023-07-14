@@ -10,6 +10,10 @@ import Foundation
 import LoopKit
 import HealthKit
 
+struct Forecast {
+    var predicted: [GlucoseValue]
+}
+
 struct AlgorithmEffectSummary {
     let date: Date
 
@@ -21,24 +25,67 @@ struct AlgorithmEffectSummary {
 //    let retrospectiveCorrection: HKQuantity
 }
 
-struct AlgorithmEffects {
+struct AlgorithmEffectsTimeline {
     let summaries: [AlgorithmEffectSummary]
+}
+
+struct AlgorithmInput {
+    var glucoseHistory: [StoredGlucoseSample]
+    var doses: [DoseEntry]
+    var carbEntries: [CarbEntry]
+    var basal: [AbsoluteScheduleValue<Double>]
+    var sensitivity: [AbsoluteScheduleValue<HKQuantity>]
+    var carbRatio: [AbsoluteScheduleValue<Double>]
+    var delta: TimeInterval = TimeInterval(minutes: 5)
+    var insulinActivityDuration: TimeInterval = TimeInterval(hours: 6) + TimeInterval(minutes: 10)
 }
 
 actor LoopAlgorithm {
 
-    let dataSource: any DataSource
-    let delta: TimeInterval
+    // Generates a forecast predicting glucose.
+    func getForecast(input: AlgorithmInput, startDate: Date? = nil) -> Forecast {
+        let start = startDate ?? input.glucoseHistory.last!.startDate
 
-    let insulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: nil)
-    var insulinActivityDuration = TimeInterval(hours: 6) + TimeInterval(minutes: 10)
+        let insulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: nil)
 
-    init(dataSource: any DataSource) {
-        self.dataSource = dataSource
-        self.delta = TimeInterval(minutes: 5)
+        let effectsInterval = DateInterval(
+            start: start.addingTimeInterval(-input.insulinActivityDuration).dateFlooredToTimeInterval(input.delta),
+            end: start.addingTimeInterval(input.insulinActivityDuration).dateCeiledToTimeInterval(input.delta)
+        )
+
+        // Overlay basal history on basal doses, splitting doses to get amount delivered relative to basal
+        let annotatedDoses = input.doses.annotated(with: input.basal)
+
+        let insulinEffects = annotatedDoses.glucoseEffects(
+            insulinModelProvider: insulinModelProvider,
+            longestEffectDuration: input.insulinActivityDuration,
+            insulinSensitivityHistory: input.sensitivity,
+            from: effectsInterval.start,
+            to: effectsInterval.end)
+
+        // ICE
+        let insulinCounteractionEffects = input.glucoseHistory.counteractionEffects(to: insulinEffects)
+
+        // Carb Effects
+        let carbEffects = input.carbEntries.map(
+            to: insulinCounteractionEffects,
+            carbRatio: input.carbRatio,
+            insulinSensitivity: input.sensitivity)
+
+        // Glucose Momentum
+        // RC
+
+        return Forecast(predicted: [])
     }
 
-    func getEffects(effectsInterval: DateInterval) async throws -> AlgorithmEffects {
+    // Provides a timeline of summaries of algorithm effects, to gain insight on algorithm behavior over time.
+    static func getEffectsTimeline(
+        effectsInterval: DateInterval,
+        dataSource: any DataSource,
+        delta: TimeInterval = TimeInterval(minutes: 5),
+        insulinModelProvider: InsulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: nil),
+        insulinActivityDuration: TimeInterval = TimeInterval(hours: 6) + TimeInterval(minutes: 10)
+    ) async throws -> AlgorithmEffectsTimeline {
 
         let effectsInterval = DateInterval(
             start: effectsInterval.start.dateFlooredToTimeInterval(delta),
@@ -75,11 +122,6 @@ actor LoopAlgorithm {
             from: effectsInterval.start,
             to: effectsInterval.end)
 
-//        for iob in insulinOnBoard {
-//            print("iob(\(iob.startDate)) = \(iob.value)")
-//        }
-
-
         var summaries = [AlgorithmEffectSummary]()
 
         var summaryDate = effectsInterval.start
@@ -105,7 +147,7 @@ actor LoopAlgorithm {
             summaryDate = effectsInterval.start + delta * Double(index)
         }
 
-        return AlgorithmEffects(summaries: summaries)
+        return AlgorithmEffectsTimeline(summaries: summaries)
     }
 }
 
