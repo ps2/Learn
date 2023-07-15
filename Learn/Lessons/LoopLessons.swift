@@ -25,6 +25,12 @@ struct LoopLessons: View {
             } label: {
                 Text("Algo Effects from Mock Data Source")
             }
+            NavigationLink {
+                LoopDosingExample()
+                    .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+            } label: {
+                Text("Loop Dosing Example")
+            }
         }
     }
 }

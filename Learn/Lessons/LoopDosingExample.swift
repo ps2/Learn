@@ -15,6 +15,26 @@ import LoopKit
 
 struct LoopDosingExample: View {
 
+    enum GlucoseType: Plottable {
+        var primitivePlottable: String {
+            switch self {
+            case .historic:
+                return "Historic"
+            case .predicted:
+                return "Predicted"
+            }
+        }
+
+        init?(primitivePlottable: String) {
+            return nil
+        }
+
+        typealias PrimitivePlottable = String
+
+        case historic
+        case predicted
+    }
+
     static func scenario(baseTime: Date) -> AlgorithmInput {
         func t(_ offset: TimeInterval) -> Date {
             return baseTime.addingTimeInterval(offset)
@@ -91,9 +111,9 @@ struct LoopDosingExample: View {
     var body: some View {
         VStack {
             HStack {
-                Text("1 U Bolus").bold()
+                Text("Loop Forecast").bold()
                 Spacer()
-                Text("Glucose Effects")
+                Text("Example")
                     .foregroundColor(.secondary)
             }
             if let forecast {
@@ -108,10 +128,12 @@ struct LoopDosingExample: View {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(
                     x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
-                    y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
+                    y: .value("Historic Glucose", effect.quantity.doubleValue(for: formatters.glucoseUnit))
                 )
                 .symbolSize(CGSize(width: 7, height: 7))
                 .opacity(0.6)
+                .foregroundStyle(by: .value("Forecast Type", GlucoseType.historic))
+                .symbol(by: .value("Forecast Type", GlucoseType.historic))
             }
             ForEach(forecast.predicted, id: \.startDate) { effect in
                 PointMark(
@@ -120,9 +142,11 @@ struct LoopDosingExample: View {
                 )
                 .symbolSize(CGSize(width: 7, height: 7))
                 .opacity(0.6)
+                .foregroundStyle(by: .value("Forecast Type", GlucoseType.predicted))
+                .symbol(by: .value("Forecast Type", GlucoseType.predicted))
             }
         }
-        .chartXScale(domain: (-1.0)...6)
+        .chartXScale(domain: (-1.0)...6.5)
         .chartXAxis {
             AxisMarks(preset: .aligned, values: [-1,0,1,2,3,4,5,6])
         }
@@ -136,6 +160,11 @@ struct LoopDosingExample: View {
                 }
             }
         }
+        .chartForegroundStyleScale([
+            GlucoseType.historic: .purple,
+            GlucoseType.predicted: .green
+        ])
+
     }
 }
 
