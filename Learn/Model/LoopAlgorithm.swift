@@ -11,7 +11,12 @@ import LoopKit
 import HealthKit
 
 struct Forecast {
-    var predicted: [GlucoseValue]
+    var predicted: [PredictedGlucoseValue]
+}
+
+enum AlgorithmError: Error {
+    case missingGlucose
+    case incompleteSchedules
 }
 
 struct AlgorithmEffectSummary {
@@ -36,6 +41,7 @@ struct AlgorithmInput {
     var basal: [AbsoluteScheduleValue<Double>]
     var sensitivity: [AbsoluteScheduleValue<HKQuantity>]
     var carbRatio: [AbsoluteScheduleValue<Double>]
+    var target: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]
     var delta: TimeInterval = TimeInterval(minutes: 5)
     var insulinActivityDuration: TimeInterval = TimeInterval(hours: 6) + TimeInterval(minutes: 10)
 }
@@ -43,8 +49,13 @@ struct AlgorithmInput {
 actor LoopAlgorithm {
 
     // Generates a forecast predicting glucose.
-    func getForecast(input: AlgorithmInput, startDate: Date? = nil) -> Forecast {
-        let start = startDate ?? input.glucoseHistory.last!.startDate
+    func getForecast(input: AlgorithmInput, startDate: Date? = nil) throws -> Forecast {
+
+        guard let latestGlucose = input.glucoseHistory.last else {
+            throw AlgorithmError.missingGlucose
+        }
+
+        let start = startDate ?? latestGlucose.startDate
 
         let insulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: nil)
 
@@ -70,12 +81,48 @@ actor LoopAlgorithm {
         let carbEffects = input.carbEntries.map(
             to: insulinCounteractionEffects,
             carbRatio: input.carbRatio,
-            insulinSensitivity: input.sensitivity)
+            insulinSensitivity: input.sensitivity
+        ).dynamicGlucoseEffects(
+            carbRatios: input.carbRatio,
+            insulinSensitivities: input.sensitivity
+        )
 
         // Glucose Momentum
-        // RC
+        let momentumEffects = input.glucoseHistory.linearMomentumEffect()
 
-        return Forecast(predicted: [])
+        // RC
+        let retrospectiveCorrectionGroupingInterval: TimeInterval = .minutes(30)
+        let retrospectiveGlucoseDiscrepancies = insulinCounteractionEffects.subtracting(carbEffects)
+        let retrospectiveGlucoseDiscrepanciesSummed = retrospectiveGlucoseDiscrepancies.combinedSums(of: retrospectiveCorrectionGroupingInterval * 1.01)
+
+        let rc = StandardRetrospectiveCorrection(effectDuration: TimeInterval(hours: 1))
+
+        guard let curSensitivity = input.sensitivity.closestPrior(to: start)?.value,
+              let curBasal = input.basal.closestPrior(to: start)?.value,
+              let curTarget = input.target.closestPrior(to: start)?.value else
+        {
+            throw AlgorithmError.incompleteSchedules
+        }
+
+        let rcEffect = rc.computeEffect(
+            startingAt: latestGlucose,
+            retrospectiveGlucoseDiscrepanciesSummed: retrospectiveGlucoseDiscrepanciesSummed,
+            recencyInterval: TimeInterval(minutes: 15),
+            insulinSensitivity: curSensitivity,
+            basalRate: curBasal,
+            correctionRange: curTarget,
+            retrospectiveCorrectionGroupingInterval: retrospectiveCorrectionGroupingInterval
+        )
+
+        var effects: [[GlucoseEffect]] = [
+            carbEffects,
+            insulinEffects,
+            rcEffect
+        ]
+
+        var prediction = LoopMath.predictGlucose(startingAt: latestGlucose, momentum: momentumEffects, effects: effects)
+
+        return Forecast(predicted: prediction)
     }
 
     // Provides a timeline of summaries of algorithm effects, to gain insight on algorithm behavior over time.
