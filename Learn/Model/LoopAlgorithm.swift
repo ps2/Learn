@@ -49,7 +49,7 @@ struct AlgorithmInput {
 actor LoopAlgorithm {
 
     // Generates a forecast predicting glucose.
-    func getForecast(input: AlgorithmInput, startDate: Date? = nil) throws -> Forecast {
+    static func getForecast(input: AlgorithmInput, startDate: Date? = nil) throws -> Forecast {
 
         guard let latestGlucose = input.glucoseHistory.last else {
             throw AlgorithmError.missingGlucose

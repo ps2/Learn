@@ -15,60 +15,77 @@ import LoopKit
 
 struct LoopDosingExample: View {
 
+    static func scenario(baseTime: Date) -> AlgorithmInput {
+        func t(_ offset: TimeInterval) -> Date {
+            return baseTime.addingTimeInterval(offset)
+        }
+
+        func glucose(_ date: Date, value: Double) -> StoredGlucoseSample {
+            return StoredGlucoseSample(
+                startDate: date,
+                quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value))
+        }
+
+        let glucoseHistory = [
+            glucose(t(.minutes(-21)), value: 110),
+            glucose(t(.minutes(-16)), value: 115),
+            glucose(t(.minutes(-11)), value: 112),
+            glucose(t(.minutes(-6)), value: 118),
+            glucose(t(.minutes(-1)), value: 120)
+        ]
+
+        let dose = DoseEntry(type: .bolus, startDate: t(.hours(-1)), value: 1.0, unit: .units)
+
+        let sensitivity = [
+            AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
+        ]
+
+        let carbRatio = [
+            AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: 10.0)
+        ]
+
+        let basal = [
+            AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: 1.0)
+        ]
+
+        let target = [
+            AbsoluteScheduleValue(
+                startDate: t(.hours(-7)),
+                endDate: t(.hours(7)),
+                value: ClosedRange(
+                    uncheckedBounds: (
+                        lower: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 100),
+                        upper: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 110))
+                )
+            )
+        ]
+
+        return AlgorithmInput(
+            glucoseHistory: glucoseHistory,
+            doses: [dose],
+            carbEntries: [],
+            basal: basal,
+            sensitivity: sensitivity,
+            carbRatio: carbRatio,
+            target: target)
+    }
+
     @EnvironmentObject private var formatters: QuantityFormatters
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    var effects: [GlucoseEffect]
-    var effectsWithInflection: [GlucoseEffect]
-
-    enum ForecastType: Plottable {
-        var primitivePlottable: String {
-            switch self {
-            case .loopCurrent:
-                return "Current"
-            case .loopProposed:
-                return "Proposed"
-            }
-        }
-
-        init?(primitivePlottable: String) {
-            return nil
-        }
-
-        typealias PrimitivePlottable = String
-
-        case loopCurrent
-        case loopProposed
-    }
+    private var algorithmInput: AlgorithmInput
+    private var forecast: Forecast?
 
     init()  {
-        let dose = DoseEntry(type: .bolus, startDate: baseTime, value: 1.0, unit: .units)
 
-        let schedule = InsulinSensitivitySchedule(
-            unit: .milligramsPerDeciliter,
-            dailyItems: [RepeatingScheduleValue(startTime: 0, value: 50),
-                         RepeatingScheduleValue(startTime: 3600*2, value: 75)],
-            timeZone: TimeZone(secondsFromGMT: 0))!
+        algorithmInput = Self.scenario(baseTime: baseTime)
 
-        effects = []
-        effects = [dose].glucoseEffects(
-            insulinModelProvider:  PresetInsulinModelProvider(defaultRapidActingModel: nil),
-            longestEffectDuration: .hours(6), insulinSensitivity: schedule)
-
-        let changeTime = baseTime.addingTimeInterval(.hours(2))
-        let endTime = baseTime.addingTimeInterval(.hours(6))
-
-        let timeline = [
-            AbsoluteScheduleValue(startDate: baseTime, endDate: changeTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50)),
-            AbsoluteScheduleValue(startDate: changeTime, endDate: endTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 75))
-        ]
-        effectsWithInflection = []
-        effectsWithInflection = [dose].glucoseEffects(
-            insulinModelProvider: PresetInsulinModelProvider(defaultRapidActingModel: nil),
-            longestEffectDuration: .hours(6),
-            insulinSensitivityTimeline: timeline)
-
+        do {
+            forecast = try LoopAlgorithm.getForecast(input: algorithmInput)
+        } catch {
+            print("Could not create forecast: \(error)")
+        }
     }
 
     var body: some View {
@@ -79,57 +96,46 @@ struct LoopDosingExample: View {
                 Text("Glucose Effects")
                     .foregroundColor(.secondary)
             }
-            Chart {
-                RuleMark(x: .value("ISF Changed from 50 to 75 mg/dL/U", 2))
-                    .annotation(position: .trailing, alignment: .top) {
-                        Text("ISF changes from 50 to 75 mg/dL/U")
-                            .padding(5)
-                            .foregroundColor(.secondary)
-                    }
-                    .foregroundStyle(Color.secondary)
-
-                ForEach(effectsWithInflection, id: \.startDate) { effect in
-                    PointMark(
-                        x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
-                        y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
-                    )
-                    .foregroundStyle(by: .value("Forecast Type", ForecastType.loopProposed))
-                    .symbol(by: .value("Forecast Type", ForecastType.loopProposed))
-                    .symbolSize(CGSize(width: 7, height: 7))
-                    .opacity(0.6)
-                }
-                ForEach(effects, id: \.startDate) { effect in
-                    PointMark(
-                        x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
-                        y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
-                    )
-                    .foregroundStyle(by: .value("Forecast Type", ForecastType.loopCurrent))
-                    .symbol(by: .value("Forecast Type", ForecastType.loopCurrent))
-                    .symbolSize(CGSize(width: 5, height: 5))
-                    .opacity(0.6)
-                }
-
+            if let forecast {
+                chart(forecast: forecast)
             }
-            .chartXScale(domain: 0...6)
-            .chartXAxis {
-                AxisMarks(preset: .aligned, values: [0,1,2,3,4,5,6])
-            }
-            .chartYAxis {
-                AxisMarks(values: .automatic(desiredCount: 7)) { value in
-                    AxisGridLine()
-
-                    if let glucose: Double = value.as(Double.self) {
-                        let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
-                        AxisValueLabel(formatters.glucoseFormatter.string(from: quantity)!)
-                    }
-                }
-            }
-            .chartForegroundStyleScale([
-                ForecastType.loopCurrent: .purple,
-                ForecastType.loopProposed: .green
-            ])
         }
         .padding()
+    }
+
+    func chart(forecast: Forecast) -> some View {
+        Chart {
+            ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
+                PointMark(
+                    x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
+                    y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
+                )
+                .symbolSize(CGSize(width: 7, height: 7))
+                .opacity(0.6)
+            }
+            ForEach(forecast.predicted, id: \.startDate) { effect in
+                PointMark(
+                    x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
+                    y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
+                )
+                .symbolSize(CGSize(width: 7, height: 7))
+                .opacity(0.6)
+            }
+        }
+        .chartXScale(domain: (-1.0)...6)
+        .chartXAxis {
+            AxisMarks(preset: .aligned, values: [-1,0,1,2,3,4,5,6])
+        }
+        .chartYAxis {
+            AxisMarks(values: .automatic(desiredCount: 7)) { value in
+                AxisGridLine()
+
+                if let glucose: Double = value.as(Double.self) {
+                    let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
+                    AxisValueLabel(formatters.glucoseFormatter.string(from: quantity)!)
+                }
+            }
+        }
     }
 }
 
