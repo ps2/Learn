@@ -13,6 +13,7 @@ import LoopKit
 public class QuantityFormatters: ObservableObject {
     @Published public private(set) var glucoseUnit: HKUnit
     @Published public private(set) var glucoseFormatter: QuantityFormatter
+    @Published public private(set) var glucoseRateUnit: HKUnit
     @Published public private(set) var glucoseRateFormatter: QuantityFormatter
     @Published public private(set) var insulinFormatter: QuantityFormatter
     @Published public private(set) var insulinRateFormatter: QuantityFormatter
@@ -22,7 +23,9 @@ public class QuantityFormatters: ObservableObject {
         let configuredGlucoseUnit = glucoseUnit ?? .milligramsPerDeciliter
         self.glucoseUnit = configuredGlucoseUnit
         self.glucoseFormatter = QuantityFormatter(for: configuredGlucoseUnit)
-        self.glucoseRateFormatter = QuantityFormatter(for: configuredGlucoseUnit.unitDivided(by: .minute()))
+        let glucoseRateUnit = configuredGlucoseUnit.unitDivided(by: .minute())
+        self.glucoseRateUnit = glucoseRateUnit
+        self.glucoseRateFormatter = QuantityFormatter(for: glucoseRateUnit)
         self.insulinFormatter = QuantityFormatter(for: .internationalUnit())
         self.insulinRateFormatter = QuantityFormatter(for: .internationalUnitsPerHour)
         self.carbFormatter = QuantityFormatter(for: .gram())

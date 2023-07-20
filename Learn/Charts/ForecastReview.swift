@@ -19,6 +19,7 @@ struct ForecastReview: View {
     @EnvironmentObject private var formatters: QuantityFormatters
 
     private var baseTime: Date
+    private var fullInterval: DateInterval
 
     @State private var algorithmInput: AlgorithmInput?
     @State private var algorithmOutput: AlgorithmOutput?
@@ -26,17 +27,15 @@ struct ForecastReview: View {
     init(dataSource: any DataSource)  {
         self.dataSource = dataSource
         self.baseTime = dataSource.endOfData ?? Date()
+        fullInterval = DateInterval(
+            start: baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
+            end: baseTime.addingTimeInterval(LoopAlgorithm.insulinActivityDuration).dateCeiledToTimeInterval(.minutes(5)))
     }
 
     func generateForecast() async {
         let historyInterval = DateInterval(
             start: baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
             end: baseTime)
-
-        let fullInterval = DateInterval(
-            start: baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
-            end: baseTime.addingTimeInterval(LoopAlgorithm.insulinActivityDuration).dateCeiledToTimeInterval(.minutes(5)))
-
 
         do {
             let glucose = try await dataSource.getGlucoseValues(interval: historyInterval).map { value in
@@ -78,7 +77,7 @@ struct ForecastReview: View {
 
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack {
                 Text("Loop Forecast").bold()
                 Spacer()
@@ -86,9 +85,12 @@ struct ForecastReview: View {
                     .foregroundColor(.secondary)
             }
             if let algorithmInput, let algorithmOutput {
-                chart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
+                glucoseChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
+                Text("Insulin Counteraction Effects")
+                iceChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
             }
         }
+        .chartXScale(domain: fullInterval.start...fullInterval.end)
         .padding()
         .onAppear {
             Task {
@@ -96,12 +98,12 @@ struct ForecastReview: View {
             }
         }
     }
-
-    func chart(algorithmInput: AlgorithmInput, algorithmOutput: AlgorithmOutput) -> some View {
+    
+    func glucoseChart(algorithmInput: AlgorithmInput, algorithmOutput: AlgorithmOutput) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(
-                    x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
+                    x: .value("Time", effect.startDate),
                     y: .value("Historic Glucose", effect.quantity.doubleValue(for: formatters.glucoseUnit))
                 )
                 .symbolSize(CGSize(width: 6, height: 6))
@@ -110,26 +112,58 @@ struct ForecastReview: View {
             }
             ForEach(algorithmOutput.prediction, id: \.startDate) { effect in
                 LineMark(
-                    x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
+                    x: .value("Time", effect.startDate),
                     y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
                 )
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [8,5]))
                 .foregroundStyle(Color.glucose)
             }
         }
-        .chartXScale(domain: (-6.5)...6.5)
         .chartYScale(domain: 40...350)
         .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 7)) { value in
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 7)) { value in
                 AxisGridLine()
 
                 if let glucose: Double = value.as(Double.self) {
                     let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
-                    AxisValueLabel(formatters.glucoseFormatter.string(from: quantity)!)
+                    AxisValueLabel {
+                        Text(formatters.glucoseFormatter.string(from: quantity)!)
+                            .frame(width: 90, alignment: .trailing)
+                    }
                 }
             }
         }
     }
+
+    func iceChart(algorithmInput: AlgorithmInput, algorithmOutput: AlgorithmOutput) -> some View {
+        Chart {
+            ForEach(algorithmOutput.effects.insulinCounteraction, id: \.startDate) { effect in
+                RectangleMark(
+                    xStart: .value("Start Time", effect.startDate),
+                    xEnd: .value("End Time", effect.endDate),
+                    yStart: .value("Bottom", 0),
+                    yEnd: .value("Value", effect.quantity.doubleValue(for: formatters.glucoseRateUnit))
+                )
+                .symbolSize(CGSize(width: 6, height: 6))
+                .foregroundStyle(Color.carbs)
+
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 7)) { value in
+                AxisGridLine()
+
+                if let glucose: Double = value.as(Double.self) {
+                    let quantity = HKQuantity(unit: formatters.glucoseRateUnit, doubleValue: glucose)
+                    AxisValueLabel {
+                        Text(formatters.glucoseRateFormatter.string(from: quantity)!)
+                            .frame(width: 90, alignment: .trailing)
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 struct ForecastReview_Previews: PreviewProvider {
