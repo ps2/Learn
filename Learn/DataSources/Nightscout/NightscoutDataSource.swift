@@ -12,7 +12,6 @@ import SwiftUI
 import HealthKit
 
 final class NightscoutDataSource: DataSource {
-
     static var localizedTitle: String = "Nightscout"
     static var dataSourceTypeIdentifier: String = "nightscout"
 
@@ -116,9 +115,8 @@ final class NightscoutDataSource: DataSource {
         return nil
     }
 
-    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue] {
-        let samples = try await cache.glucoseStore.getGlucoseSamples(start: interval.start, end: interval.end)
-        return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
+    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseSampleValue] {
+        try await cache.glucoseStore.getGlucoseSamples(start: interval.start, end: interval.end)
     }
 
     func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
@@ -130,8 +128,7 @@ final class NightscoutDataSource: DataSource {
         return entries.map { CarbEntry(startDate: $0.startDate, absorptionTime: $0.absorptionTime, quantity: $0.quantity) }
     }
 
-
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [TargetRange] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         // Get any changes during the period
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
@@ -160,7 +157,7 @@ final class NightscoutDataSource: DataSource {
 
         var idx = schedules.startIndex
         var date = interval.start
-        var items = [TargetRange]()
+        var items = [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>]()
         while date < interval.end {
             let scheduleActiveEnd: Date
             if idx+1 < schedules.endIndex {
@@ -175,7 +172,7 @@ final class NightscoutDataSource: DataSource {
 
             items.append(contentsOf: absoluteScheduleValues.map { entry in
                 let quantityRange = entry.value.quantityRange(for: schedule.unit)
-                return TargetRange(min: quantityRange.lowerBound, max: quantityRange.upperBound, startTime: entry.startDate, endTime: entry.endDate)
+                return AbsoluteScheduleValue(startDate: entry.startDate, endDate: entry.endDate, value: quantityRange)
             })
             date = scheduleActiveEnd
             idx += 1
@@ -279,6 +276,56 @@ final class NightscoutDataSource: DataSource {
                     endDate: $0.endDate,
                     value: HKQuantity(unit: schedule.unit, doubleValue: $0.value))
             }
+
+            items.append(contentsOf: absoluteScheduleValues)
+            date = scheduleActiveEnd
+            idx += 1
+        }
+
+        return items
+    }
+
+    func getCarbRatioHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
+        // Get any settings changes during the period
+        var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
+
+        // Also need to get the one in effect before the start of the period
+        if let firstSettings = try await cache.settingsStore.getStoredSettings(end: interval.start, limit: 1).first {
+            settingsHistory.append(firstSettings)
+        }
+
+        guard !settingsHistory.isEmpty else {
+            return []
+        }
+
+        // Order from oldest to newest
+        settingsHistory.reverse()
+
+        // Find all valid, non-repeat basal rate schedules in settings
+        var lastSchedule: CarbRatioSchedule? = nil
+        let schedules: [(date: Date, schedule: CarbRatioSchedule)] = settingsHistory.compactMap { settings in
+            if let schedule = settings.carbRatioSchedule, schedule != lastSchedule {
+                lastSchedule = schedule
+                return (date: settings.date, schedule: schedule)
+            } else {
+                return nil
+            }
+        }
+
+        var idx = schedules.startIndex
+        var date = interval.start
+        var items = [AbsoluteScheduleValue<Double>]()
+        while date < interval.end {
+            let scheduleActiveEnd: Date
+            if idx+1 < schedules.endIndex {
+                scheduleActiveEnd = schedules[idx+1].date
+            } else {
+                scheduleActiveEnd = interval.end
+            }
+
+            let schedule = schedules[idx].schedule
+
+            let absoluteScheduleValues = schedule.truncatingBetween(start: date, end: scheduleActiveEnd)
 
             items.append(contentsOf: absoluteScheduleValues)
             date = scheduleActiveEnd

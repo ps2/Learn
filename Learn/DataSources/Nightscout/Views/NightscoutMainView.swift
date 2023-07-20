@@ -16,11 +16,18 @@ struct NightscoutMainView: View {
     }
 
     var body: some View {
-        BasicChartsView(dataSource: dataSource)
-            .refreshable {
-                await dataSource.syncRemoteData()
+        ScrollView {
+            Text(dataSource.name)
+            BasicChartsView(dataSource: dataSource)
+                .refreshable {
+                    await dataSource.syncRemoteData()
+                }
+            Divider()
+                .padding(.vertical)
+            NavigationLink("Forecast Review") {
+                ForecastReview(dataSource: MockDataSource())
             }
-
+        }
     }
 }
 

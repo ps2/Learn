@@ -31,6 +31,12 @@ struct LoopLessons: View {
             } label: {
                 Text("Loop Dosing Example")
             }
+            NavigationLink {
+                RetrospectiveCorrectionExample()
+                    .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+            } label: {
+                Text("Retrospective Correction")
+            }
         }
     }
 }

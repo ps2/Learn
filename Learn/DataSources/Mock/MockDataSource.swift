@@ -20,15 +20,15 @@ class MockDataSource: DataSource {
         return nil
     }
 
-    func getMockGlucoseValues(start: Date, end: Date) -> [GlucoseValue] {
+    func getMockGlucoseValues(start: Date, end: Date) -> [GlucoseSampleValue] {
         stride(from: start, through: end, by: TimeInterval(5 * 60)).map { date in
             let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 60
             let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value)
-            return GlucoseValue(quantity: quantity, date: date)
+            return StoredGlucoseSample(startDate: date, quantity: quantity)
         }
     }
 
-    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue] {
+    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseSampleValue] {
         return getMockGlucoseValues(start: interval.start, end: interval.end)
     }
 
@@ -76,17 +76,23 @@ class MockDataSource: DataSource {
         return getMockDoses(interval: interval)
     }
 
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [TargetRange] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         return getMockTargetRanges(start: interval.start, end: interval.end)
     }
 
+    func getCarbRatioHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
+        return getMockCarbRatioHistory(start: interval.start, end: interval.end)
+    }
 
     func getMockCarbEntries(start: Date, end: Date) -> [CarbEntry] {
         let spaceBetweenEntries = TimeInterval(2.2 * 3600)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenEntries)
 
-        return stride(from: intervalStart, through: end, by: spaceBetweenEntries).map { date in
+        return stride(from: intervalStart, through: end, by: spaceBetweenEntries).compactMap { date in
+            guard date >= start && date <= end else {
+                return nil
+            }
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 80) + 10
             return CarbEntry(startDate: date, quantity: HKQuantity(unit: .gram(), doubleValue: value))
         }
@@ -96,7 +102,7 @@ class MockDataSource: DataSource {
         return getMockCarbEntries(start: interval.start, end: interval.end)
     }
 
-    func getMockTargetRanges(start: Date, end: Date) -> [TargetRange] {
+    func getMockTargetRanges(start: Date, end: Date) -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         let targetTimeInterval = TimeInterval(90 * 60)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: targetTimeInterval)
@@ -107,7 +113,7 @@ class MockDataSource: DataSource {
             let min = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value-5)
             let max = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value+5)
 
-            return TargetRange(min: min, max: max, startTime: date, endTime: date.addingTimeInterval(targetTimeInterval))
+            return AbsoluteScheduleValue(startDate: date, endDate: date.addingTimeInterval(targetTimeInterval), value: ClosedRange(uncheckedBounds: (lower: min, upper: max)))
         }
     }
 
@@ -118,6 +124,17 @@ class MockDataSource: DataSource {
 
         return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 1.5) + 1
+            return AbsoluteScheduleValue(startDate: date, endDate: date.addingTimeInterval(spaceBetweenChanges), value: value)
+        }
+    }
+
+    func getMockCarbRatioHistory(start: Date, end: Date) -> [AbsoluteScheduleValue<Double>] {
+        let spaceBetweenChanges = TimeInterval(3 * 3600)
+
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenChanges)
+
+        return stride(from: intervalStart, through: end, by: spaceBetweenChanges).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 5) + 8
             return AbsoluteScheduleValue(startDate: date, endDate: date.addingTimeInterval(spaceBetweenChanges), value: value)
         }
     }

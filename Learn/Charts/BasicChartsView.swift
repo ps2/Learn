@@ -8,14 +8,15 @@
 
 import SwiftUI
 import LoopKit
+import HealthKit
 
 struct BasicChartsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @ObservedObject private var scrollCoordinator = ChartScrollCoordinator()
 
-    @State private var glucoseDataValues: [GlucoseValue] = []
-    @State private var targetRanges: [TargetRange] = []
+    @State private var glucoseDataValues: [GlucoseSampleValue] = []
+    @State private var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] = []
     @State private var basalHistory: [AbsoluteScheduleValue<Double>] = []
     @State private var doses: [DoseEntry] = []
     @State private var carbEntries: [CarbEntry] = []
@@ -25,7 +26,6 @@ struct BasicChartsView: View {
 
     // This lets us have a more persistent baseTime
     @State private var viewCreationDate = Date()
-    @State private var algorithmEffects: AlgorithmEffectsTimeline?
 
     var baseTime: Date {
         return (dataSource.endOfData ?? viewCreationDate).roundDownToHour()
@@ -77,38 +77,27 @@ struct BasicChartsView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack {
-                GlucoseChart(
-                    startTime: start,
-                    endTime: end,
-                    historicalGlucose: glucoseDataValues,
-                    targetRanges: targetRanges,
-                    carbEntries: carbEntries,
-                    upperRightLabel: dateStr,
-                    chartUnitOffset: $scrollCoordinator.chartUnitOffset,
-                    numSegments: numSegments
-                )
-                InsulinDosesChart(
-                    startTime: start,
-                    endTime: end,
-                    doses: doses,
-                    basalHistory: basalHistory,
-                    chartUnitOffset: $scrollCoordinator.chartUnitOffset,
-                    numSegments: numSegments
-                )
-                if let algorithmEffects {
-                    GlucoseEffectChart(
-                        startTime: start,
-                        endTime: end,
-                        glucoseEffect: algorithmEffects.summaries.map { GlucoseEffect(startDate: $0.date, quantity: $0.netInsulinEffect) },
-                        upperRightLabel: "Insulin Effects",
-                        chartUnitOffset: $scrollCoordinator.chartUnitOffset,
-                        numSegments: numSegments)
-                }
-            }
-            .opaqueHorizontalPadding()
+        VStack {
+            GlucoseChart(
+                startTime: start,
+                endTime: end,
+                historicalGlucose: glucoseDataValues,
+                targetRanges: targetRanges,
+                carbEntries: carbEntries,
+                upperRightLabel: dateStr,
+                chartUnitOffset: $scrollCoordinator.chartUnitOffset,
+                numSegments: numSegments
+            )
+            InsulinDosesChart(
+                startTime: start,
+                endTime: end,
+                doses: doses,
+                basalHistory: basalHistory,
+                chartUnitOffset: $scrollCoordinator.chartUnitOffset,
+                numSegments: numSegments
+            )
         }
+        .opaqueHorizontalPadding()
         .onPreferenceChange(ScrollableChartDragStatePreferenceKey.self) { dragState in
             scrollCoordinator.dragStateChanged(dragState)
         }
@@ -138,7 +127,6 @@ struct BasicChartsView: View {
                 basalHistory = try await dataSource.getBasalHistory(interval: interval)
                 doses = try await dataSource.getDoses(interval: interval)
                 carbEntries = try await dataSource.getCarbEntries(interval: interval)
-                algorithmEffects = try await LoopAlgorithm.getEffectsTimeline(effectsInterval: interval, dataSource: dataSource)
             } catch {
                 print("Error refreshing data: \(error)")
             }
@@ -150,7 +138,9 @@ struct MainChartsView_Previews: PreviewProvider {
     static var dataSource = MockDataSource()
 
     static var previews: some View {
-        BasicChartsView(dataSource: dataSource)
-            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+        ScrollView {
+            BasicChartsView(dataSource: dataSource)
+                .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+        }
     }
 }

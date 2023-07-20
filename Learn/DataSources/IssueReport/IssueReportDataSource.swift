@@ -173,12 +173,11 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return issueReport?.generatedAt
     }
 
-    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseValue] {
-        let samples: [LoopKit.StoredGlucoseSample] = cachedGlucoseSamples.filter { $0.startDate >= interval.start && $0.startDate <= interval.end }
-        return samples.map { GlucoseValue(quantity: $0.quantity, date: $0.startDate) }
+    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseSampleValue] {
+        cachedGlucoseSamples.filter { $0.startDate >= interval.start && $0.startDate <= interval.end }
     }
 
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [TargetRange] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         guard let report = issueReport,
               let schedule = report.loopSettings.glucoseTargetRangeSchedule else
         {
@@ -188,7 +187,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return schedule.truncatingBetween(start: interval.start, end: interval.end).map { entry in
             let min = HKQuantity(unit: schedule.unit, doubleValue: entry.value.minValue)
             let max = HKQuantity(unit: schedule.unit, doubleValue: entry.value.maxValue)
-            return TargetRange(min: min, max: max, startTime: entry.startDate, endTime: entry.endDate)
+            return AbsoluteScheduleValue(startDate: entry.startDate, endDate: entry.endDate, value: ClosedRange(uncheckedBounds: (lower: min, upper: max)))
         }
     }
 
@@ -197,6 +196,10 @@ final class IssueReportDataSource: DataSource, ObservableObject {
     }
 
     func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
+        return []
+    }
+
+    func getCarbRatioHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
         return []
     }
 

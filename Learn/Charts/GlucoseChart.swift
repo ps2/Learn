@@ -52,11 +52,11 @@ struct GlucoseChart: View {
     private var endTime: Date
     private var upperRightLabel: String
 
-    private var historicalGlucose: [GlucoseValue]
-    private var targetRanges: [TargetRange]
+    private var historicalGlucose: [GlucoseSampleValue]
+    private var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]
     private var carbEntries: [CarbEntry]
 
-    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseValue], targetRanges: [TargetRange], carbEntries: [CarbEntry], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
+    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseSampleValue], targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>], carbEntries: [CarbEntry], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
 
         self.startTime = startTime
         self.endTime = endTime
@@ -93,9 +93,9 @@ struct GlucoseChart: View {
 
             ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 250, numSegments: numSegments) {
                 Chart {
-                    ForEach(historicalGlucose, id: \.date) { reading in
+                    ForEach(historicalGlucose, id: \.startDate) { reading in
                         PointMark(
-                            x: .value("Time", reading.date, unit: .second),
+                            x: .value("Time", reading.startDate, unit: .second),
                             y: .value("Historical Glucose", reading.quantity.doubleValue(for: formatters.glucoseUnit))
                         )
                         .foregroundStyle(Color.glucose)
@@ -118,19 +118,19 @@ struct GlucoseChart: View {
                     }
                     if let inspectedElement {
                         PointMark(
-                            x: .value("Time", inspectedElement.date, unit: .second),
+                            x: .value("Time", inspectedElement.startDate, unit: .second),
                             y: .value("Historical Glucose", inspectedElement.quantity.doubleValue(for: formatters.glucoseUnit))
                         )
                         .foregroundStyle(.secondary)
                         .symbolSize(CGSize(width: 15, height: 15))
                     }
 
-                    ForEach(targetRanges, id: \.startTime) { target in
+                    ForEach(targetRanges, id: \.startDate) { target in
                         RectangleMark(
-                            xStart: .value("Segment Start", target.startTime, unit: .second),
-                            xEnd: .value("Segment End", target.endTime, unit: .second),
-                            yStart: .value("TargetBottom", target.min.doubleValue(for: formatters.glucoseUnit)),
-                            yEnd: .value("TargetTop", target.max.doubleValue(for: formatters.glucoseUnit))
+                            xStart: .value("Segment Start", target.startDate, unit: .second),
+                            xEnd: .value("Segment End", target.endDate, unit: .second),
+                            yStart: .value("TargetBottom", target.value.lowerBound.doubleValue(for: formatters.glucoseUnit)),
+                            yEnd: .value("TargetTop", target.value.lowerBound.doubleValue(for: formatters.glucoseUnit))
                         )
                         .foregroundStyle(.tertiary)
                     }
@@ -192,10 +192,10 @@ struct GlucoseChart: View {
         }
     }
 
-    private func getSelectedPoint(selectedElement: GlucoseValue?, proxy: ChartProxy) -> CGPoint {
+    private func getSelectedPoint(selectedElement: GlucoseSampleValue?, proxy: ChartProxy) -> CGPoint {
         if let selectedElement {
             let point = proxy.position(for: (
-                x: selectedElement.date,
+                x: selectedElement.startDate,
                 y: selectedElement.quantity.doubleValue(for: formatters.glucoseUnit)
             ))
             return point ?? .zero
@@ -204,7 +204,7 @@ struct GlucoseChart: View {
         }
     }
 
-    private func findElement(by date: Date?) -> GlucoseValue? {
+    private func findElement(by date: Date?) -> GlucoseSampleValue? {
         guard let date else {
             return nil
         }
@@ -213,7 +213,7 @@ struct GlucoseChart: View {
         var minDistance: TimeInterval = .infinity
         var index: Int? = nil
         for dataIndex in historicalGlucose.indices {
-            let nthDataDistance = historicalGlucose[dataIndex].date.distance(to: date)
+            let nthDataDistance = historicalGlucose[dataIndex].startDate.distance(to: date)
             if abs(nthDataDistance) < minDistance {
                 minDistance = abs(nthDataDistance)
                 index = dataIndex
