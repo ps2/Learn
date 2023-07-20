@@ -43,13 +43,21 @@ struct ForecastReview: View {
                 value as? StoredGlucoseSample ??
                 StoredGlucoseSample(startDate: value.startDate, quantity: value.quantity)
             }
+            let doses = try await dataSource.getDoses(interval: historyInterval)
+            let carbEntries = try await dataSource.getCarbEntries(interval: historyInterval)
+
+            // Doses can overlap history interval, so find the actual earliest time we'll need ISF coverage
+            let isfStart = doses.map { $0.startDate }.min() ?? historyInterval.start
+
+            let isfInterval = DateInterval(start: isfStart, end: fullInterval.end)
+
 
             algorithmInput = AlgorithmInput(
                 glucoseHistory: glucose,
-                doses: try await dataSource.getDoses(interval: historyInterval),
-                carbEntries: try await dataSource.getCarbEntries(interval: historyInterval),
+                doses: doses,
+                carbEntries: carbEntries,
                 basal: try await dataSource.getBasalHistory(interval: fullInterval),
-                sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: fullInterval),
+                sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: isfInterval),
                 carbRatio: try await dataSource.getCarbRatioHistory(interval: fullInterval),
                 target: try await dataSource.getTargetRangeHistory(interval: fullInterval))
 
