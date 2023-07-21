@@ -41,6 +41,8 @@ struct InsulinDosesChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
 
+    @State private var localInspectionDate: Date?
+
     private let desiredYAxisNumberOfMarks: Int = 4
     private let chartYDomain = 0...4
 
@@ -129,7 +131,7 @@ struct InsulinDosesChart: View {
     }
 
     var body: some View {
-        let inspectedElement = findElement(by: chartInspectionDate)
+        let inspectedElement = findElement(by: localInspectionDate ?? chartInspectionDate)
         VStack {
             HStack {
                 Text("Insulin Delivery").bold()
@@ -190,6 +192,9 @@ struct InsulinDosesChart: View {
                 .chartYScale(domain: chartYDomain)
                 .chartXScale(domain: startTime...endTime)
                 .chartLongPressInspection()
+                .onPreferenceChange(ChartInspectionDatePreferenceKey.self) { date in
+                    localInspectionDate = date
+                }
                 .chartOverlay { proxy in
                     Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
                 }
@@ -218,12 +223,15 @@ struct InsulinDosesChart: View {
                                 if let dose = inspectedElement as? DoseEntry, dose.type == .bolus {
                                     Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
                                         .bold()
+                                        .foregroundStyle(Color.insulin)
                                 } else {
                                     Text(formatters.insulinRateFormatter.string(from: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: inspectedElement.selectionValue))!)
                                         .bold()
                                         .foregroundStyle(Color.insulin)
                                 }
                             }
+                            Spacer()
+                            // TODO: Add inspection date here
                         }
                     }
                 }
@@ -303,5 +311,6 @@ struct InsulinDosesChart_Previews: PreviewProvider {
 
         return InsulinDosesChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
+            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

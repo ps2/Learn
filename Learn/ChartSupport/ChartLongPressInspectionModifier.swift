@@ -78,6 +78,7 @@ struct ChartLongPressInspectionModifier: ViewModifier {
                 // to report location on drag.
                 InspectGestureView(minimumDuration: 0.2) { location in
                     inspectionDate = proxy.value(atX: location.x) as Date?
+                    print("inspectionDate = \(inspectionDate)")
                 } onEnded: {
                     inspectionDate = nil
                 }

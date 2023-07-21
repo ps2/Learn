@@ -15,29 +15,31 @@ struct LoopLessons: View {
         List {
             NavigationLink {
                 MidAbsorptionISFChange()
-                    .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             } label: {
                 Text("Mid-Absorption ISF Change")
             }
             NavigationLink {
                 BasicChartsView(dataSource: dataSource)
-                    .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             } label: {
                 Text("Algo Effects from Mock Data Source")
             }
             NavigationLink {
                 LoopDosingExample()
-                    .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             } label: {
                 Text("Loop Dosing Example")
             }
             NavigationLink {
                 RetrospectiveCorrectionExample()
-                    .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             } label: {
                 Text("Retrospective Correction")
             }
+            NavigationLink {
+                InsulinDeliveryExample()
+            } label: {
+                Text("Insulin Delivery")
+            }
         }
+        .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }
 
