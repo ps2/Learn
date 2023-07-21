@@ -221,6 +221,7 @@ struct InsulinDosesChart: View {
                                 } else {
                                     Text(formatters.insulinRateFormatter.string(from: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: inspectedElement.selectionValue))!)
                                         .bold()
+                                        .foregroundStyle(Color.insulin)
                                 }
                             }
                         }

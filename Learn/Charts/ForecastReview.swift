@@ -154,6 +154,22 @@ struct ForecastReview: View {
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [8,5]))
                 .foregroundStyle(Color.glucose)
             }
+            ForEach(algorithmInput.carbEntries, id: \.startDate) { entry in
+                PointMark(
+                    x: .value("Time", entry.startDate, unit: .second),
+                    y: 12
+                )
+                .symbol {
+                    Image(systemName: "fork.knife.circle")
+                        .foregroundColor(.carbs)
+                }
+                .annotation(position: .bottom, spacing: 0) {
+                    Text(formatters.carbFormatter.string(from: entry.quantity)!)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+
         }
         .chartYScale(domain: 40...350)
         .chartYAxis {

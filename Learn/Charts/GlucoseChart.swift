@@ -184,6 +184,7 @@ struct GlucoseChart: View {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
                                 Text(formatters.glucoseFormatter.string(from: selectedElement.quantity)!)
                                     .bold()
+                                    .foregroundStyle(Color.glucose)
                             }
                         }
                     }
