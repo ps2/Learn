@@ -180,7 +180,7 @@ actor NightscoutDataCache {
         }
 
         try await doseStore.syncDoseEntries(doses, updateExistingRecords: updateExistingRecords)
-        try await carbStore.setSyncCarbObjects(carbs)
+        try await carbStore.syncCarbObjects(carbs)
 
         print("added \(doses.count) doses")
     }

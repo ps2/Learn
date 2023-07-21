@@ -22,7 +22,7 @@ class MockDataSource: DataSource {
 
     func getMockGlucoseValues(start: Date, end: Date) -> [GlucoseSampleValue] {
         stride(from: start, through: end, by: TimeInterval(5 * 60)).map { date in
-            let value = 110.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 60
+            let value = 120.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 50
             let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value)
             return StoredGlucoseSample(startDate: date, quantity: quantity)
         }

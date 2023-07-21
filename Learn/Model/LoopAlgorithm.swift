@@ -98,6 +98,16 @@ actor LoopAlgorithm {
             from: effectsInterval.start,
             to: effectsInterval.end)
 
+
+        // Try calculating insulin effects at glucose sample timestamps
+        let effectDates = input.glucoseHistory.map { $0.startDate }
+        let insulinEffectsAtGlucoseTimestamps = annotatedDoses.glucoseEffects(
+            insulinModelProvider: insulinModelProvider,
+            longestEffectDuration: input.insulinActivityDuration,
+            insulinSensitivityTimeline: input.sensitivity,
+            effectDates: effectDates)
+
+
         // ICE
         let insulinCounteractionEffects = input.glucoseHistory.counteractionEffects(to: insulinEffects)
 

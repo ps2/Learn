@@ -33,7 +33,9 @@ struct NightscoutMainView: View {
 
 struct NightscoutMainView_Previews: PreviewProvider {
     static var previews: some View {
-        NightscoutMainView(dataSource: NightscoutDataSource(name: "Nightscout Mock", url: URL(string: "https://test.com")!))
-            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+        NavigationView {
+            NightscoutMainView(dataSource: NightscoutDataSource(name: "Nightscout Mock", url: URL(string: "https://test.com")!))
+                .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+        }
     }
 }

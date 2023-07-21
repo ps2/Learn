@@ -18,18 +18,21 @@ struct ForecastReview: View {
 
     @EnvironmentObject private var formatters: QuantityFormatters
 
-    private var baseTime: Date
-    private var fullInterval: DateInterval
+    @State private var baseTime: Date
 
     @State private var algorithmInput: AlgorithmInput?
     @State private var algorithmOutput: AlgorithmOutput?
 
-    init(dataSource: any DataSource)  {
+    var fullInterval: DateInterval {
+        DateInterval(
+            start: self.baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
+            end: self.baseTime.addingTimeInterval(LoopAlgorithm.insulinActivityDuration).dateCeiledToTimeInterval(.minutes(5))
+        )
+    }
+
+    init(dataSource: any DataSource, initialBaseTime: Date? = nil)  {
         self.dataSource = dataSource
-        self.baseTime = dataSource.endOfData ?? Date()
-        fullInterval = DateInterval(
-            start: baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
-            end: baseTime.addingTimeInterval(LoopAlgorithm.insulinActivityDuration).dateCeiledToTimeInterval(.minutes(5)))
+        self._baseTime = State(initialValue: initialBaseTime ?? dataSource.endOfData ?? Date())
     }
 
     func generateForecast() async {
@@ -77,24 +80,57 @@ struct ForecastReview: View {
 
 
     var body: some View {
-        VStack(alignment: .leading) {
+        ScrollView {
+            Text("Forecast Details").bold()
             HStack {
-                Text("Loop Forecast").bold()
                 Spacer()
-                Text(subTitle)
-                    .foregroundColor(.secondary)
+                Button {
+                    baseTime -= .minutes(5)
+                } label: {
+                    Image(systemName: "arrow.left.circle")
+                }
+                DatePicker(
+                    "Base Time",
+                    selection: $baseTime
+                )
+                .datePickerStyle(.compact)
+                Button {
+                    baseTime += .minutes(5)
+                } label: {
+                    Image(systemName: "arrow.right.circle")
+                }
+                Spacer()
             }
-            if let algorithmInput, let algorithmOutput {
-                glucoseChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
-                Text("Insulin Counteraction Effects")
-                iceChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
+            VStack(alignment: .leading) {
+                if let algorithmInput, let algorithmOutput {
+                    HStack {
+                        Text("Glucose")
+                        Spacer()
+                        Text(subTitle)
+                            .foregroundColor(.secondary)
+                    }
+                    glucoseChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
+                    Text("Insulin Counteraction")
+                    glucoseEffectsChart(algorithmOutput.effects.insulinCounteraction, color: .gray)
+                    Text("Carb Effects")
+                    glucoseEffectsChart(algorithmOutput.effects.carbs.asVelocities(), color: .carbs)
+                    Text("Insulin Effects")
+                    glucoseEffectsChart(algorithmOutput.effects.insulin.asVelocities(), color: .insulin)
+                    Text("Retrospective Correction Effects")
+                    glucoseEffectsChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin)
+                }
             }
-        }
-        .chartXScale(domain: fullInterval.start...fullInterval.end)
-        .padding()
-        .onAppear {
-            Task {
-                await generateForecast()
+            .chartXScale(domain: fullInterval.start...fullInterval.end)
+            .padding()
+            .onAppear {
+                Task {
+                    await generateForecast()
+                }
+            }
+            .onChange(of: baseTime) { newValue in
+                Task {
+                    await generateForecast()
+                }
             }
         }
     }
@@ -106,7 +142,7 @@ struct ForecastReview: View {
                     x: .value("Time", effect.startDate),
                     y: .value("Historic Glucose", effect.quantity.doubleValue(for: formatters.glucoseUnit))
                 )
-                .symbolSize(CGSize(width: 6, height: 6))
+                .symbolSize(CGSize(width: 4, height: 4))
                 .foregroundStyle(Color.glucose)
 
             }
@@ -127,17 +163,17 @@ struct ForecastReview: View {
                 if let glucose: Double = value.as(Double.self) {
                     let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
                     AxisValueLabel {
-                        Text(formatters.glucoseFormatter.string(from: quantity)!)
-                            .frame(width: 90, alignment: .trailing)
+                        Text(formatters.glucoseFormatter.string(from: quantity, includeUnit: false)!)
+                            .frame(width: 25, alignment: .trailing)
                     }
                 }
             }
         }
     }
 
-    func iceChart(algorithmInput: AlgorithmInput, algorithmOutput: AlgorithmOutput) -> some View {
+    func glucoseEffectsChart(_ effect: [GlucoseEffectVelocity], color: Color) -> some View {
         Chart {
-            ForEach(algorithmOutput.effects.insulinCounteraction, id: \.startDate) { effect in
+            ForEach(effect, id: \.startDate) { effect in
                 RectangleMark(
                     xStart: .value("Start Time", effect.startDate),
                     xEnd: .value("End Time", effect.endDate),
@@ -145,7 +181,7 @@ struct ForecastReview: View {
                     yEnd: .value("Value", effect.quantity.doubleValue(for: formatters.glucoseRateUnit))
                 )
                 .symbolSize(CGSize(width: 6, height: 6))
-                .foregroundStyle(Color.carbs)
+                .foregroundStyle(color)
 
             }
         }
@@ -156,17 +192,18 @@ struct ForecastReview: View {
                 if let glucose: Double = value.as(Double.self) {
                     let quantity = HKQuantity(unit: formatters.glucoseRateUnit, doubleValue: glucose)
                     AxisValueLabel {
-                        Text(formatters.glucoseRateFormatter.string(from: quantity)!)
-                            .frame(width: 90, alignment: .trailing)
+                        Text(formatters.glucoseRateFormatter.string(from: quantity, includeUnit: false)!)
+                            .frame(width: 25, alignment: .trailing)
                     }
                 }
             }
         }
     }
-
 }
 
 struct ForecastReview_Previews: PreviewProvider {
+    @State private var date: Date = Date()
+
     static var previews: some View {
         ForecastReview(dataSource: MockDataSource())
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
