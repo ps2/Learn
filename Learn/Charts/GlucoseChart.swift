@@ -34,6 +34,8 @@ struct GlucoseChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
 
+    @State private var localInspectionDate: Date?
+
     @Binding var chartUnitOffset: Int
     private let numSegments: Int
 
@@ -81,7 +83,7 @@ struct GlucoseChart: View {
     }
 
     var body: some View {
-        let inspectedElement = findElement(by: chartInspectionDate)
+        let inspectedElement = findElement(by: localInspectionDate ?? chartInspectionDate)
         VStack {
             HStack {
                 Text("Glucose").bold()
@@ -141,34 +143,7 @@ struct GlucoseChart: View {
                 .chartOverlay { proxy in
                     Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
                 }
-                .chartXAxis {
-                    AxisMarks(values: .stride(by: .hour)) { value in
-                        if let date = value.as(Date.self) {
-                            let hour = Calendar.current.component(.hour, from: date)
-                            AxisValueLabel {
-                                VStack(alignment: .leading) {
-                                    switch hour {
-                                    case 0, 12:
-                                        Text(date, format: .dateTime.hour())
-                                    default:
-                                        Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
-                                    }
-                                    if value.index == 0 || hour == 0 {
-                                        Text(date, format: .dateTime.month().day())
-                                    }
-                                }
-                            }
-
-                            if hour == 0 {
-                                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                                AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
-                            } else {
-                                AxisGridLine()
-                                AxisTick()
-                            }
-                        }
-                    }
-                }
+                .timeXAxis()
                 .chartYAxis {
                     AxisMarks(position: .trailing, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) {
                         AxisGridLine()
@@ -190,6 +165,9 @@ struct GlucoseChart: View {
                     }
                 }
             }
+        }
+        .onPreferenceChange(ChartInspectionDatePreferenceKey.self) { date in
+            localInspectionDate = date
         }
     }
 

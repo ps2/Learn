@@ -198,14 +198,7 @@ struct InsulinDosesChart: View {
                 .chartOverlay { proxy in
                     Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
                 }
-
-                .chartXAxis {
-                    AxisMarks(
-                        format: .dateTime.hour(),
-                        preset: .extended,
-                        values: .stride(by: .hour)
-                    )
-                }
+                .timeXAxis(labelOpacity: inspectedElement == nil ? 1 : 0)
                 .chartYAxis {
                     AxisMarks(position: .trailing, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) {
                         AxisGridLine()

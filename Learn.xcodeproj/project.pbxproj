@@ -32,6 +32,7 @@
 		C169922B2A64364400B06881 /* RetrospectiveCorrectionExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = C169922A2A64364400B06881 /* RetrospectiveCorrectionExample.swift */; };
 		C169922D2A69808F00B06881 /* ForecastReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = C169922C2A69808F00B06881 /* ForecastReview.swift */; };
 		C16992302A6B12F400B06881 /* InsulinDeliveryExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = C169922F2A6B12F400B06881 /* InsulinDeliveryExample.swift */; };
+		C16992322A6B39C400B06881 /* TimeXAxis.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16992312A6B39C400B06881 /* TimeXAxis.swift */; };
 		C16BC0DC2A60401200BDC713 /* LoopDosingExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16BC0DB2A60401200BDC713 /* LoopDosingExample.swift */; };
 		C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D629AB9C55004B7C32 /* ProfileSet.swift */; };
 		C178C5D929AB9C9B004B7C32 /* HKUnit+Nightscout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */; };
@@ -99,6 +100,7 @@
 		C169922A2A64364400B06881 /* RetrospectiveCorrectionExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetrospectiveCorrectionExample.swift; sourceTree = "<group>"; };
 		C169922C2A69808F00B06881 /* ForecastReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastReview.swift; sourceTree = "<group>"; };
 		C169922F2A6B12F400B06881 /* InsulinDeliveryExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinDeliveryExample.swift; sourceTree = "<group>"; };
+		C16992312A6B39C400B06881 /* TimeXAxis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeXAxis.swift; sourceTree = "<group>"; };
 		C16BC0DB2A60401200BDC713 /* LoopDosingExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopDosingExample.swift; sourceTree = "<group>"; };
 		C178C5D629AB9C55004B7C32 /* ProfileSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSet.swift; sourceTree = "<group>"; };
 		C178C5D829AB9C9B004B7C32 /* HKUnit+Nightscout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HKUnit+Nightscout.swift"; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				C1E4BECD29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift */,
 				C1E4BECB29A41D6B00B54132 /* ScrollableChart.swift */,
 				C142CF9529A93D9A008FB16F /* InspectGestureView.swift */,
+				C16992312A6B39C400B06881 /* TimeXAxis.swift */,
 			);
 			path = ChartSupport;
 			sourceTree = "<group>";
@@ -289,7 +292,6 @@
 				C135B7CE29A508800012C1F6 /* Views */,
 				C135B7D529A518AD0012C1F6 /* Managers */,
 				C1E4BEDE29A41F3200B54132 /* Charts */,
-				C14F53A529DE60AD002A0DED /* ChartSupport */,
 				C1E4BEE029A4240F00B54132 /* DataSources */,
 				C135B7CB29A459EA0012C1F6 /* Extensions */,
 				C1AD0DC328D4FE40002246E7 /* Learn.entitlements */,
@@ -373,6 +375,7 @@
 				C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */,
 				C1589D7D2A53962A00D7D3AA /* GlucoseEffectChart.swift */,
 				C169922C2A69808F00B06881 /* ForecastReview.swift */,
+				C14F53A529DE60AD002A0DED /* ChartSupport */,
 			);
 			path = Charts;
 			sourceTree = "<group>";
@@ -518,6 +521,7 @@
 				C1EA323029A72DE900949EA3 /* GlucoseEntry.swift in Sources */,
 				C1EF206528D5033B007A8097 /* GlucoseChart.swift in Sources */,
 				C1AD3D132A352C380090972E /* NightscoutTreatment.swift in Sources */,
+				C16992322A6B39C400B06881 /* TimeXAxis.swift in Sources */,
 				C1E4BEE329A4243200B54132 /* DataSource.swift in Sources */,
 				C185A0FB2A34EE9F00F9F86D /* QuantityFormatters.swift in Sources */,
 				C142CF9C29AB2756008FB16F /* Date.swift in Sources */,
