@@ -82,24 +82,15 @@ struct RetrospectiveCorrectionExample: View {
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    private var algorithmInput: LoopAlgorithmInput
-    private var algorithmOutput: LoopAlgorithmOutput?
-    private var algorithmOutputWithoutRC: LoopAlgorithmOutput?
+    @State private var algorithmInput: LoopAlgorithmInput
+    @State private var algorithmOutput: LoopAlgorithmOutput?
+    @State private var algorithmOutputWithoutRC: LoopAlgorithmOutput?
 
     // construct a prediction of ICE + carbs
-    private var exampleRCPrediction: [GlucoseEffect]?
+    @State private var exampleRCPrediction: [GlucoseEffect]?
 
     init()  {
-        algorithmInput = Self.scenario(baseTime: baseTime)
-
-        do {
-            algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput)
-            algorithmInput.algorithmEffectsOptions.remove(.retrospection)
-            algorithmOutputWithoutRC = try LoopAlgorithm.getForecast(input: algorithmInput)
-            exampleRCPrediction = algorithmOutput!.effects.insulinCounteraction.subtracting(algorithmOutput!.effects.carbs)
-        } catch {
-            print("Could not create forecast: \(error)")
-        }
+        _algorithmInput = State(initialValue: Self.scenario(baseTime: baseTime))
     }
 
     var subTitle: String {
@@ -127,6 +118,16 @@ struct RetrospectiveCorrectionExample: View {
 
         }
         .padding()
+        .onAppear {
+            do {
+                algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput)
+                algorithmInput.algorithmEffectsOptions.remove(.retrospection)
+                algorithmOutputWithoutRC = try LoopAlgorithm.getForecast(input: algorithmInput)
+                exampleRCPrediction = algorithmOutput!.effects.insulinCounteraction.subtracting(algorithmOutput!.effects.carbs)
+            } catch {
+                print("Could not create forecast: \(error)")
+            }
+        }
     }
 
     func chart(algorithmOutput: AlgorithmOutput, algorithmOutputWithoutRC: AlgorithmOutput) -> some View {

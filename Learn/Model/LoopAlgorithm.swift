@@ -116,7 +116,6 @@ actor LoopAlgorithm: GlucosePredictionAlgorithm {
             from: effectsInterval.start,
             to: effectsInterval.end)
 
-
         // Try calculating insulin effects at glucose sample timestamps
         let effectDates = input.glucoseHistory.map { $0.startDate }
         let insulinEffectsAtGlucoseTimestamps = annotatedDoses.glucoseEffects(
@@ -189,10 +188,10 @@ actor LoopAlgorithm: GlucosePredictionAlgorithm {
 
         let prediction = LoopMath.predictGlucose(startingAt: latestGlucose, momentum: momentumEffects, effects: effects)
 
-        print("**********")
-        print("carbEffects = \(carbEffects)")
-        print("retrospectiveGlucoseDiscrepancies = \(retrospectiveGlucoseDiscrepancies)")
-        print("rc = \(rcEffect)")
+//        print("**********")
+//        print("carbEffects = \(carbEffects)")
+//        print("retrospectiveGlucoseDiscrepancies = \(retrospectiveGlucoseDiscrepancies)")
+//        print("rc = \(rcEffect)")
 
         return LoopAlgorithmOutput(
             prediction: prediction,

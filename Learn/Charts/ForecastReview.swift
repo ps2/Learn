@@ -56,7 +56,7 @@ struct ForecastReview: View {
                 glucoseHistory: glucose,
                 doses: doses,
                 carbEntries: carbEntries,
-                basal: try await dataSource.getBasalHistory(interval: displayInterval),
+                basal: try await dataSource.getBasalHistory(interval: treatmentInterval),
                 sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: isfInterval),
                 carbRatio: try await dataSource.getCarbRatioHistory(interval: treatmentInterval),
                 target: try await dataSource.getTargetRangeHistory(interval: displayInterval))
@@ -108,12 +108,12 @@ struct ForecastReview: View {
                             .foregroundColor(.secondary)
                     }
                     glucoseChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
+                    Text("Insulin Effects")
+                    GlucoseEffectChart(algorithmOutput.effects.insulin.asVelocities().filterDateInterval(interval: displayInterval), color: .insulin)
                     Text("Insulin Counteraction")
                     GlucoseEffectChart(algorithmOutput.effects.insulinCounteraction.filterDateInterval(interval: displayInterval), color: .gray)
                     Text("Carb Effects")
                     GlucoseEffectChart(algorithmOutput.effects.carbs.asVelocities().filterDateInterval(interval: displayInterval), color: .carbs)
-                    Text("Insulin Effects")
-                    GlucoseEffectChart(algorithmOutput.effects.insulin.asVelocities().filterDateInterval(interval: displayInterval), color: .insulin)
                     Text("Retrospective Correction Effects")
                     GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin)
                 }

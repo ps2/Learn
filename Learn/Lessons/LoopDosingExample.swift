@@ -73,16 +73,10 @@ struct LoopDosingExample: View {
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
     private var algorithmInput: LoopAlgorithmInput
-    private var algorithmOutput: LoopAlgorithmOutput?
+    @State private var algorithmOutput: LoopAlgorithmOutput?
 
     init()  {
         algorithmInput = Self.scenario(baseTime: baseTime)
-
-        do {
-            algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput)
-        } catch {
-            print("Could not create forecast: \(error)")
-        }
     }
 
     var subTitle: String {
@@ -107,6 +101,13 @@ struct LoopDosingExample: View {
             }
         }
         .padding()
+        .onAppear {
+            do {
+                algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput)
+            } catch {
+                print("Could not create forecast: \(error)")
+            }
+        }
     }
 
     func chart(algorithmOutput: AlgorithmOutput) -> some View {
