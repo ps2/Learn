@@ -15,7 +15,7 @@ enum AlgorithmError: Error {
     case incompleteSchedules
 }
 
-struct AlgorithmEffects {
+struct LoopAlgorithmEffects {
     var insulin: [GlucoseEffect]
     var carbs: [GlucoseEffect]
     var retrospectiveCorrection: [GlucoseEffect]
@@ -49,7 +49,7 @@ struct AlgorithmEffectsTimeline {
     let summaries: [AlgorithmEffectSummary]
 }
 
-struct AlgorithmInput {
+struct LoopAlgorithmInput: AlgorithmInput {
     var glucoseHistory: [StoredGlucoseSample]
     var doses: [DoseEntry]
     var carbEntries: [CarbEntry]
@@ -62,18 +62,36 @@ struct AlgorithmInput {
     var algorithmEffectsOptions: AlgorithmEffectsOptions = .all
 }
 
-struct AlgorithmOutput {
+struct LoopAlgorithmOutput: AlgorithmOutput {
     var prediction: [PredictedGlucoseValue]
-    var effects: AlgorithmEffects
+    var effects: LoopAlgorithmEffects
 }
 
+actor LoopAlgorithm: GlucosePredictionAlgorithm {
 
-actor LoopAlgorithm {
+    typealias InputType = LoopAlgorithmInput
+    typealias OutputType = LoopAlgorithmOutput
+
+    private static var treatmentHistoryInterval: TimeInterval = .hours(24)
+
+    static func treatmentHistoryDateInterval(for startDate: Date) -> DateInterval {
+        return DateInterval(
+            start: startDate.addingTimeInterval(-LoopAlgorithm.treatmentHistoryInterval).dateFlooredToTimeInterval(.minutes(5)),
+            end: startDate)
+    }
+
+    static func glucoseHistoryDateInterval(for startDate: Date) -> DateInterval {
+        return DateInterval(
+            start: startDate.addingTimeInterval(insulinActivityDuration-LoopAlgorithm.treatmentHistoryInterval),
+            end: startDate)
+    }
 
     static var insulinActivityDuration: TimeInterval = TimeInterval(hours: 6) + TimeInterval(minutes: 10)
 
+    static var momentumDataInterval: TimeInterval = .minutes(15)
+
     // Generates a forecast predicting glucose.
-    static func getForecast(input: AlgorithmInput, startDate: Date? = nil) throws -> AlgorithmOutput {
+    static func getForecast(input: LoopAlgorithmInput, startDate: Date? = nil) throws -> LoopAlgorithmOutput {
 
         guard let latestGlucose = input.glucoseHistory.last else {
             throw AlgorithmError.missingGlucose
@@ -84,7 +102,7 @@ actor LoopAlgorithm {
         let insulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: nil)
 
         let effectsInterval = DateInterval(
-            start: start.addingTimeInterval(-input.insulinActivityDuration).dateFlooredToTimeInterval(input.delta),
+            start: Self.treatmentHistoryDateInterval(for: start).start,
             end: start.addingTimeInterval(input.insulinActivityDuration).dateCeiledToTimeInterval(input.delta)
         )
 
@@ -163,6 +181,7 @@ actor LoopAlgorithm {
         // Glucose Momentum
         let momentumEffects: [GlucoseEffect]
         if input.algorithmEffectsOptions.contains(.momentum) {
+            let momentumInputData = input.glucoseHistory.filterDateRange(start.addingTimeInterval(-momentumDataInterval), start)
             momentumEffects = input.glucoseHistory.linearMomentumEffect()
         } else {
             momentumEffects = []
@@ -175,9 +194,9 @@ actor LoopAlgorithm {
         print("retrospectiveGlucoseDiscrepancies = \(retrospectiveGlucoseDiscrepancies)")
         print("rc = \(rcEffect)")
 
-        return AlgorithmOutput(
+        return LoopAlgorithmOutput(
             prediction: prediction,
-            effects: AlgorithmEffects(
+            effects: LoopAlgorithmEffects(
                 insulin: insulinEffects,
                 carbs: carbEffects,
                 retrospectiveCorrection: rcEffect,

@@ -13,7 +13,7 @@ import LoopKit
 
 struct LoopDosingExample: View {
 
-    static func scenario(baseTime: Date) -> AlgorithmInput {
+    static func scenario(baseTime: Date) -> LoopAlgorithmInput {
         func t(_ offset: TimeInterval) -> Date {
             return baseTime.addingTimeInterval(offset)
         }
@@ -58,7 +58,7 @@ struct LoopDosingExample: View {
             )
         ]
 
-        return AlgorithmInput(
+        return LoopAlgorithmInput(
             glucoseHistory: glucoseHistory,
             doses: [dose],
             carbEntries: [],
@@ -72,8 +72,8 @@ struct LoopDosingExample: View {
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    private var algorithmInput: AlgorithmInput
-    private var algorithmOutput: AlgorithmOutput?
+    private var algorithmInput: LoopAlgorithmInput
+    private var algorithmOutput: LoopAlgorithmOutput?
 
     init()  {
         algorithmInput = Self.scenario(baseTime: baseTime)

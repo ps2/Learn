@@ -38,6 +38,11 @@ struct LoopLessons: View {
             } label: {
                 Text("Insulin Delivery")
             }
+            NavigationLink {
+                ForecastReviewExample()
+            } label: {
+                Text("Forecast Review")
+            }
         }
         .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }

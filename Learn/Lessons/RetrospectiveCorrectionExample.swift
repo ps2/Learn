@@ -13,7 +13,7 @@ import LoopKit
 
 struct RetrospectiveCorrectionExample: View {
 
-    static func scenario(baseTime: Date) -> AlgorithmInput {
+    static func scenario(baseTime: Date) -> LoopAlgorithmInput {
         func t(_ offset: TimeInterval) -> Date {
             return baseTime.addingTimeInterval(offset)
         }
@@ -68,7 +68,7 @@ struct RetrospectiveCorrectionExample: View {
 
         let carbEntry = CarbEntry(startDate: t(.hours(-2)), quantity: HKQuantity(unit: .gram(), doubleValue: 15))
 
-        return AlgorithmInput(
+        return LoopAlgorithmInput(
             glucoseHistory: glucoseHistory,
             doses: [dose],
             carbEntries: [],
@@ -82,9 +82,9 @@ struct RetrospectiveCorrectionExample: View {
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    private var algorithmInput: AlgorithmInput
-    private var algorithmOutput: AlgorithmOutput?
-    private var algorithmOutputWithoutRC: AlgorithmOutput?
+    private var algorithmInput: LoopAlgorithmInput
+    private var algorithmOutput: LoopAlgorithmOutput?
+    private var algorithmOutputWithoutRC: LoopAlgorithmOutput?
 
     // construct a prediction of ICE + carbs
     private var exampleRCPrediction: [GlucoseEffect]?

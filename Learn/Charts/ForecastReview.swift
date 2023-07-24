@@ -20,10 +20,10 @@ struct ForecastReview: View {
 
     @State private var baseTime: Date
 
-    @State private var algorithmInput: AlgorithmInput?
-    @State private var algorithmOutput: AlgorithmOutput?
+    @State private var algorithmInput: LoopAlgorithmInput?
+    @State private var algorithmOutput: LoopAlgorithmOutput?
 
-    var fullInterval: DateInterval {
+    var displayInterval: DateInterval {
         DateInterval(
             start: self.baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
             end: self.baseTime.addingTimeInterval(LoopAlgorithm.insulinActivityDuration).dateCeiledToTimeInterval(.minutes(5))
@@ -36,32 +36,30 @@ struct ForecastReview: View {
     }
 
     func generateForecast() async {
-        let historyInterval = DateInterval(
-            start: baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
-            end: baseTime)
-
         do {
-            let glucose = try await dataSource.getGlucoseValues(interval: historyInterval).map { value in
+            let treatmentInterval = LoopAlgorithm.treatmentHistoryDateInterval(for: baseTime)
+            let glucoseHistoryInterval = LoopAlgorithm.glucoseHistoryDateInterval(for: baseTime)
+
+            let glucose = try await dataSource.getGlucoseValues(interval: glucoseHistoryInterval).map { value in
                 value as? StoredGlucoseSample ??
                 StoredGlucoseSample(startDate: value.startDate, quantity: value.quantity)
             }
-            let doses = try await dataSource.getDoses(interval: historyInterval)
-            let carbEntries = try await dataSource.getCarbEntries(interval: historyInterval)
+
+            let doses = try await dataSource.getDoses(interval: treatmentInterval)
+            let carbEntries = try await dataSource.getCarbEntries(interval: treatmentInterval)
 
             // Doses can overlap history interval, so find the actual earliest time we'll need ISF coverage
-            let isfStart = doses.map { $0.startDate }.min() ?? historyInterval.start
+            let isfStart = doses.map { $0.startDate }.min() ?? treatmentInterval.start
+            let isfInterval = DateInterval(start: isfStart, end: displayInterval.end)
 
-            let isfInterval = DateInterval(start: isfStart, end: fullInterval.end)
-
-
-            algorithmInput = AlgorithmInput(
+            algorithmInput = LoopAlgorithmInput(
                 glucoseHistory: glucose,
                 doses: doses,
                 carbEntries: carbEntries,
-                basal: try await dataSource.getBasalHistory(interval: fullInterval),
+                basal: try await dataSource.getBasalHistory(interval: displayInterval),
                 sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: isfInterval),
-                carbRatio: try await dataSource.getCarbRatioHistory(interval: fullInterval),
-                target: try await dataSource.getTargetRangeHistory(interval: fullInterval))
+                carbRatio: try await dataSource.getCarbRatioHistory(interval: treatmentInterval),
+                target: try await dataSource.getTargetRangeHistory(interval: displayInterval))
 
             algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput!)
         } catch {
@@ -111,16 +109,16 @@ struct ForecastReview: View {
                     }
                     glucoseChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
                     Text("Insulin Counteraction")
-                    glucoseEffectsChart(algorithmOutput.effects.insulinCounteraction, color: .gray)
+                    GlucoseEffectChart(algorithmOutput.effects.insulinCounteraction.filterDateInterval(interval: displayInterval), color: .gray)
                     Text("Carb Effects")
-                    glucoseEffectsChart(algorithmOutput.effects.carbs.asVelocities(), color: .carbs)
+                    GlucoseEffectChart(algorithmOutput.effects.carbs.asVelocities().filterDateInterval(interval: displayInterval), color: .carbs)
                     Text("Insulin Effects")
-                    glucoseEffectsChart(algorithmOutput.effects.insulin.asVelocities(), color: .insulin)
+                    GlucoseEffectChart(algorithmOutput.effects.insulin.asVelocities().filterDateInterval(interval: displayInterval), color: .insulin)
                     Text("Retrospective Correction Effects")
-                    glucoseEffectsChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin)
+                    GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin)
                 }
             }
-            .chartXScale(domain: fullInterval.start...fullInterval.end)
+            .chartXScale(domain: displayInterval.start...displayInterval.end)
             .padding()
             .onAppear {
                 Task {
@@ -137,7 +135,7 @@ struct ForecastReview: View {
     
     func glucoseChart(algorithmInput: AlgorithmInput, algorithmOutput: AlgorithmOutput) -> some View {
         Chart {
-            ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
+            ForEach(algorithmInput.glucoseHistory.filterDateRange(displayInterval.start, displayInterval.end), id: \.startDate) { effect in
                 PointMark(
                     x: .value("Time", effect.startDate),
                     y: .value("Historic Glucose", effect.quantity.doubleValue(for: formatters.glucoseUnit))
@@ -154,7 +152,7 @@ struct ForecastReview: View {
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [8,5]))
                 .foregroundStyle(Color.glucose)
             }
-            ForEach(algorithmInput.carbEntries, id: \.startDate) { entry in
+            ForEach(algorithmInput.carbEntries.filterDateInterval(interval: displayInterval), id: \.startDate) { entry in
                 PointMark(
                     x: .value("Time", entry.startDate, unit: .second),
                     y: 12
@@ -180,35 +178,6 @@ struct ForecastReview: View {
                     let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
                     AxisValueLabel {
                         Text(formatters.glucoseFormatter.string(from: quantity, includeUnit: false)!)
-                            .frame(width: 25, alignment: .trailing)
-                    }
-                }
-            }
-        }
-    }
-
-    func glucoseEffectsChart(_ effect: [GlucoseEffectVelocity], color: Color) -> some View {
-        Chart {
-            ForEach(effect, id: \.startDate) { effect in
-                RectangleMark(
-                    xStart: .value("Start Time", effect.startDate),
-                    xEnd: .value("End Time", effect.endDate),
-                    yStart: .value("Bottom", 0),
-                    yEnd: .value("Value", effect.quantity.doubleValue(for: formatters.glucoseRateUnit))
-                )
-                .symbolSize(CGSize(width: 6, height: 6))
-                .foregroundStyle(color)
-
-            }
-        }
-        .chartYAxis {
-            AxisMarks(position: .leading, values: .automatic(desiredCount: 7)) { value in
-                AxisGridLine()
-
-                if let glucose: Double = value.as(Double.self) {
-                    let quantity = HKQuantity(unit: formatters.glucoseRateUnit, doubleValue: glucose)
-                    AxisValueLabel {
-                        Text(formatters.glucoseRateFormatter.string(from: quantity, includeUnit: false)!)
                             .frame(width: 25, alignment: .trailing)
                     }
                 }
