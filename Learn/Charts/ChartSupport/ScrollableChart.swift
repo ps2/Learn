@@ -149,6 +149,7 @@ struct ScrollableChart<Content: View, YAxis: View>: View {
                     .gesture(drag(chartWidth: geometry.size.width))
             }
             //.clipped()
+            // TODO: experiment with drawingGroup() as an alternative to clipping
         }
         .preference(key: ScrollableChartDragStatePreferenceKey.self, value: dragState)
         .onReceive(dragStatePublisher) { dragState in

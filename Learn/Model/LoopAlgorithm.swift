@@ -117,13 +117,12 @@ actor LoopAlgorithm: GlucosePredictionAlgorithm {
             to: effectsInterval.end)
 
         // Try calculating insulin effects at glucose sample timestamps
-        let effectDates = input.glucoseHistory.map { $0.startDate }
-        let insulinEffectsAtGlucoseTimestamps = annotatedDoses.glucoseEffects(
-            insulinModelProvider: insulinModelProvider,
-            longestEffectDuration: input.insulinActivityDuration,
-            insulinSensitivityTimeline: input.sensitivity,
-            effectDates: effectDates)
-
+//        let effectDates = input.glucoseHistory.map { $0.startDate }
+//        let insulinEffectsAtGlucoseTimestamps = annotatedDoses.glucoseEffects(
+//            insulinModelProvider: insulinModelProvider,
+//            longestEffectDuration: input.insulinActivityDuration,
+//            insulinSensitivityTimeline: input.sensitivity,
+//            effectDates: effectDates)
 
         // ICE
         let insulinCounteractionEffects = input.glucoseHistory.counteractionEffects(to: insulinEffects)
@@ -181,7 +180,7 @@ actor LoopAlgorithm: GlucosePredictionAlgorithm {
         let momentumEffects: [GlucoseEffect]
         if input.algorithmEffectsOptions.contains(.momentum) {
             let momentumInputData = input.glucoseHistory.filterDateRange(start.addingTimeInterval(-momentumDataInterval), start)
-            momentumEffects = input.glucoseHistory.linearMomentumEffect()
+            momentumEffects = momentumInputData.linearMomentumEffect()
         } else {
             momentumEffects = []
         }

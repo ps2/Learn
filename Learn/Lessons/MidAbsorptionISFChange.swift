@@ -87,26 +87,25 @@ struct MidAbsorptionISFChange: View {
                     .foregroundStyle(Color.secondary)
 
                 ForEach(effectsWithInflection, id: \.startDate) { effect in
-                    PointMark(
+                    LineMark(
                         x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
-                        y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
+                        y: .value("Proposed Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
                     )
                     .foregroundStyle(by: .value("Forecast Type", ForecastType.loopProposed))
-                    .symbol(by: .value("Forecast Type", ForecastType.loopProposed))
+                    .lineStyle(StrokeStyle(lineWidth: 3, dash: [6,3]))
                     .symbolSize(CGSize(width: 7, height: 7))
                     .opacity(0.6)
                 }
                 ForEach(effects, id: \.startDate) { effect in
-                    PointMark(
+                    LineMark(
                         x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
                         y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
                     )
                     .foregroundStyle(by: .value("Forecast Type", ForecastType.loopCurrent))
-                    .symbol(by: .value("Forecast Type", ForecastType.loopCurrent))
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5,4]))
                     .symbolSize(CGSize(width: 5, height: 5))
-                    .opacity(0.6)
+                    .opacity(0.8)
                 }
-
             }
             .chartXScale(domain: 0...6)
             .chartXAxis {
@@ -123,8 +122,8 @@ struct MidAbsorptionISFChange: View {
                 }
             }
             .chartForegroundStyleScale([
-                ForecastType.loopCurrent: .purple,
-                ForecastType.loopProposed: .green
+                ForecastType.loopCurrent: Color.gray,
+                ForecastType.loopProposed: Color.glucose
             ])
         }
         .padding()
