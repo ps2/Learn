@@ -28,3 +28,6 @@ protocol GlucosePredictionAlgorithm {
 
     static func getForecast(input: InputType, startDate: Date?) throws -> OutputType
 }
+
+
+extension LoopAlgorithm: GlucosePredictionAlgorithm {}

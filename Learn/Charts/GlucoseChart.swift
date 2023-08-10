@@ -11,17 +11,6 @@ import Charts
 import HealthKit
 import LoopKit
 
-struct GlucoseValue: Equatable {
-    let quantity: HKQuantity
-    let date: Date
-}
-
-struct CarbEntry: Equatable, LoopKit.CarbEntry {
-    var startDate: Date
-    var absorptionTime: TimeInterval?
-    var quantity: HKQuantity
-}
-
 struct TargetRange: Equatable {
     let min: HKQuantity
     let max: HKQuantity

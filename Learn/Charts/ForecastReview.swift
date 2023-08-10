@@ -49,7 +49,7 @@ struct ForecastReview: View {
             let carbEntries = try await dataSource.getCarbEntries(interval: treatmentInterval)
 
             // Doses can overlap history interval, so find the actual earliest time we'll need ISF coverage
-            let isfStart = doses.map { $0.startDate }.min() ?? treatmentInterval.start
+            let isfStart = min(treatmentInterval.start, doses.map { $0.startDate }.min() ?? .distantFuture)
             let isfInterval = DateInterval(start: isfStart, end: displayInterval.end)
 
             algorithmInput = LoopAlgorithmInput(
@@ -60,6 +60,8 @@ struct ForecastReview: View {
                 sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: isfInterval),
                 carbRatio: try await dataSource.getCarbRatioHistory(interval: treatmentInterval),
                 target: try await dataSource.getTargetRangeHistory(interval: displayInterval))
+
+            algorithmInput?.printFixture()
 
             algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput!)
         } catch {

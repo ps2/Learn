@@ -49,25 +49,12 @@ struct AlgorithmEffectsTimeline {
     let summaries: [AlgorithmEffectSummary]
 }
 
-struct LoopAlgorithmInput: AlgorithmInput {
-    var glucoseHistory: [StoredGlucoseSample]
-    var doses: [DoseEntry]
-    var carbEntries: [CarbEntry]
-    var basal: [AbsoluteScheduleValue<Double>]
-    var sensitivity: [AbsoluteScheduleValue<HKQuantity>]
-    var carbRatio: [AbsoluteScheduleValue<Double>]
-    var target: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]
-    var delta: TimeInterval = TimeInterval(minutes: 5)
-    var insulinActivityDuration: TimeInterval = LoopAlgorithm.insulinActivityDuration
-    var algorithmEffectsOptions: AlgorithmEffectsOptions = .all
-}
-
 struct LoopAlgorithmOutput: AlgorithmOutput {
     var prediction: [PredictedGlucoseValue]
     var effects: LoopAlgorithmEffects
 }
 
-actor LoopAlgorithm: GlucosePredictionAlgorithm {
+actor LoopAlgorithm {
 
     typealias InputType = LoopAlgorithmInput
     typealias OutputType = LoopAlgorithmOutput
@@ -116,7 +103,7 @@ actor LoopAlgorithm: GlucosePredictionAlgorithm {
             from: effectsInterval.start,
             to: effectsInterval.end)
 
-        // Try calculating insulin effects at glucose sample timestamps
+        // Try calculating insulin effects at glucose sample timestamps. This should produce more accurate samples to compare against glucose.
 //        let effectDates = input.glucoseHistory.map { $0.startDate }
 //        let insulinEffectsAtGlucoseTimestamps = annotatedDoses.glucoseEffects(
 //            insulinModelProvider: insulinModelProvider,
