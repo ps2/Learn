@@ -49,10 +49,6 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         self.name = name
         self.dataSourceInstanceIdentifier = instanceIdentifier ?? UUID().uuidString
         self.cachedGlucoseSamples = []
-
-        Task {
-            try await loadData()
-        }
     }
 
     func importIssueReportFile() async throws {
@@ -94,21 +90,17 @@ final class IssueReportDataSource: DataSource, ObservableObject {
             throw IssueReportError.couldNotGetDocumentsDirectory
         }
 
-        do {
-            var targetFile: URL
-            if FileManager.default.fileExists(atPath: localFileURL.path) {
-                targetFile = localFileURL
-            } else {
-                targetFile = url
-            }
-            let report = try await Self.loadIssueReport(from: targetFile)
-            Task { @MainActor in
-                issueReport = report
-                cachedGlucoseSamples = report.cachedGlucoseSamples.map { $0.loopKitSample }
-                print("cached samples count = \(cachedGlucoseSamples.count)")
-            }
-        } catch {
-            log.error("Unable to load issue report: %{public}@", error.localizedDescription)
+        var targetFile: URL
+        if FileManager.default.fileExists(atPath: localFileURL.path) {
+            targetFile = localFileURL
+        } else {
+            targetFile = url
+        }
+        let report = try await Self.loadIssueReport(from: targetFile)
+        Task { @MainActor in
+            issueReport = report
+            cachedGlucoseSamples = report.cachedGlucoseSamples.map { $0.loopKitSample }
+            print("cached samples count = \(cachedGlucoseSamples.count)")
         }
     }
 

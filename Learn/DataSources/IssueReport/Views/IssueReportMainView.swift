@@ -11,6 +11,8 @@ import SwiftUI
 struct IssueReportMainView: View {
     @ObservedObject var dataSource: IssueReportDataSource
 
+    @State private var error: Error?
+
     var issueReportDate: String {
         if let report = dataSource.issueReport {
             return report.generatedAt.formatted()
@@ -21,17 +23,27 @@ struct IssueReportMainView: View {
 
     var body: some View {
         ScrollView {
-            Text(dataSource.name)
-            if let issueReport = dataSource.issueReport {
+            if let error = error {
+                Text(String(describing: error))
+            }
+            else if let issueReport = dataSource.issueReport {
+                Text(dataSource.name)
                 NavigationLink("Details") {
                     IssueReportDetailsView(issueReport: issueReport)
                 }
+                BasicChartsView(dataSource: dataSource)
+                Divider()
+                    .padding(.vertical)
+                NavigationLink("Forecast Review") {
+                    ForecastReview(dataSource: dataSource)
+                }
             }
-            BasicChartsView(dataSource: dataSource)
-            Divider()
-                .padding(.vertical)
-            NavigationLink("Forecast Review") {
-                ForecastReview(dataSource: dataSource)
+        }
+        .task {
+            do {
+                try await dataSource.loadData()
+            } catch {
+                self.error = error
             }
         }
     }
