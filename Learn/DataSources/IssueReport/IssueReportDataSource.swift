@@ -192,27 +192,47 @@ final class IssueReportDataSource: DataSource, ObservableObject {
     }
 
     func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<HKQuantity>] {
-        return []
+        guard let report = issueReport, let isf = report.loopSettings.insulinSensitivitySchedule else
+        {
+            return []
+        }
+        return isf.quantitiesBetween(start: interval.start, end: interval.end)
     }
 
     func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
-        return []
+        guard let report = issueReport, let basal = report.loopSettings.basalRateSchedule else
+        {
+            return []
+        }
+        return basal.between(start: interval.start, end: interval.end)
     }
 
-    func getCarbRatioHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
-        return []
+    func getCarbRatioHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
+        guard let report = issueReport, let carbRatio = report.loopSettings.carbRatioSchedule else
+        {
+            return []
+        }
+        return carbRatio.between(start: interval.start, end: interval.end)
     }
 
     func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
-        return []
+        guard let report = issueReport else
+        {
+            return []
+        }
+        return report.normalizedDoseEntries.filterDateInterval(interval: interval)
     }
 
-    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
-        return []
+    func getCarbEntries(interval: DateInterval) async throws -> [StoredCarbEntry] {
+        guard let report = issueReport else
+        {
+            return []
+        }
+        return report.cachedCarbEntries.filterDateInterval(interval: interval)
     }
 }
 
-extension LoopIssueReportParser.StoredGlucoseSample {
+extension StoredGlucoseSample {
 
     var loopKitSample: LoopKit.StoredGlucoseSample {
         return LoopKit.StoredGlucoseSample(

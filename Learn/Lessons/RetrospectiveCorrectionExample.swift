@@ -13,7 +13,7 @@ import LoopKit
 
 struct RetrospectiveCorrectionExample: View {
 
-    static func scenario(baseTime: Date) -> LoopAlgorithmInput {
+    static func scenario(baseTime: Date) -> LoopPredictionInput {
         func t(_ offset: TimeInterval) -> Date {
             return baseTime.addingTimeInterval(offset)
         }
@@ -65,26 +65,28 @@ struct RetrospectiveCorrectionExample: View {
 
         // 0 temp basal for an hour
         //let dose = DoseEntry(type: .tempBasal, startDate: t(.hours(-2)), endDate: t(.hours(-1)), value: 0.0, unit: .units)
+        //let carbEntry = StoredCarbEntry(startDate: t(.hours(-2)), quantity: HKQuantity(unit: .gram(), doubleValue: 15))
 
-        let carbEntry = CarbEntry(startDate: t(.hours(-2)), quantity: HKQuantity(unit: .gram(), doubleValue: 15))
-
-        return LoopAlgorithmInput(
-            glucoseHistory: glucoseHistory,
-            doses: [dose],
-            carbEntries: [],
+        let settings = LoopAlgorithmSettings(
             basal: basal,
             sensitivity: sensitivity,
             carbRatio: carbRatio,
             target: target)
+
+        return LoopPredictionInput(
+            glucoseHistory: glucoseHistory,
+            doses: [dose],
+            carbEntries: [],
+            settings: settings)
     }
 
     @EnvironmentObject private var formatters: QuantityFormatters
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    @State private var algorithmInput: LoopAlgorithmInput
-    @State private var algorithmOutput: LoopAlgorithmOutput?
-    @State private var algorithmOutputWithoutRC: LoopAlgorithmOutput?
+    @State private var algorithmInput: LoopPredictionInput
+    @State private var algorithmOutput: LoopPrediction?
+    @State private var algorithmOutputWithoutRC: LoopPrediction?
 
     // construct a prediction of ICE + carbs
     @State private var exampleRCPrediction: [GlucoseEffect]?
@@ -94,7 +96,7 @@ struct RetrospectiveCorrectionExample: View {
     }
 
     var subTitle: String {
-        if let algorithmOutput, let quantity = algorithmOutput.prediction.last?.quantity {
+        if let algorithmOutput, let quantity = algorithmOutput.glucose.last?.quantity {
             return "Eventually " + formatters.glucoseFormatter.string(from: quantity)!
         } else {
             return ""
@@ -111,8 +113,8 @@ struct RetrospectiveCorrectionExample: View {
             }
             if let algorithmOutput, let algorithmOutputWithoutRC {
                 chart(algorithmOutput: algorithmOutput, algorithmOutputWithoutRC: algorithmOutputWithoutRC)
-                Text("Eventually " + formatters.glucoseFormatter.string(from: algorithmOutput.prediction.last!.quantity)!)
-                Text("Eventually Without RC " + formatters.glucoseFormatter.string(from: algorithmOutputWithoutRC.prediction.last!.quantity)!)
+                Text("Eventually " + formatters.glucoseFormatter.string(from: algorithmOutput.glucose.last!.quantity)!)
+                Text("Eventually Without RC " + formatters.glucoseFormatter.string(from: algorithmOutputWithoutRC.glucose.last!.quantity)!)
             }
             Spacer()
 
@@ -121,7 +123,7 @@ struct RetrospectiveCorrectionExample: View {
         .onAppear {
             do {
                 algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput)
-                algorithmInput.algorithmEffectsOptions.remove(.retrospection)
+                algorithmInput.settings.algorithmEffectsOptions.remove(.retrospection)
                 algorithmOutputWithoutRC = try LoopAlgorithm.getForecast(input: algorithmInput)
                 exampleRCPrediction = algorithmOutput!.effects.insulinCounteraction.subtracting(algorithmOutput!.effects.carbs)
             } catch {
@@ -130,7 +132,7 @@ struct RetrospectiveCorrectionExample: View {
         }
     }
 
-    func chart(algorithmOutput: AlgorithmOutput, algorithmOutputWithoutRC: AlgorithmOutput) -> some View {
+    func chart(algorithmOutput: GlucosePrediction, algorithmOutputWithoutRC: GlucosePrediction) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(
@@ -141,7 +143,7 @@ struct RetrospectiveCorrectionExample: View {
                 .foregroundStyle(Color.glucose)
 
             }
-            ForEach(algorithmOutput.prediction, id: \.startDate) { effect in
+            ForEach(algorithmOutput.glucose, id: \.startDate) { effect in
                 LineMark(
                     x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
                     y: .value("Prediction", effect.quantity.doubleValue(for: formatters.glucoseUnit))
@@ -149,7 +151,7 @@ struct RetrospectiveCorrectionExample: View {
                 .lineStyle(by: .value("Type", "Prediction"))
                 .foregroundStyle(Color.glucose)
             }
-            ForEach(algorithmOutputWithoutRC.prediction, id: \.startDate) { effect in
+            ForEach(algorithmOutputWithoutRC.glucose, id: \.startDate) { effect in
                 LineMark(
                     x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
                     y: .value("Without RC", effect.quantity.doubleValue(for: formatters.glucoseUnit))

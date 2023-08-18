@@ -121,7 +121,7 @@ struct GlucoseChart: View {
                             xStart: .value("Segment Start", target.startDate, unit: .second),
                             xEnd: .value("Segment End", target.endDate, unit: .second),
                             yStart: .value("TargetBottom", target.value.lowerBound.doubleValue(for: formatters.glucoseUnit)),
-                            yEnd: .value("TargetTop", target.value.lowerBound.doubleValue(for: formatters.glucoseUnit))
+                            yEnd: .value("TargetTop", target.value.upperBound.doubleValue(for: formatters.glucoseUnit))
                         )
                         .foregroundStyle(.tertiary)
                     }
@@ -132,7 +132,7 @@ struct GlucoseChart: View {
                 .chartOverlay { proxy in
                     Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
                 }
-                .timeXAxis()
+                .timeXAxis(values: .stride(by: .hour), labelOpacity: inspectedElement == nil ? 1 : 0)
                 .chartYAxis {
                     AxisMarks(position: .trailing, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) {
                         AxisGridLine()

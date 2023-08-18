@@ -13,26 +13,17 @@ import Charts
 struct TimeXAxisModifier: ViewModifier {
     @State private var inspectionDate: Date?
 
+    var values: AxisMarkValues
     var labelOpacity: Double
 
     func body(content: Content) -> some View {
         content
         .chartXAxis {
-            AxisMarks(values: .stride(by: .hour)) { value in
+            AxisMarks(values: values) { value in
                 if let date = value.as(Date.self) {
                     let hour = Calendar.current.component(.hour, from: date)
                     AxisValueLabel {
-                        VStack(alignment: .leading) {
-                            switch hour {
-                            case 0, 12:
-                                Text(date, format: .dateTime.hour())
-                            default:
-                                Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
-                            }
-                            if value.index == 0 || hour == 0 {
-                                Text(date, format: .dateTime.month().day())
-                            }
-                        }
+                        Text(date, format: .dateTime.hour())
                         .opacity(labelOpacity)
                     }
 
@@ -50,7 +41,7 @@ struct TimeXAxisModifier: ViewModifier {
 }
 
 extension View {
-    func timeXAxis(labelOpacity: Double = 1.0) -> some View {
-        modifier(TimeXAxisModifier(labelOpacity: labelOpacity))
+    func timeXAxis(values: AxisMarkValues = .automatic, labelOpacity: Double = 1.0) -> some View {
+        modifier(TimeXAxisModifier(values: values, labelOpacity: labelOpacity))
     }
 }

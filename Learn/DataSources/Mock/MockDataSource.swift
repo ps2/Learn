@@ -84,7 +84,7 @@ class MockDataSource: DataSource {
         return getMockCarbRatioHistory(start: interval.start, end: interval.end)
     }
 
-    func getMockCarbEntries(start: Date, end: Date) -> [CarbEntry] {
+    func getMockCarbEntries(start: Date, end: Date) -> [StoredCarbEntry] {
         let spaceBetweenEntries = TimeInterval(2.2 * 3600)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenEntries)
@@ -94,11 +94,11 @@ class MockDataSource: DataSource {
                 return nil
             }
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 80) + 10
-            return CarbEntry(startDate: date, quantity: HKQuantity(unit: .gram(), doubleValue: value))
+            return StoredCarbEntry(startDate: date, quantity: HKQuantity(unit: .gram(), doubleValue: value))
         }
     }
 
-    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
+    func getCarbEntries(interval: DateInterval) async throws -> [StoredCarbEntry] {
         return getMockCarbEntries(start: interval.start, end: interval.end)
     }
 

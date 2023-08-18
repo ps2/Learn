@@ -13,7 +13,7 @@ import LoopKit
 
 struct LoopDosingExample: View {
 
-    static func scenario(baseTime: Date) -> LoopAlgorithmInput {
+    static func scenario(baseTime: Date) -> LoopPredictionInput {
         func t(_ offset: TimeInterval) -> Date {
             return baseTime.addingTimeInterval(offset)
         }
@@ -58,29 +58,32 @@ struct LoopDosingExample: View {
             )
         ]
 
-        return LoopAlgorithmInput(
-            glucoseHistory: glucoseHistory,
-            doses: [dose],
-            carbEntries: [],
+        let settings = LoopAlgorithmSettings(
             basal: basal,
             sensitivity: sensitivity,
             carbRatio: carbRatio,
             target: target)
+
+        return LoopPredictionInput(
+            glucoseHistory: glucoseHistory,
+            doses: [dose],
+            carbEntries: [],
+            settings: settings)
     }
 
     @EnvironmentObject private var formatters: QuantityFormatters
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    private var algorithmInput: LoopAlgorithmInput
-    @State private var algorithmOutput: LoopAlgorithmOutput?
+    private var algorithmInput: LoopPredictionInput
+    @State private var algorithmOutput: LoopPrediction?
 
     init()  {
         algorithmInput = Self.scenario(baseTime: baseTime)
     }
 
     var subTitle: String {
-        if let algorithmOutput, let quantity = algorithmOutput.prediction.last?.quantity {
+        if let algorithmOutput, let quantity = algorithmOutput.glucose.last?.quantity {
             return "Eventually " + formatters.glucoseFormatter.string(from: quantity)!
         } else {
             return ""
@@ -110,7 +113,7 @@ struct LoopDosingExample: View {
         }
     }
 
-    func chart(algorithmOutput: AlgorithmOutput) -> some View {
+    func chart(algorithmOutput: GlucosePrediction) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(
@@ -121,7 +124,7 @@ struct LoopDosingExample: View {
                 .foregroundStyle(Color.glucose)
 
             }
-            ForEach(algorithmOutput.prediction, id: \.startDate) { effect in
+            ForEach(algorithmOutput.glucose, id: \.startDate) { effect in
                 LineMark(
                     x: .value("Time", effect.startDate.timeIntervalSince(baseTime).hours),
                     y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))

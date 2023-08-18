@@ -15,18 +15,17 @@ struct ForecastReview: View {
 
     private var dataSource: any DataSource
 
-
     @EnvironmentObject private var formatters: QuantityFormatters
 
     @State private var baseTime: Date
 
-    @State private var algorithmInput: LoopAlgorithmInput?
-    @State private var algorithmOutput: LoopAlgorithmOutput?
+    @State private var algorithmInput: LoopPredictionInput?
+    @State private var algorithmOutput: LoopPrediction?
 
     var displayInterval: DateInterval {
         DateInterval(
-            start: self.baseTime.addingTimeInterval(-LoopAlgorithm.insulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
-            end: self.baseTime.addingTimeInterval(LoopAlgorithm.insulinActivityDuration).dateCeiledToTimeInterval(.minutes(5))
+            start: self.baseTime.addingTimeInterval(-InsulinMath.defaultInsulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
+            end: self.baseTime.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration).dateCeiledToTimeInterval(.minutes(5))
         )
     }
 
@@ -49,17 +48,20 @@ struct ForecastReview: View {
             let carbEntries = try await dataSource.getCarbEntries(interval: treatmentInterval)
 
             // Doses can overlap history interval, so find the actual earliest time we'll need ISF coverage
-            let isfStart = min(treatmentInterval.start, doses.map { $0.startDate }.min() ?? .distantFuture)
+            let isfStart = min(treatmentInterval.start, doses.map { $0.startDate }.min() ?? .distantFuture) 
             let isfInterval = DateInterval(start: isfStart, end: displayInterval.end)
 
-            algorithmInput = LoopAlgorithmInput(
-                glucoseHistory: glucose,
-                doses: doses,
-                carbEntries: carbEntries,
+            let settings = LoopAlgorithmSettings(
                 basal: try await dataSource.getBasalHistory(interval: treatmentInterval),
                 sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: isfInterval),
                 carbRatio: try await dataSource.getCarbRatioHistory(interval: treatmentInterval),
                 target: try await dataSource.getTargetRangeHistory(interval: displayInterval))
+
+            algorithmInput = LoopPredictionInput(
+                glucoseHistory: glucose,
+                doses: doses,
+                carbEntries: carbEntries,
+                settings: settings)
 
             algorithmInput?.printFixture()
 
@@ -71,7 +73,7 @@ struct ForecastReview: View {
     }
 
     var subTitle: String {
-        if let algorithmOutput, let quantity = algorithmOutput.prediction.last?.quantity {
+        if let algorithmOutput, let quantity = algorithmOutput.glucose.last?.quantity {
             return "Eventually " + formatters.glucoseFormatter.string(from: quantity)!
         } else {
             return ""
@@ -120,6 +122,7 @@ struct ForecastReview: View {
                     GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin)
                 }
             }
+            .timeXAxis()
             .chartXScale(domain: displayInterval.start...displayInterval.end)
             .padding()
             .onAppear {
@@ -135,7 +138,7 @@ struct ForecastReview: View {
         }
     }
     
-    func glucoseChart(algorithmInput: AlgorithmInput, algorithmOutput: AlgorithmOutput) -> some View {
+    func glucoseChart(algorithmInput: GlucosePredictionInput, algorithmOutput: GlucosePrediction) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory.filterDateRange(displayInterval.start, displayInterval.end), id: \.startDate) { effect in
                 PointMark(
@@ -146,7 +149,7 @@ struct ForecastReview: View {
                 .foregroundStyle(Color.glucose)
 
             }
-            ForEach(algorithmOutput.prediction, id: \.startDate) { effect in
+            ForEach(algorithmOutput.glucose, id: \.startDate) { effect in
                 LineMark(
                     x: .value("Time", effect.startDate),
                     y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))

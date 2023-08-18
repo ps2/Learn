@@ -123,9 +123,8 @@ final class NightscoutDataSource: DataSource {
         return try await cache.doseStore.getDoses(start: interval.start, end: interval.end)
     }
 
-    func getCarbEntries(interval: DateInterval) async throws -> [CarbEntry] {
-        let entries = try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
-        return entries.map { CarbEntry(startDate: $0.startDate, absorptionTime: $0.absorptionTime, quantity: $0.quantity) }
+    func getCarbEntries(interval: DateInterval) async throws -> [StoredCarbEntry] {
+        return try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
     }
 
     func getTargetRangeHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {

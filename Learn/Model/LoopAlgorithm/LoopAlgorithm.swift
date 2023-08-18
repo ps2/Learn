@@ -49,15 +49,15 @@ struct AlgorithmEffectsTimeline {
     let summaries: [AlgorithmEffectSummary]
 }
 
-struct LoopAlgorithmOutput: AlgorithmOutput {
-    var prediction: [PredictedGlucoseValue]
+struct LoopPrediction: GlucosePrediction {
+    var glucose: [PredictedGlucoseValue]
     var effects: LoopAlgorithmEffects
 }
 
 actor LoopAlgorithm {
 
-    typealias InputType = LoopAlgorithmInput
-    typealias OutputType = LoopAlgorithmOutput
+    typealias InputType = LoopPredictionInput
+    typealias OutputType = LoopPrediction
 
     private static var treatmentHistoryInterval: TimeInterval = .hours(24)
 
@@ -78,7 +78,7 @@ actor LoopAlgorithm {
     static var momentumDataInterval: TimeInterval = .minutes(15)
 
     // Generates a forecast predicting glucose.
-    static func getForecast(input: LoopAlgorithmInput, startDate: Date? = nil) throws -> LoopAlgorithmOutput {
+    static func getForecast(input: LoopPredictionInput, startDate: Date? = nil) throws -> LoopPrediction {
 
         guard let latestGlucose = input.glucoseHistory.last else {
             throw AlgorithmError.missingGlucose
@@ -179,8 +179,8 @@ actor LoopAlgorithm {
 //        print("retrospectiveGlucoseDiscrepancies = \(retrospectiveGlucoseDiscrepancies)")
 //        print("rc = \(rcEffect)")
 
-        return LoopAlgorithmOutput(
-            prediction: prediction,
+        return LoopPrediction(
+            glucose: prediction,
             effects: LoopAlgorithmEffects(
                 insulin: insulinEffects,
                 carbs: carbEffects,

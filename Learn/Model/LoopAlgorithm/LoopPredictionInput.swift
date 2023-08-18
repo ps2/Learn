@@ -10,7 +10,7 @@ import Foundation
 import LoopKit
 import HealthKit
 
-struct LoopAlgorithmInput: AlgorithmInput {
+struct LoopPredictionInput: GlucosePredictionInput {
     var glucoseHistory: [StoredGlucoseSample]
     var doses: [DoseEntry]
     var carbEntries: [CarbEntry]
@@ -27,7 +27,7 @@ struct LoopAlgorithmInput: AlgorithmInput {
 }
 
 
-extension LoopAlgorithmInput: Codable {
+extension LoopPredictionInput: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -80,10 +80,10 @@ extension LoopAlgorithmInput: Codable {
     }
 }
 
-extension LoopAlgorithmInput {
+extension LoopPredictionInput {
 
-    var simplifiedForFixture: LoopAlgorithmInput {
-        return LoopAlgorithmInput(
+    var simplifiedForFixture: LoopPredictionInput {
+        return LoopPredictionInput(
             glucoseHistory: glucoseHistory.map {
                 StoredGlucoseSample(startDate: $0.startDate, quantity: $0.quantity)
             },

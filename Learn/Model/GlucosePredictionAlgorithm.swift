@@ -9,19 +9,19 @@
 import Foundation
 import LoopKit
 
-protocol AlgorithmInput {
+protocol GlucosePredictionInput {
     var glucoseHistory: [StoredGlucoseSample] { get }
     var doses: [DoseEntry] { get }
     var carbEntries: [CarbEntry] { get }
 }
 
-protocol AlgorithmOutput {
-    var prediction: [PredictedGlucoseValue] { get }
+protocol GlucosePrediction {
+    var glucose: [PredictedGlucoseValue] { get }
 }
 
 protocol GlucosePredictionAlgorithm {
-    associatedtype InputType: AlgorithmInput
-    associatedtype OutputType: AlgorithmOutput
+    associatedtype InputType: GlucosePredictionInput
+    associatedtype OutputType: GlucosePrediction
 
     static func treatmentHistoryDateInterval(for startDate: Date) -> DateInterval
     static func glucoseHistoryDateInterval(for startDate: Date) -> DateInterval

@@ -20,14 +20,19 @@ struct IssueReportMainView: View {
     }
 
     var body: some View {
-        VStack {
-            Text("Issue Report: \(issueReportDate)")
+        ScrollView {
+            Text(dataSource.name)
             if let issueReport = dataSource.issueReport {
                 NavigationLink("Details") {
                     IssueReportDetailsView(issueReport: issueReport)
                 }
             }
             BasicChartsView(dataSource: dataSource)
+            Divider()
+                .padding(.vertical)
+            NavigationLink("Forecast Review") {
+                ForecastReview(dataSource: dataSource)
+            }
         }
     }
 }
