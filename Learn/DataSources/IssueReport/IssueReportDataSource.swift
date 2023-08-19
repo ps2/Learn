@@ -148,7 +148,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
     var summaryView: AnyView {
         AnyView(
             HStack {
-                Image(decorative: "loop")
+                Image(decorative: "issue-report")
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 40)

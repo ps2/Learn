@@ -25,8 +25,7 @@ struct IssueReportMainView: View {
         ScrollView {
             if let error = error {
                 Text(String(describing: error))
-            }
-            else if let issueReport = dataSource.issueReport {
+            } else if let issueReport = dataSource.issueReport {
                 Text(dataSource.name)
                 NavigationLink("Details") {
                     IssueReportDetailsView(issueReport: issueReport)
@@ -37,6 +36,12 @@ struct IssueReportMainView: View {
                 NavigationLink("Forecast Review") {
                     ForecastReview(dataSource: dataSource)
                 }
+            } else {
+                VStack(spacing: 10)  {
+                    Text("Parsing...")
+                    ProgressView()
+                }
+                .padding()
             }
         }
         .task {

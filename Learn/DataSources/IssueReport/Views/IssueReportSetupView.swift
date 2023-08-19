@@ -30,7 +30,7 @@ struct IssueReportSetupView: View {
                 .font(.largeTitle)
                 .fontWeight(.semibold)
                 .padding(.top, 25)
-            Image(decorative: "loop")
+            Image(decorative: "issue-report")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 150, height: 150)
