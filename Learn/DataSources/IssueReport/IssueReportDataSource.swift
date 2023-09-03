@@ -100,7 +100,6 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         Task { @MainActor in
             issueReport = report
             cachedGlucoseSamples = report.cachedGlucoseSamples.map { $0.loopKitSample }
-            print("cached samples count = \(cachedGlucoseSamples.count)")
         }
     }
 

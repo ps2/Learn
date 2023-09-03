@@ -122,9 +122,9 @@ struct RetrospectiveCorrectionExample: View {
         .padding()
         .onAppear {
             do {
-                algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput)
+                algorithmOutput = try LoopAlgorithm.generatePrediction(input: algorithmInput)
                 algorithmInput.settings.algorithmEffectsOptions.remove(.retrospection)
-                algorithmOutputWithoutRC = try LoopAlgorithm.getForecast(input: algorithmInput)
+                algorithmOutputWithoutRC = try LoopAlgorithm.generatePrediction(input: algorithmInput)
                 exampleRCPrediction = algorithmOutput!.effects.insulinCounteraction.subtracting(algorithmOutput!.effects.carbs)
             } catch {
                 print("Could not create forecast: \(error)")

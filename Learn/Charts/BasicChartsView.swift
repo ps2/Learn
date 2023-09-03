@@ -20,6 +20,7 @@ struct BasicChartsView: View {
     @State private var basalHistory: [AbsoluteScheduleValue<Double>] = []
     @State private var doses: [DoseEntry] = []
     @State private var carbEntries: [CarbEntry] = []
+    @State private var insulinOnBoard: [InsulinValue] = []
 
     // When in inspection mode, the date being inspected
     @State private var inspectionDate: Date?
@@ -88,6 +89,13 @@ struct BasicChartsView: View {
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments
             )
+            ActiveInsulinChart(
+                startTime: start,
+                endTime: end,
+                activeInsulin: insulinOnBoard,
+                chartUnitOffset: $scrollCoordinator.chartUnitOffset,
+                numSegments: numSegments
+            )
             InsulinDosesChart(
                 startTime: start,
                 endTime: end,
@@ -96,6 +104,7 @@ struct BasicChartsView: View {
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments
             )
+
         }
         .opaqueHorizontalPadding()
         .onPreferenceChange(ScrollableChartDragStatePreferenceKey.self) { dragState in
@@ -125,7 +134,10 @@ struct BasicChartsView: View {
                 glucoseDataValues = try await dataSource.getGlucoseValues(interval: interval)
                 targetRanges = try await dataSource.getTargetRangeHistory(interval: interval)
                 basalHistory = try await dataSource.getBasalHistory(interval: interval)
-                doses = try await dataSource.getDoses(interval: interval)
+                let iobDoseInterval = DateInterval(start: start.addingTimeInterval(-InsulinMath.defaultInsulinActivityDuration), end: end)
+                let historicDoses = try await dataSource.getDoses(interval: iobDoseInterval)
+                insulinOnBoard = historicDoses.insulinOnBoard()
+                doses = historicDoses.filterDateInterval(interval: interval)
                 carbEntries = try await dataSource.getCarbEntries(interval: interval)
             } catch {
                 print("Error refreshing data: \(error)")

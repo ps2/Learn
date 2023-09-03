@@ -142,7 +142,7 @@ struct InsulinDosesChart: View {
             }
             .opacity(inspectedElement == nil ? 1 : 0)
 
-            ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 250, numSegments: numSegments) {
+            ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 125, numSegments: numSegments) {
                 Chart {
                     // Boluses
                     ForEach(doses) { dose in
@@ -185,7 +185,8 @@ struct InsulinDosesChart: View {
                             x: .value("Time", inspectedElement.dateForSelection, unit: .second),
                             y: .value("Value", inspectedElement.selectionValue)
                         )
-                        .foregroundStyle(.orange.opacity(0.4))
+
+                        .foregroundStyle(Color.insulin.opacity(0.4))
                         .symbolSize(CGSize(width: 15, height: 15))
                     }
                 }

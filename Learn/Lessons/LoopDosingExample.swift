@@ -106,7 +106,7 @@ struct LoopDosingExample: View {
         .padding()
         .onAppear {
             do {
-                algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput)
+                algorithmOutput = try LoopAlgorithm.generatePrediction(input: algorithmInput)
             } catch {
                 print("Could not create forecast: \(error)")
             }

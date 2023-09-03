@@ -71,6 +71,7 @@
 		C1EA323229A7AC7800949EA3 /* NightscoutConfigurationChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA323129A7AC7800949EA3 /* NightscoutConfigurationChecker.swift */; };
 		C1EA323429A7C8DE00949EA3 /* NightscoutConfigurationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA323329A7C8DE00949EA3 /* NightscoutConfigurationError.swift */; };
 		C1EA323629A7D42E00949EA3 /* NightscoutSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA323529A7D42E00949EA3 /* NightscoutSummaryView.swift */; };
+		C1EC4A752AA4D9D000B6FFAB /* ActiveInsulinChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EC4A742AA4D9D000B6FFAB /* ActiveInsulinChart.swift */; };
 		C1EF206528D5033B007A8097 /* GlucoseChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EF206428D5033B007A8097 /* GlucoseChart.swift */; };
 		C1F298C72A315B5E00372926 /* MockMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298C62A315B5E00372926 /* MockMainView.swift */; };
 		C1F298C92A315C4600372926 /* IssueReportMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298C82A315C4600372926 /* IssueReportMainView.swift */; };
@@ -157,6 +158,7 @@
 		C1EA323129A7AC7800949EA3 /* NightscoutConfigurationChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutConfigurationChecker.swift; sourceTree = "<group>"; };
 		C1EA323329A7C8DE00949EA3 /* NightscoutConfigurationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutConfigurationError.swift; sourceTree = "<group>"; };
 		C1EA323529A7D42E00949EA3 /* NightscoutSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutSummaryView.swift; sourceTree = "<group>"; };
+		C1EC4A742AA4D9D000B6FFAB /* ActiveInsulinChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveInsulinChart.swift; sourceTree = "<group>"; };
 		C1EF206428D5033B007A8097 /* GlucoseChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseChart.swift; sourceTree = "<group>"; };
 		C1F298C62A315B5E00372926 /* MockMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMainView.swift; sourceTree = "<group>"; };
 		C1F298C82A315C4600372926 /* IssueReportMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportMainView.swift; sourceTree = "<group>"; };
@@ -412,11 +414,12 @@
 			children = (
 				C1DDFAB129A67BEB0019E4CB /* BasicChartsView.swift */,
 				C1E4BECF29A41E3C00B54132 /* ChartScrollCoordinator.swift */,
-				C1EF206428D5033B007A8097 /* GlucoseChart.swift */,
-				C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */,
-				C1589D7D2A53962A00D7D3AA /* GlucoseEffectChart.swift */,
-				C169922C2A69808F00B06881 /* ForecastReview.swift */,
 				C14F53A529DE60AD002A0DED /* ChartSupport */,
+				C169922C2A69808F00B06881 /* ForecastReview.swift */,
+				C1EF206428D5033B007A8097 /* GlucoseChart.swift */,
+				C1589D7D2A53962A00D7D3AA /* GlucoseEffectChart.swift */,
+				C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */,
+				C1EC4A742AA4D9D000B6FFAB /* ActiveInsulinChart.swift */,
 			);
 			path = Charts;
 			sourceTree = "<group>";
@@ -563,6 +566,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C15A8C3F2A6EC67F009D736B /* ForecastReviewExample.swift in Sources */,
+				C1EC4A752AA4D9D000B6FFAB /* ActiveInsulinChart.swift in Sources */,
 				C1AF1D172A4DDA1100F46A26 /* MidAbsorptionISFChange.swift in Sources */,
 				C1E4BED029A41E3C00B54132 /* ChartScrollCoordinator.swift in Sources */,
 				C135B7D029A508C20012C1F6 /* DataSourcesSummaryView.swift in Sources */,

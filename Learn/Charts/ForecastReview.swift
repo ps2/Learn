@@ -65,7 +65,7 @@ struct ForecastReview: View {
 
             algorithmInput?.printFixture()
 
-            algorithmOutput = try LoopAlgorithm.getForecast(input: algorithmInput!)
+            algorithmOutput = try LoopAlgorithm.generatePrediction(input: algorithmInput!)
         } catch {
             print("Could not create forecast: \(error)")
         }
@@ -113,13 +113,13 @@ struct ForecastReview: View {
                     }
                     glucoseChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
                     Text("Insulin Effects")
-                    GlucoseEffectChart(algorithmOutput.effects.insulin.asVelocities().filterDateInterval(interval: displayInterval), color: .insulin)
+                    GlucoseEffectChart(algorithmOutput.effects.insulin.asVelocities().filterDateInterval(interval: displayInterval), color: .insulin, yAxisWidth: 25)
                     Text("Insulin Counteraction")
-                    GlucoseEffectChart(algorithmOutput.effects.insulinCounteraction.filterDateInterval(interval: displayInterval), color: .gray)
+                    GlucoseEffectChart(algorithmOutput.effects.insulinCounteraction.filterDateInterval(interval: displayInterval), color: .gray, yAxisWidth: 25)
                     Text("Carb Effects")
-                    GlucoseEffectChart(algorithmOutput.effects.carbs.asVelocities().filterDateInterval(interval: displayInterval), color: .carbs)
+                    GlucoseEffectChart(algorithmOutput.effects.carbs.asVelocities().filterDateInterval(interval: displayInterval), color: .carbs, yAxisWidth: 25)
                     Text("Retrospective Correction Effects")
-                    GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin)
+                    GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin, yAxisWidth: 25)
                 }
             }
             .timeXAxis()

@@ -131,7 +131,6 @@ struct ScrollableChart<Content: View, YAxis: View>: View {
     }
 
     var getTranslationOffset: CGFloat {
-        //print("Using translationOffset: \(translationOffset)")
         return translationOffset
     }
 
