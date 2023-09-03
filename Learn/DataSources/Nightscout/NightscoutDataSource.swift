@@ -115,7 +115,7 @@ final class NightscoutDataSource: DataSource {
         return nil
     }
 
-    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseSampleValue] {
+    func getGlucoseValues(interval: DateInterval) async throws -> [StoredGlucoseSample] {
         try await cache.glucoseStore.getGlucoseSamples(start: interval.start, end: interval.end)
     }
 

@@ -142,7 +142,7 @@ struct InsulinDosesChart: View {
             }
             .opacity(inspectedElement == nil ? 1 : 0)
 
-            ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 125, numSegments: numSegments) {
+            ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 100, numSegments: numSegments) {
                 Chart {
                     // Boluses
                     ForEach(doses) { dose in

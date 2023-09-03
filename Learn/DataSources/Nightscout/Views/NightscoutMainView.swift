@@ -18,7 +18,7 @@ struct NightscoutMainView: View {
     var body: some View {
         ScrollView {
             Text(dataSource.name)
-            BasicChartsView(dataSource: dataSource)
+            LoopChartsView(dataSource: dataSource)
                 .refreshable {
                     await dataSource.syncRemoteData()
                 }

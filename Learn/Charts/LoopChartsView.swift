@@ -1,5 +1,5 @@
 //
-//  BasicChartsView.swift
+//  LoopChartsView.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 2/22/23.
@@ -10,17 +10,12 @@ import SwiftUI
 import LoopKit
 import HealthKit
 
-struct BasicChartsView: View {
+struct LoopChartsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @ObservedObject private var scrollCoordinator = ChartScrollCoordinator()
 
-    @State private var glucoseDataValues: [GlucoseSampleValue] = []
-    @State private var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] = []
-    @State private var basalHistory: [AbsoluteScheduleValue<Double>] = []
-    @State private var doses: [DoseEntry] = []
-    @State private var carbEntries: [CarbEntry] = []
-    @State private var insulinOnBoard: [InsulinValue] = []
+    @State private var data = LoopChartsData()
 
     // When in inspection mode, the date being inspected
     @State private var inspectionDate: Date?
@@ -82,9 +77,9 @@ struct BasicChartsView: View {
             GlucoseChart(
                 startTime: start,
                 endTime: end,
-                historicalGlucose: glucoseDataValues,
-                targetRanges: targetRanges,
-                carbEntries: carbEntries,
+                historicalGlucose: data.glucose,
+                targetRanges: data.targetRanges,
+                carbEntries: data.carbEntries,
                 upperRightLabel: dateStr,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments
@@ -92,19 +87,25 @@ struct BasicChartsView: View {
             ActiveInsulinChart(
                 startTime: start,
                 endTime: end,
-                activeInsulin: insulinOnBoard,
+                activeInsulin: data.insulinOnBoard,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments
             )
             InsulinDosesChart(
                 startTime: start,
                 endTime: end,
-                doses: doses,
-                basalHistory: basalHistory,
+                doses: data.doses,
+                basalHistory: data.basalHistory,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments
             )
-
+            ActiveCarbohydratesChart(
+                startTime: start,
+                endTime: end,
+                activeCarbs: data.activeCarbs,
+                chartUnitOffset: $scrollCoordinator.chartUnitOffset,
+                numSegments: numSegments
+            )
         }
         .opaqueHorizontalPadding()
         .onPreferenceChange(ScrollableChartDragStatePreferenceKey.self) { dragState in
@@ -131,14 +132,7 @@ struct BasicChartsView: View {
             do {
                 let interval = DateInterval(start: start, end: end)
                 await dataSource.syncData(interval: interval)
-                glucoseDataValues = try await dataSource.getGlucoseValues(interval: interval)
-                targetRanges = try await dataSource.getTargetRangeHistory(interval: interval)
-                basalHistory = try await dataSource.getBasalHistory(interval: interval)
-                let iobDoseInterval = DateInterval(start: start.addingTimeInterval(-InsulinMath.defaultInsulinActivityDuration), end: end)
-                let historicDoses = try await dataSource.getDoses(interval: iobDoseInterval)
-                insulinOnBoard = historicDoses.insulinOnBoard()
-                doses = historicDoses.filterDateInterval(interval: interval)
-                carbEntries = try await dataSource.getCarbEntries(interval: interval)
+                self.data = try await LoopAlgorithm.fetchLoopChartsData(dataSource: dataSource, interval: interval)
             } catch {
                 print("Error refreshing data: \(error)")
             }
@@ -151,7 +145,7 @@ struct MainChartsView_Previews: PreviewProvider {
 
     static var previews: some View {
         ScrollView {
-            BasicChartsView(dataSource: dataSource)
+            LoopChartsView(dataSource: dataSource)
                 .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
         }
     }

@@ -12,7 +12,7 @@ struct MockMainView: View {
     var dataSource: MockDataSource
 
     var body: some View {
-        BasicChartsView(dataSource: dataSource)
+        LoopChartsView(dataSource: dataSource)
     }
 }
 

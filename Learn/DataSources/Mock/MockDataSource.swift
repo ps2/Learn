@@ -20,7 +20,7 @@ class MockDataSource: DataSource {
         return nil
     }
 
-    func getMockGlucoseValues(start: Date, end: Date) -> [GlucoseSampleValue] {
+    func getMockGlucoseValues(start: Date, end: Date) -> [StoredGlucoseSample] {
         stride(from: start, through: end, by: TimeInterval(5 * 60)).map { date in
             let value = 120.0 + sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 50
             let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value)
@@ -28,7 +28,7 @@ class MockDataSource: DataSource {
         }
     }
 
-    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseSampleValue] {
+    func getGlucoseValues(interval: DateInterval) async throws -> [StoredGlucoseSample] {
         return getMockGlucoseValues(start: interval.start, end: interval.end)
     }
 

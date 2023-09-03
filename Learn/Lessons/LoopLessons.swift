@@ -19,7 +19,7 @@ struct LoopLessons: View {
                 Text("Mid-Absorption ISF Change")
             }
             NavigationLink {
-                BasicChartsView(dataSource: dataSource)
+                LoopChartsView(dataSource: dataSource)
             } label: {
                 Text("Algo Effects from Mock Data Source")
             }

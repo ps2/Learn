@@ -30,7 +30,7 @@ struct IssueReportMainView: View {
                 NavigationLink("Details") {
                     IssueReportDetailsView(issueReport: issueReport)
                 }
-                BasicChartsView(dataSource: dataSource)
+                LoopChartsView(dataSource: dataSource)
                 Divider()
                     .padding(.vertical)
                 NavigationLink("Forecast Review") {

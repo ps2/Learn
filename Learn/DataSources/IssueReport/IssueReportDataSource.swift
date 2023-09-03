@@ -164,7 +164,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return issueReport?.generatedAt
     }
 
-    func getGlucoseValues(interval: DateInterval) async throws -> [GlucoseSampleValue] {
+    func getGlucoseValues(interval: DateInterval) async throws -> [StoredGlucoseSample] {
         cachedGlucoseSamples.filter { $0.startDate >= interval.start && $0.startDate <= interval.end }
     }
 
