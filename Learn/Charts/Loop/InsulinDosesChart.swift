@@ -84,7 +84,7 @@ struct InsulinDosesChart: View {
     var basalDoses: [DoseEntry]
 
 
-    init(startTime: Date, endTime: Date, doses: [DoseEntry], basalHistory: [AbsoluteScheduleValue<Double>], chartUnitOffset: Binding<Int>, numSegments: Int) {
+    init(startTime: Date, endTime: Date, doses: [DoseEntry], basalHistory: [AbsoluteScheduleValue<Double>], chartUnitOffset: Binding<Int>, numSegments: Int, basalEndTime: Date? = nil) {
         self.startTime = startTime
         self.endTime = endTime
         self.doses = doses
@@ -93,7 +93,7 @@ struct InsulinDosesChart: View {
         self.numSegments = numSegments
 
         // Fill in missing basal doses with basal history
-        basalDoses = doses.infill(with: basalHistory, endDate: min(endTime, Date()), gapPatchInterval: .seconds(10))
+        basalDoses = doses.infill(with: basalHistory, endDate: basalEndTime ?? Date(), gapPatchInterval: .seconds(10))
 
         // Includes points for both scheduled (dotted) and dose (solid) lines.
         var basalLines = [BasalRatePoint]()

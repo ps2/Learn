@@ -105,7 +105,8 @@ struct LoopChartsView: View {
                 doses: data.doses,
                 basalHistory: data.basalHistory,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
-                numSegments: numSegments
+                numSegments: numSegments,
+                basalEndTime: dataSource.endOfData
             )
             ActiveCarbohydratesChart(
                 startTime: start,
