@@ -28,9 +28,7 @@ struct OpaqueHorizontalPaddingModifier: ViewModifier {
 }
 
 extension View {
-    // Using this view modifier on a chart will make it detect long presses followed by panning, and
-    // will convert the touch x location to a date, and report it as a preference with the key
-    // ChartInspectionDatePreferenceKey
+    // Since chart clipping is problematic, we cover the left and right chart padding areas with opaque content.
     func opaqueHorizontalPadding(amount: CGFloat = 8) -> some View {
         modifier(OpaqueHorizontalPaddingModifier(amount: amount))
     }

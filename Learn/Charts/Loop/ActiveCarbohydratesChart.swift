@@ -55,6 +55,8 @@ struct ActiveCarbohydratesChart: View {
             AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks))
         }
         .frame(width:30, alignment: .trailing)
+        .chartXAxis(.hidden)
+        .padding(.bottom, 18)
     }
 
     var body: some View {
@@ -63,9 +65,6 @@ struct ActiveCarbohydratesChart: View {
             HStack {
                 Text("Active Carbohydrates").bold()
                 Spacer()
-                Text("g")
-                    .bold()
-                    .foregroundColor(.secondary)
             }
             .opacity(inspectedElement == nil ? 1 : 0)
 
@@ -81,7 +80,7 @@ struct ActiveCarbohydratesChart: View {
                             x: .value("Time", carbValue.startDate),
                             y: .value("Value", carbValue.value)
                         )
-                        .foregroundStyle(Color.carbs.opacity(0.5))
+                        .foregroundStyle(Color.carbs)
 
                     }
                     if let inspectedElement {

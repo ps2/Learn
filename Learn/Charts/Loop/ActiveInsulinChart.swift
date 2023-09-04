@@ -56,6 +56,8 @@ struct ActiveInsulinChart: View {
             AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks))
         }
         .frame(width:30, alignment: .trailing)
+        .chartXAxis(.hidden)
+        .padding(.bottom, 18)
     }
 
     var body: some View {
@@ -64,9 +66,6 @@ struct ActiveInsulinChart: View {
             HStack {
                 Text("Active Insulin").bold()
                 Spacer()
-                Text("U")
-                    .bold()
-                    .foregroundColor(.secondary)
             }
             .opacity(inspectedElement == nil ? 1 : 0)
 
@@ -82,7 +81,7 @@ struct ActiveInsulinChart: View {
                             x: .value("Time", insulinValue.startDate),
                             y: .value("Value", insulinValue.value)
                         )
-                        .foregroundStyle(Color.insulin.opacity(0.5))
+                        .foregroundStyle(Color.insulin)
 
                     }
                     if let inspectedElement {
@@ -182,6 +181,7 @@ struct IOBChart_Previews: PreviewProvider {
         return ActiveInsulinChart(startTime: start, endTime: end, activeInsulin: insulinValues, chartUnitOffset: .constant(0), numSegments: 6)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             .timeXAxis()
+            .opaqueHorizontalPadding()
     }
 }
 

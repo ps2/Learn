@@ -136,15 +136,19 @@ struct ScrollableChart<Content: View, YAxis: View>: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            // Put the yAxis above the graph, as clipping the graph is proving problematic
-            AnyView(yAxis)
-                .background(Color(UIColor.systemBackground))
-                .zIndex(10)
+            // Put the yAxis on top of the graph, as clipping the graph is proving problematic
+            VStack(spacing: 0) {
+                Color(UIColor.systemBackground).frame(width: 30, height: 10)
+                    .padding(.top, -10)
+                AnyView(yAxis)
+                    .background(Color(UIColor.systemBackground))
+            }
+            .zIndex(10)
             GeometryReader { geometry in
                 chart
                     // The actual width of the plot area is three times of page width
                     .frame(width: geometry.size.width * 3, height: geometry.size.height)
-                    .offset(x: getTranslationOffset + (settleOffsetAnimatable ?? 0) - geometry.size.width)
+                    .offset(x: 1 + getTranslationOffset + (settleOffsetAnimatable ?? 0) - geometry.size.width)
                     .gesture(drag(chartWidth: geometry.size.width))
             }
             //.clipped()

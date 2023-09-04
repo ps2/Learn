@@ -69,6 +69,8 @@ struct LoopGlucoseChart: View {
             AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks))
         }
         .frame(width:30, alignment: .trailing)
+        .chartXAxis(.hidden)
+        .padding(.bottom, 18)
     }
 
     var body: some View {
@@ -90,7 +92,7 @@ struct LoopGlucoseChart: View {
                             y: .value("Historical Glucose", reading.quantity.doubleValue(for: formatters.glucoseUnit))
                         )
                         .foregroundStyle(Color.glucose)
-                        .symbolSize(CGSize(width: 5, height: 5))
+                        .symbolSize(CGSize(width: 4, height: 4))
                     }
                     ForEach(carbEntries, id: \.startDate) { entry in
                         PointMark(

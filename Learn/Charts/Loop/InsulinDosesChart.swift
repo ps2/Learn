@@ -46,6 +46,10 @@ struct InsulinDosesChart: View {
     private let desiredYAxisNumberOfMarks: Int = 4
     private let chartYDomain: ClosedRange<Double> = 0...4
 
+    private var maxDoseValue: Double {
+        return chartYDomain.upperBound - 0.2
+    }
+
     private var xScale: ClosedRange<Date> { startTime...endTime }
 
     private var doses: [DoseEntry]
@@ -63,7 +67,7 @@ struct InsulinDosesChart: View {
         var strokeStyle: StrokeStyle {
             switch self {
             case .dose:
-                return StrokeStyle()
+                return StrokeStyle(lineWidth: 2)
             case .schedule:
                 return StrokeStyle(dash: [2,2])
             }
@@ -128,10 +132,12 @@ struct InsulinDosesChart: View {
             AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks))
         }
         .frame(width:30, alignment: .trailing)
+        .chartXAxis(.hidden)
+        .padding(.bottom, 18)
     }
 
     func clippedBolusValue(units: Double) -> Double {
-        return min(chartYDomain.upperBound, units)
+        return min(maxDoseValue, units)
     }
 
     var body: some View {
@@ -140,9 +146,6 @@ struct InsulinDosesChart: View {
             HStack {
                 Text("Insulin Delivery").bold()
                 Spacer()
-                Text("U")
-                    .bold()
-                    .foregroundColor(.secondary)
             }
             .opacity(inspectedElement == nil ? 1 : 0)
 
@@ -319,7 +322,6 @@ struct InsulinDosesChart_Previews: PreviewProvider {
         let basalHistory = mockDataSource.getMockBasalHistory(start: interval.start, end: interval.end)
 
         return InsulinDosesChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
-            .opaqueHorizontalPadding()
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

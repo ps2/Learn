@@ -38,15 +38,33 @@ class MockDataSource: DataSource {
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses) + spaceBetweenBoluses
 
         return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
-            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 2
             return DoseEntry(
                 type: .bolus,
                 startDate: date,
-                value: value,
+                value: value * 3,
                 unit: .units
             )
         }
     }
+
+    func getMockAutomaticBoluses(start: Date, end: Date) -> [DoseEntry] {
+        let spaceBetweenBoluses = TimeInterval(15 * 60)
+
+        let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses) + spaceBetweenBoluses
+
+        return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
+            return DoseEntry(
+                type: .bolus,
+                startDate: date,
+                value: value / 2,
+                unit: .units,
+                automatic: true
+            )
+        }
+    }
+
 
     func getMockBasalDoses(start: Date, end: Date) -> [DoseEntry] {
         let spaceBetweenChanges = TimeInterval(10 * 60)
@@ -65,7 +83,8 @@ class MockDataSource: DataSource {
     }
 
     func getMockDoses(interval: DateInterval) -> [DoseEntry] {
-        let boluses = getMockBoluses(start: interval.start, end: interval.end)
+        let boluses = getMockBoluses(start: interval.start, end: interval.end) +
+                      getMockAutomaticBoluses(start: interval.start, end: interval.end)
         let basal = getMockBasalDoses(start: interval.start, end: interval.end)
         return (basal + boluses).sorted { a, b in
             a.startDate < b.startDate

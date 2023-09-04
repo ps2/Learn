@@ -20,7 +20,6 @@ struct InsulinDeliveryExample: View {
         let basalHistory = mockDataSource.getMockBasalHistory(start: interval.start, end: interval.end)
 
         return InsulinDosesChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
-            .opaqueHorizontalPadding()
     }
 }
 
