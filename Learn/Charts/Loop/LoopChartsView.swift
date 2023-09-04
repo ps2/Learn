@@ -23,6 +23,10 @@ struct LoopChartsView: View {
     // This lets us have a more persistent baseTime
     @State private var viewCreationDate = Date()
 
+    // If the user taps on a glucose value, we navigate to a forecast review
+    @State private var forecastReviewDate: Date? = nil
+    @State private var showingForecastReview: Bool = false
+
     var baseTime: Date {
         return (dataSource.endOfData ?? viewCreationDate).roundDownToHour()
     }
@@ -68,8 +72,8 @@ struct LoopChartsView: View {
 
     var dateStr: String {
         return dateIntervalFormatter.string(
-            from: scrolledToTime.addingTimeInterval(-(displayedTimeInterval * 0.5)),
-            to: scrolledToTime.addingTimeInterval(+(displayedTimeInterval * 0.5)))
+            from: scrolledToTime.addingTimeInterval(-(displayedTimeInterval * 0.4)),
+            to: scrolledToTime.addingTimeInterval(+(displayedTimeInterval * 0.4)))
     }
 
     var body: some View {
@@ -83,8 +87,11 @@ struct LoopChartsView: View {
                 manualBoluses: data.manualBoluses,
                 upperRightLabel: dateStr,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
-                numSegments: numSegments
-            )
+                numSegments: numSegments) { sample in
+                    print("Here")
+                    forecastReviewDate = sample.startDate
+                    showingForecastReview = true
+                }
             ActiveInsulinChart(
                 startTime: start,
                 endTime: end,
@@ -107,6 +114,10 @@ struct LoopChartsView: View {
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments
             )
+            NavigationLink(
+                isActive: $showingForecastReview,
+                destination: { ForecastReview(dataSource: dataSource, initialBaseTime: forecastReviewDate) },
+                label: { EmptyView() } )
         }
         .opaqueHorizontalPadding()
         .onPreferenceChange(ScrollableChartDragStatePreferenceKey.self) { dragState in

@@ -206,7 +206,7 @@ struct InsulinDosesChart: View {
                 }
                 .chartYScale(domain: chartYDomain)
                 .chartXScale(domain: startTime...endTime)
-                .chartLongPressInspection()
+                .chartInspection()
                 .onPreferenceChange(ChartInspectionDatePreferenceKey.self) { date in
                     localInspectionDate = date
                 }

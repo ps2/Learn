@@ -66,6 +66,8 @@ struct ChartInspectionDatePreferenceKey: PreferenceKey {
 struct ChartLongPressInspectionModifier: ViewModifier {
     @State private var inspectionDate: Date?
 
+    var onTap: ((CGPoint, ChartProxy, GeometryProxy) -> Void)?
+
     func body(content: Content) -> some View {
         content
         .chartOverlay { proxy in
@@ -80,6 +82,8 @@ struct ChartLongPressInspectionModifier: ViewModifier {
                     inspectionDate = proxy.value(atX: location.x) as Date?
                 } onEnded: {
                     inspectionDate = nil
+                } onTap: { location in
+                    onTap?(location, proxy, geo)
                 }
                 .preference(key: ChartInspectionDatePreferenceKey.self, value: inspectionDate)
             }
@@ -88,10 +92,12 @@ struct ChartLongPressInspectionModifier: ViewModifier {
 }
 
 extension View {
-    // Using this view modifier on a chart will make it detect long presses followed by panning, and
-    // will convert the touch x location to a date, and report it as a preference with the key
-    // ChartInspectionDatePreferenceKey
-    func chartLongPressInspection() -> some View {
-        modifier(ChartLongPressInspectionModifier())
+    // Using this view modifier on a chart will make it detect taps with location and long presses
+    // followed by panning.
+    // On tap, the touch location will be reported to the optional callback
+    // On long-press, the touch x location will be converted to a date, and be reported as a
+    // preference with the key ChartInspectionDatePreferenceKey
+    func chartInspection(onTap: ((CGPoint, ChartProxy, GeometryProxy) -> Void)? = nil) -> some View {
+        modifier(ChartLongPressInspectionModifier(onTap: onTap))
     }
 }

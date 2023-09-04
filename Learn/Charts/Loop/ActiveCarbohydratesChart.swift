@@ -95,7 +95,7 @@ struct ActiveCarbohydratesChart: View {
                 }
                 .chartYScale(domain: yScale)
                 .chartXScale(domain: xScale)
-                .chartLongPressInspection()
+                .chartInspection()
                 .chartOverlay { proxy in
                     Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
                 }

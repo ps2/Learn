@@ -38,6 +38,7 @@ class InspectionGestureRecognizer: UIGestureRecognizer {
 
     var onChange: ((CGPoint) -> Void)?
     var onEnded: (() -> Void)?
+    var onTap: ((CGPoint) -> Void)?
     private let minimumDuration: TimeInterval
 
     public init(target: Any?, action: Selector?, minimumDuration: TimeInterval = 0.2) {
@@ -59,6 +60,12 @@ class InspectionGestureRecognizer: UIGestureRecognizer {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
         super.touchesEnded(touches, with: event)
+
+        if self.state == .possible, let firstTouch = touches.first {
+            let position = firstTouch.location(in: view)
+            self.onTap?(position)
+        }
+
         timer?.invalidate()
         timer = nil
         state = .ended
@@ -97,6 +104,7 @@ struct InspectGestureView: UIViewRepresentable {
     let minimumDuration: TimeInterval
     let onChange: (CGPoint) -> Void
     let onEnded: () -> Void
+    let onTap: (CGPoint) -> Void
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
@@ -108,6 +116,7 @@ struct InspectGestureView: UIViewRepresentable {
         let gesture = InspectionGestureRecognizer(target: nil, action: nil, minimumDuration: minimumDuration)
         gesture.onChange = onChange
         gesture.onEnded = onEnded
+        gesture.onTap = onTap
         view.addGestureRecognizer(gesture)
     }
 
@@ -117,6 +126,7 @@ struct InspectGestureView: UIViewRepresentable {
                 if let inspectionRecognizer = recognizer as? InspectionGestureRecognizer {
                     inspectionRecognizer.onChange = onChange
                     inspectionRecognizer.onEnded = onEnded
+                    inspectionRecognizer.onTap = onTap
                 }
             }
         }

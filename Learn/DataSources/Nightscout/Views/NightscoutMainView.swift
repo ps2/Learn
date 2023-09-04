@@ -24,9 +24,6 @@ struct NightscoutMainView: View {
                 }
             Divider()
                 .padding(.vertical)
-            NavigationLink("Forecast Review") {
-                ForecastReview(dataSource: dataSource)
-            }
         }
     }
 }

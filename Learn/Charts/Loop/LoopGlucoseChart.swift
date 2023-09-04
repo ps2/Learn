@@ -47,8 +47,19 @@ struct LoopGlucoseChart: View {
     private var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]
     private var carbEntries: [CarbEntry]
     private var manualBoluses: [DoseEntry]
+    private var glucoseSampleTapped: ((GlucoseSampleValue) -> Void)?
 
-    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseSampleValue], targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>], carbEntries: [CarbEntry], manualBoluses: [DoseEntry], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
+    init(startTime: Date,
+         endTime: Date,
+         historicalGlucose: [GlucoseSampleValue],
+         targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>],
+         carbEntries: [CarbEntry],
+         manualBoluses: [DoseEntry],
+         upperRightLabel: String,
+         chartUnitOffset: Binding<Int>,
+         numSegments: Int,
+         glucoseSampleTapped: ((GlucoseSampleValue) -> Void)? = nil)
+    {
 
         self.startTime = startTime
         self.endTime = endTime
@@ -59,6 +70,7 @@ struct LoopGlucoseChart: View {
         self.upperRightLabel = upperRightLabel
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
+        self.glucoseSampleTapped = glucoseSampleTapped
     }
 
     var yAxis: some View {
@@ -83,6 +95,7 @@ struct LoopGlucoseChart: View {
                 Spacer()
                 Text(upperRightLabel)
                     .foregroundColor(.secondary)
+                    .bold()
             }
             .opacity(inspectedElement == nil ? 1 : 0)
 
@@ -147,10 +160,17 @@ struct LoopGlucoseChart: View {
                 }
                 .chartYScale(domain: yScale)
                 .chartXScale(domain: xScale)
-                .chartLongPressInspection()
-                .chartOverlay { proxy in
-                    Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
-                }
+                // This handles taps *and* long-press inspection (the latter sets ChartInspectionDatePreferenceKey)
+                .chartInspection(onTap: { location, proxy, geo in
+                    guard let date = proxy.value(atX: location.x) as Date? else {
+                        return
+                    }
+                    guard let sample = findElement(by: date) else {
+                        return
+                    }
+
+                    glucoseSampleTapped?(sample)
+                })
                 .timeXAxis(values: .stride(by: .hour), labelOpacity: inspectedElement == nil ? 1 : 0)
                 .chartYAxis {
                     AxisMarks(position: .trailing, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) {
@@ -232,7 +252,7 @@ struct GlucoseChart_Previews: PreviewProvider {
         let carbEntries = mockDataSource.getMockCarbEntries(start: startDate, end: endDate)
         let manualBoluses = mockDataSource.getMockBoluses(start: startDate, end: endDate)
 
-        return LoopGlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, carbEntries: carbEntries, manualBoluses: manualBoluses, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
+        return LoopGlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, carbEntries: carbEntries, manualBoluses: manualBoluses, upperRightLabel: "Jun 4, 2005", chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
