@@ -152,8 +152,7 @@ struct InsulinDosesChart: View {
                                 y: .value("Value", dose.deliveredUnits ?? dose.programmedUnits)
                             )
                             .symbol {
-                                Image("bolus")
-                                    .foregroundColor(.insulin)
+                                dose.symbol
                             }
                             .interpolationMethod(.cardinal)
                             .foregroundStyle(.orange.opacity(0.4))
@@ -223,6 +222,7 @@ struct InsulinDosesChart: View {
                                         .foregroundStyle(Color.insulin)
                                 }
                             }
+                            .padding(.top, 5)
                             Spacer()
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
                                 Text(dose.startDate.formatted(date: .omitted, time: .shortened))
@@ -309,5 +309,13 @@ struct InsulinDosesChart_Previews: PreviewProvider {
         return InsulinDosesChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+    }
+}
+
+extension DoseEntry {
+    @ViewBuilder
+    var symbol: some View {
+        Image(automatic == true ? "autobolus" : "bolus")
+            .foregroundColor(.insulin)
     }
 }

@@ -120,6 +120,7 @@ struct ActiveInsulinChart: View {
                                     .bold()
                                     .foregroundStyle(Color.insulin)
                             }
+                            .padding(.top, 5)
                             Spacer()
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
                                 Text(selectedElement.startDate.formatted(date: .omitted, time: .shortened))

@@ -149,6 +149,7 @@ struct LoopGlucoseChart: View {
                                 Text(formatters.glucoseFormatter.string(from: selectedElement.quantity)!)
                                     .bold()
                                     .foregroundStyle(Color.glucose)
+                                    .padding(.top, 5)
                             }
                             Spacer()
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {

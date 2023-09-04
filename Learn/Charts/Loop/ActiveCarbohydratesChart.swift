@@ -119,6 +119,7 @@ struct ActiveCarbohydratesChart: View {
                                     .bold()
                                     .foregroundStyle(Color.carbs)
                             }
+                            .padding(.top, 5)
                             Spacer()
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
                                 Text(selectedElement.startDate.formatted(date: .omitted, time: .shortened))
@@ -174,7 +175,7 @@ struct ActiveCarbohydratesChart_Previews: PreviewProvider {
         let start = end.addingTimeInterval(-18 * 3600)
         let delta = TimeInterval(minutes: 5)
         let carbValues = stride(from: start, through: end, by: delta).map { date in
-            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 10
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 10 + 10
             return CarbValue(startDate: date, value: value)
         }
 

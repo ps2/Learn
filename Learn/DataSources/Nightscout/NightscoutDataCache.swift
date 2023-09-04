@@ -153,7 +153,9 @@ actor NightscoutDataCache {
                     value: bolus.programmed,
                     unit: .unitsPerHour,
                     deliveredUnits: bolus.amount,
-                    syncIdentifier: bolus.syncIdentifier
+                    syncIdentifier: bolus.syncIdentifier,
+                    insulinType: nil, // TODO
+                    automatic: bolus.automatic
                 ))
             case let entry as CarbCorrectionNightscoutTreatment:
                 carbs.append(SyncCarbObject(
