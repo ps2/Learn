@@ -17,6 +17,7 @@ struct LoopChartsData {
     var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] = []
     var basalHistory: [AbsoluteScheduleValue<Double>] = []
     var doses: [DoseEntry] = []
+    var manualBoluses: [DoseEntry] = []
     var carbEntries: [CarbEntry] = []
     var insulinOnBoard: [InsulinValue] = []
     var activeCarbs: [CarbValue] = []

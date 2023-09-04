@@ -80,6 +80,7 @@ struct LoopChartsView: View {
                 historicalGlucose: data.glucose,
                 targetRanges: data.targetRanges,
                 carbEntries: data.carbEntries,
+                manualBoluses: data.manualBoluses,
                 upperRightLabel: dateStr,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments

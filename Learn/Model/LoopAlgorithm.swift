@@ -57,7 +57,13 @@ extension LoopAlgorithm {
 
         data.basalHistory = historicBasal.filterDateInterval(interval: interval)
         data.insulinOnBoard = historicDoses.insulinOnBoard()
-        data.doses = historicDoses.filterDateInterval(interval: interval)
+        let viewableDoses = historicDoses.filterDateInterval(interval: interval)
+        data.doses = viewableDoses.filter({ dose in
+            dose.type != .bolus || dose.automatic == true
+        })
+        data.manualBoluses = viewableDoses.filter({ dose in
+            dose.type == .bolus && dose.automatic != true
+        })
         data.carbEntries = allCarbs.filterDateInterval(interval: interval)
         data.targetRanges = try await dataSource.getTargetRangeHistory(interval: interval)
         data.glucose = historicGlucose.filterDateInterval(interval: interval)

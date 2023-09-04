@@ -32,7 +32,7 @@ struct LoopGlucoseChart: View {
 
     private var yScale: ClosedRange<Double> {
         if formatters.glucoseUnit == .milligramsPerDeciliter {
-            return 0...400
+            return 35...400
         } else {
             return 0...22
         }
@@ -46,14 +46,16 @@ struct LoopGlucoseChart: View {
     private var historicalGlucose: [GlucoseSampleValue]
     private var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]
     private var carbEntries: [CarbEntry]
+    private var manualBoluses: [DoseEntry]
 
-    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseSampleValue], targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>], carbEntries: [CarbEntry], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
+    init(startTime: Date, endTime: Date, historicalGlucose: [GlucoseSampleValue], targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>], carbEntries: [CarbEntry], manualBoluses: [DoseEntry], upperRightLabel: String, chartUnitOffset: Binding<Int>, numSegments: Int)  {
 
         self.startTime = startTime
         self.endTime = endTime
         self.historicalGlucose = historicalGlucose
         self.targetRanges = targetRanges
         self.carbEntries = carbEntries
+        self.manualBoluses = manualBoluses
         self.upperRightLabel = upperRightLabel
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
@@ -86,13 +88,20 @@ struct LoopGlucoseChart: View {
 
             ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 250, numSegments: numSegments) {
                 Chart {
-                    ForEach(historicalGlucose, id: \.startDate) { reading in
+                    ForEach(manualBoluses, id: \.startDate) { dose in
                         PointMark(
-                            x: .value("Time", reading.startDate, unit: .second),
-                            y: .value("Historical Glucose", reading.quantity.doubleValue(for: formatters.glucoseUnit))
+                            x: .value("Time", dose.startDate, unit: .second),
+                            y: 52
                         )
-                        .foregroundStyle(Color.glucose)
-                        .symbolSize(CGSize(width: 4, height: 4))
+                        .symbol {
+                            Image("bolus")
+                                .foregroundColor(.insulin)
+                        }
+                        .annotation(position: .bottom, spacing: -14) {
+                            Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
                     }
                     ForEach(carbEntries, id: \.startDate) { entry in
                         PointMark(
@@ -108,6 +117,14 @@ struct LoopGlucoseChart: View {
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
+                    }
+                    ForEach(historicalGlucose, id: \.startDate) { reading in
+                        PointMark(
+                            x: .value("Time", reading.startDate, unit: .second),
+                            y: .value("Historical Glucose", reading.quantity.doubleValue(for: formatters.glucoseUnit))
+                        )
+                        .foregroundStyle(Color.glucose)
+                        .symbolSize(CGSize(width: 4, height: 4))
                     }
                     if let inspectedElement {
                         PointMark(
@@ -213,8 +230,9 @@ struct GlucoseChart_Previews: PreviewProvider {
         let glucose = mockDataSource.getMockGlucoseValues(start: startDate, end: endDate)
         let targets = mockDataSource.getMockTargetRanges(start: startDate, end: endDate)
         let carbEntries = mockDataSource.getMockCarbEntries(start: startDate, end: endDate)
+        let manualBoluses = mockDataSource.getMockBoluses(start: startDate, end: endDate)
 
-        return LoopGlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, carbEntries: carbEntries, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
+        return LoopGlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, carbEntries: carbEntries, manualBoluses: manualBoluses, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
