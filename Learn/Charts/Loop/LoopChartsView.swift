@@ -74,7 +74,7 @@ struct LoopChartsView: View {
 
     var body: some View {
         VStack {
-            GlucoseChart(
+            LoopGlucoseChart(
                 startTime: start,
                 endTime: end,
                 historicalGlucose: data.glucose,

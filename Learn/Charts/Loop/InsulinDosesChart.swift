@@ -136,7 +136,7 @@ struct InsulinDosesChart: View {
             HStack {
                 Text("Insulin Delivery").bold()
                 Spacer()
-                Text("15 U")
+                Text("U")
                     .bold()
                     .foregroundColor(.secondary)
             }
@@ -211,10 +211,9 @@ struct InsulinDosesChart: View {
             GeometryReader { geometry in
                 preferences.map { anchor in
                     VStack {
-                        if let inspectedElement {
+                        if let inspectedElement, let dose = inspectedElement as? DoseEntry {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
-
-                                if let dose = inspectedElement as? DoseEntry, dose.type == .bolus {
+                                if dose.type == .bolus {
                                     Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
                                         .bold()
                                         .foregroundStyle(Color.insulin)
@@ -225,7 +224,11 @@ struct InsulinDosesChart: View {
                                 }
                             }
                             Spacer()
-                            // TODO: Add inspection date here
+                            HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
+                                Text(dose.startDate.formatted(date: .omitted, time: .shortened))
+                                .foregroundStyle(.secondary)
+                                .font(.caption)
+                            }
                         }
                     }
                 }

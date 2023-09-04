@@ -39,10 +39,7 @@ struct ForecastReview: View {
             let treatmentInterval = LoopAlgorithm.treatmentHistoryDateInterval(for: baseTime)
             let glucoseHistoryInterval = LoopAlgorithm.glucoseHistoryDateInterval(for: baseTime)
 
-            let glucose = try await dataSource.getGlucoseValues(interval: glucoseHistoryInterval).map { value in
-                value as? StoredGlucoseSample ??
-                StoredGlucoseSample(startDate: value.startDate, quantity: value.quantity)
-            }
+            let glucose = try await dataSource.getGlucoseValues(interval: glucoseHistoryInterval)
 
             let doses = try await dataSource.getDoses(interval: treatmentInterval)
             let carbEntries = try await dataSource.getCarbEntries(interval: treatmentInterval)

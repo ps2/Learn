@@ -24,15 +24,17 @@ struct TimeXAxisModifier: ViewModifier {
                     let hour = Calendar.current.component(.hour, from: date)
                     AxisValueLabel {
                         Text(date, format: .dateTime.hour())
-                        .opacity(labelOpacity)
+                            .opacity(labelOpacity)
                     }
 
-                    if hour == 0 {
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                        AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
-                    } else {
-                        AxisGridLine()
-                        AxisTick()
+                    if labelOpacity != 0 {
+                        if hour == 0 {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                            AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
+                        } else {
+                            AxisGridLine()
+                            AxisTick()
+                        }
                     }
                 }
             }

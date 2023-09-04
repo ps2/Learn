@@ -70,7 +70,7 @@ struct GlucoseEffectChart_Previews: PreviewProvider {
             return GlucoseEffectVelocity(startDate: date, endDate: date.addingTimeInterval(delta), quantity: quantity)
         }
 
-        return GlucoseEffectChart(effect, color: .blue)
+        return GlucoseEffectChart(effect, color: .glucose)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             .timeXAxis()
     }

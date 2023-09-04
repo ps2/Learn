@@ -18,7 +18,7 @@ struct TargetRange: Equatable {
     let endTime: Date
 }
 
-struct GlucoseChart: View {
+struct LoopGlucoseChart: View {
 
     @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
@@ -150,6 +150,12 @@ struct GlucoseChart: View {
                                     .bold()
                                     .foregroundStyle(Color.glucose)
                             }
+                            Spacer()
+                            HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
+                                Text(selectedElement.startDate.formatted(date: .omitted, time: .shortened))
+                                .foregroundStyle(.secondary)
+                                .font(.caption)
+                            }
                         }
                     }
                 }
@@ -205,7 +211,7 @@ struct GlucoseChart_Previews: PreviewProvider {
         let targets = mockDataSource.getMockTargetRanges(start: startDate, end: endDate)
         let carbEntries = mockDataSource.getMockCarbEntries(start: startDate, end: endDate)
 
-        return GlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, carbEntries: carbEntries, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
+        return LoopGlucoseChart(startTime: startDate, endTime:endDate, historicalGlucose: glucose, targetRanges: targets, carbEntries: carbEntries, upperRightLabel: "", chartUnitOffset: .constant(0), numSegments: 6)
             .opaqueHorizontalPadding()
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }

@@ -53,7 +53,7 @@ extension LoopAlgorithm {
             to: insulinCounteractionEffects,
             carbRatio: carbRatio,
             insulinSensitivity: historicSensitivity
-        ).dynamicCarbsOnBoard()
+        ).dynamicCarbsOnBoard(from: interval.start, to: interval.end)
 
         data.basalHistory = historicBasal.filterDateInterval(interval: interval)
         data.insulinOnBoard = historicDoses.insulinOnBoard()

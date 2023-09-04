@@ -1,5 +1,5 @@
 //
-//  ActiveCarbohydratesChart.swift
+//  ActiveInsulinChart.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 9/3/23.
@@ -11,7 +11,7 @@ import Charts
 import LoopKit
 import HealthKit
 
-struct ActiveCarbohydratesChart: View {
+struct ActiveInsulinChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters
 
     @Environment(\.chartInspectionDate) private var chartInspectionDate
@@ -28,19 +28,21 @@ struct ActiveCarbohydratesChart: View {
 
     private var startTime: Date
     private var endTime: Date
-    private var activeCarbs: [CarbValue]
+    private var activeInsulin: [InsulinValue]
 
-    init(startTime: Date, endTime: Date, activeCarbs: [CarbValue], chartUnitOffset: Binding<Int>, numSegments: Int)  {
+    init(startTime: Date, endTime: Date, activeInsulin: [InsulinValue], chartUnitOffset: Binding<Int>, numSegments: Int)  {
         self.startTime = startTime
         self.endTime = endTime
-        self.activeCarbs = activeCarbs
+        self.activeInsulin = activeInsulin
         self._chartUnitOffset = chartUnitOffset
         self.numSegments = numSegments
-        if activeCarbs.isEmpty {
+        if activeInsulin.isEmpty {
             self.yScale = -3...3
         } else {
-            let carbValues = activeCarbs.map { $0.value }
-            self.yScale = (carbValues.min()!...carbValues.max()!)
+            let insulinValues = activeInsulin.map { $0.value }
+            let min = insulinValues.min()!.roundedDown(toMultipleOf: 2)
+            let max = insulinValues.max()!.roundedUp(toMultipleOf: 2)
+            self.yScale = min...max
         }
     }
 
@@ -60,9 +62,9 @@ struct ActiveCarbohydratesChart: View {
         let inspectedElement = findElement(by: localInspectionDate ?? chartInspectionDate)
         VStack {
             HStack {
-                Text("Active Carbohydrates").bold()
+                Text("Active Insulin").bold()
                 Spacer()
-                Text("g")
+                Text("U")
                     .bold()
                     .foregroundColor(.secondary)
             }
@@ -70,17 +72,17 @@ struct ActiveCarbohydratesChart: View {
 
             ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 100, numSegments: numSegments) {
                 Chart {
-                    ForEach(activeCarbs, id: \.startDate) { carbValue in
+                    ForEach(activeInsulin, id: \.startDate) { insulinValue in
                         AreaMark(
-                            x: .value("Time", carbValue.startDate),
-                            y: .value("Value", carbValue.value)
+                            x: .value("Time", insulinValue.startDate),
+                            y: .value("Value", insulinValue.value)
                         )
-                        .foregroundStyle(Color.carbs.opacity(0.5))
+                        .foregroundStyle(Color.insulin.opacity(0.5))
                         LineMark(
-                            x: .value("Time", carbValue.startDate),
-                            y: .value("Value", carbValue.value)
+                            x: .value("Time", insulinValue.startDate),
+                            y: .value("Value", insulinValue.value)
                         )
-                        .foregroundStyle(Color.carbs.opacity(0.5))
+                        .foregroundStyle(Color.insulin.opacity(0.5))
 
                     }
                     if let inspectedElement {
@@ -88,12 +90,12 @@ struct ActiveCarbohydratesChart: View {
                             x: .value("Time", inspectedElement.startDate, unit: .second),
                             y: .value("Value", inspectedElement.value)
                         )
-                        .foregroundStyle(Color.carbs.opacity(0.4))
+                        .foregroundStyle(Color.insulin.opacity(0.4))
                         .symbolSize(CGSize(width: 15, height: 15))
                     }
 
                 }
-//                .chartYScale(domain: yScale)
+                .chartYScale(domain: yScale)
                 .chartXScale(domain: xScale)
                 .chartLongPressInspection()
                 .chartOverlay { proxy in
@@ -113,10 +115,16 @@ struct ActiveCarbohydratesChart: View {
                     VStack {
                         if let selectedElement = inspectedElement {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
-                                Text(formatters.carbFormatter.string(
-                                    from: HKQuantity(unit: .gram(), doubleValue: selectedElement.value))!)
+                                Text(formatters.insulinFormatter.string(
+                                    from: HKQuantity(unit: .internationalUnit(), doubleValue: selectedElement.value))!)
                                     .bold()
-                                    .foregroundStyle(Color.carbs)
+                                    .foregroundStyle(Color.insulin)
+                            }
+                            Spacer()
+                            HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
+                                Text(selectedElement.startDate.formatted(date: .omitted, time: .shortened))
+                                .foregroundStyle(.secondary)
+                                .font(.caption)
                             }
                         }
                     }
@@ -125,7 +133,7 @@ struct ActiveCarbohydratesChart: View {
         }
     }
 
-    private func getSelectedPoint(selectedElement: CarbValue?, proxy: ChartProxy) -> CGPoint {
+    private func getSelectedPoint(selectedElement: InsulinValue?, proxy: ChartProxy) -> CGPoint {
         if let selectedElement {
             let point = proxy.position(for: (
                 x: selectedElement.startDate,
@@ -137,7 +145,7 @@ struct ActiveCarbohydratesChart: View {
         }
     }
 
-    private func findElement(by date: Date?) -> CarbValue? {
+    private func findElement(by date: Date?) -> InsulinValue? {
         guard let date else {
             return nil
         }
@@ -145,33 +153,35 @@ struct ActiveCarbohydratesChart: View {
         // Find the closest date element.
         var minDistance: TimeInterval = .infinity
         var index: Int? = nil
-        for dataIndex in activeCarbs.indices {
-            let nthDataDistance = activeCarbs[dataIndex].startDate.distance(to: date)
+        for dataIndex in activeInsulin.indices {
+            let nthDataDistance = activeInsulin[dataIndex].startDate.distance(to: date)
             if abs(nthDataDistance) < minDistance {
                 minDistance = abs(nthDataDistance)
                 index = dataIndex
             }
         }
         if let index {
-            return activeCarbs[index]
+            return activeInsulin[index]
         }
         return nil
     }
 }
 
-struct ActiveCarbohydratesChart_Previews: PreviewProvider {
+struct IOBChart_Previews: PreviewProvider {
     static var previews: some View {
 
         let end = Date()
         let start = end.addingTimeInterval(-18 * 3600)
         let delta = TimeInterval(minutes: 5)
-        let carbValues = stride(from: start, through: end, by: delta).map { date in
+        let insulinValues = stride(from: start, through: end, by: delta).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 10
-            return CarbValue(startDate: date, value: value)
+            return InsulinValue(startDate: date, value: value)
         }
 
-        return ActiveCarbohydratesChart(startTime: start, endTime: end, activeCarbs: carbValues, chartUnitOffset: .constant(0), numSegments: 6)
+        return ActiveInsulinChart(startTime: start, endTime: end, activeInsulin: insulinValues, chartUnitOffset: .constant(0), numSegments: 6)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             .timeXAxis()
     }
 }
+
+
