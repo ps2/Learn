@@ -44,7 +44,7 @@ struct InsulinDosesChart: View {
     @State private var localInspectionDate: Date?
 
     private let desiredYAxisNumberOfMarks: Int = 4
-    private let chartYDomain = 0...4
+    private let chartYDomain: ClosedRange<Double> = 0...4
 
     private var xScale: ClosedRange<Date> { startTime...endTime }
 
@@ -130,6 +130,10 @@ struct InsulinDosesChart: View {
         .frame(width:30, alignment: .trailing)
     }
 
+    func clippedBolusValue(units: Double) -> Double {
+        return min(chartYDomain.upperBound, units)
+    }
+
     var body: some View {
         let inspectedElement = findElement(by: localInspectionDate ?? chartInspectionDate)
         VStack {
@@ -149,13 +153,11 @@ struct InsulinDosesChart: View {
                         if dose.type == .bolus {
                             PointMark(
                                 x: .value("Time", dose.startDate, unit: .second),
-                                y: .value("Value", dose.deliveredUnits ?? dose.programmedUnits)
+                                y: .value("Value", clippedBolusValue(units: dose.deliveredUnits ?? dose.programmedUnits))
                             )
                             .symbol {
                                 dose.symbol
                             }
-                            .interpolationMethod(.cardinal)
-                            .foregroundStyle(.orange.opacity(0.4))
                         }
                     }
                     // Basal Doses
@@ -180,13 +182,23 @@ struct InsulinDosesChart: View {
 
                     // Inspected element
                     if let inspectedElement {
-                        PointMark(
-                            x: .value("Time", inspectedElement.dateForSelection, unit: .second),
-                            y: .value("Value", inspectedElement.selectionValue)
-                        )
+                        if let dose = inspectedElement as? DoseEntry, dose.type == .bolus, dose.automatic == true {
+                            PointMark(
+                                x: .value("Time", dose.startDate, unit: .second),
+                                y: .value("Value", clippedBolusValue(units: inspectedElement.selectionValue))
+                            )
+                            .symbol {
+                                dose.selectedSymbol
+                            }
+                        } else {
+                            PointMark(
+                                x: .value("Time", inspectedElement.dateForSelection, unit: .second),
+                                y: .value("Value", clippedBolusValue(units: inspectedElement.selectionValue))
+                            )
 
-                        .foregroundStyle(Color.insulin.opacity(0.4))
-                        .symbolSize(CGSize(width: 15, height: 15))
+                            .foregroundStyle(Color.insulin.opacity(0.4))
+                            .symbolSize(CGSize(width: 15, height: 15))
+                        }
                     }
                 }
                 .chartYScale(domain: chartYDomain)
@@ -318,4 +330,10 @@ extension DoseEntry {
         Image(automatic == true ? "autobolus" : "bolus")
             .foregroundColor(.insulin)
     }
+
+    var selectedSymbol: some View {
+        Image("bolus")
+            .foregroundColor(.insulin)
+    }
+
 }
