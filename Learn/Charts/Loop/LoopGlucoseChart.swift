@@ -37,6 +37,23 @@ struct LoopGlucoseChart: View {
             return 0...22
         }
     }
+
+    private var highValue: Double {
+        if formatters.glucoseUnit == .milligramsPerDeciliter {
+            return 180
+        } else {
+            return 10
+        }
+    }
+
+    private var lowValue: Double {
+        if formatters.glucoseUnit == .milligramsPerDeciliter {
+            return 70
+        } else {
+            return 3.9
+        }
+    }
+
     private var xScale: ClosedRange<Date> { return startTime...endTime }
 
     private var startTime: Date
@@ -101,6 +118,21 @@ struct LoopGlucoseChart: View {
 
             ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 250, numSegments: numSegments) {
                 Chart {
+                    RectangleMark(
+                        xStart: .value("Segment Start", startTime, unit: .second),
+                        xEnd: .value("Segment End", endTime, unit: .second),
+                        yStart: .value("TargetBottom", yScale.lowerBound),
+                        yEnd: .value("TargetTop", lowValue)
+                    )
+                    .foregroundStyle(.red.opacity(0.2))
+                    RectangleMark(
+                        xStart: .value("Segment Start", startTime, unit: .second),
+                        xEnd: .value("Segment End", endTime, unit: .second),
+                        yStart: .value("TargetBottom", highValue),
+                        yEnd: .value("TargetTop", yScale.upperBound)
+                    )
+                    .foregroundStyle(.yellow.opacity(0.1))
+
                     ForEach(manualBoluses, id: \.startDate) { dose in
                         PointMark(
                             x: .value("Time", dose.startDate, unit: .second),
@@ -147,7 +179,6 @@ struct LoopGlucoseChart: View {
                         .foregroundStyle(.secondary)
                         .symbolSize(CGSize(width: 15, height: 15))
                     }
-
                     ForEach(targetRanges, id: \.startDate) { target in
                         RectangleMark(
                             xStart: .value("Segment Start", target.startDate, unit: .second),
@@ -171,6 +202,9 @@ struct LoopGlucoseChart: View {
 
                     glucoseSampleTapped?(sample)
                 })
+                .chartOverlay { proxy in
+                    Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
+                }
                 .timeXAxis(values: .stride(by: .hour), labelOpacity: inspectedElement == nil ? 1 : 0)
                 .chartYAxis {
                     AxisMarks(position: .trailing, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) {

@@ -88,7 +88,6 @@ struct LoopChartsView: View {
                 upperRightLabel: dateStr,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments) { sample in
-                    print("Here")
                     forecastReviewDate = sample.startDate
                     showingForecastReview = true
                 }
