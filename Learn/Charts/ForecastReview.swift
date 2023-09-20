@@ -36,22 +36,28 @@ struct ForecastReview: View {
 
     func generateForecast() async {
         do {
-            let treatmentInterval = LoopAlgorithm.treatmentHistoryDateInterval(for: baseTime)
-            let glucoseHistoryInterval = LoopAlgorithm.glucoseHistoryDateInterval(for: baseTime)
+            // Need to fetch doses back as far as  t - (DIA + DCA) for Dynamic carbs
+            let dosesInputHistory = CarbMath.maximumAbsorptionTimeInterval + InsulinMath.defaultInsulinActivityDuration
+            let doseFetchInterval = DateInterval(
+                start: baseTime.addingTimeInterval(-dosesInputHistory),
+                end: baseTime)
+            let doses = try await dataSource.getDoses(interval: doseFetchInterval)
 
-            let glucose = try await dataSource.getGlucoseValues(interval: glucoseHistoryInterval)
+            let minDoseStart = doses.map { $0.startDate }.min() ?? doseFetchInterval.start
+            let doseHistoryInterval = DateInterval(start: minDoseStart, end: doseFetchInterval.end)
+            let basal = try await dataSource.getBasalHistory(interval: doseHistoryInterval)
 
-            let doses = try await dataSource.getDoses(interval: treatmentInterval)
-            let carbEntries = try await dataSource.getCarbEntries(interval: treatmentInterval)
-
-            // Doses can overlap history interval, so find the actual earliest time we'll need ISF coverage
-            let isfStart = min(treatmentInterval.start, doses.map { $0.startDate }.min() ?? .distantFuture) 
-            let isfInterval = DateInterval(start: isfStart, end: displayInterval.end)
+            let carbHistoryInterval = DateInterval(
+                start: baseTime.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval),
+                end: baseTime)
+            let insulinEffectsInterval = carbHistoryInterval
+            let glucose = try await dataSource.getGlucoseValues(interval: insulinEffectsInterval)
+            let carbEntries = try await dataSource.getCarbEntries(interval: carbHistoryInterval)
 
             let settings = LoopAlgorithmSettings(
-                basal: try await dataSource.getBasalHistory(interval: treatmentInterval),
-                sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: isfInterval),
-                carbRatio: try await dataSource.getCarbRatioHistory(interval: treatmentInterval),
+                basal: basal,
+                sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: doseHistoryInterval),
+                carbRatio: try await dataSource.getCarbRatioHistory(interval: carbHistoryInterval),
                 target: try await dataSource.getTargetRangeHistory(interval: displayInterval))
 
             algorithmInput = LoopPredictionInput(
@@ -59,7 +65,7 @@ struct ForecastReview: View {
                 doses: doses,
                 carbEntries: carbEntries,
                 settings: settings)
-
+            
             algorithmInput?.printFixture()
 
             algorithmOutput = try LoopAlgorithm.generatePrediction(input: algorithmInput!)

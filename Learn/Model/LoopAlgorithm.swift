@@ -10,43 +10,67 @@ import Foundation
 import LoopKit
 import HealthKit
 
+public struct AlgorithmEffectSummary {
+    let date: Date
+
+    let netInsulinEffect: HKQuantity
+    let insulinOnBoard: Double // IU
+
+    public init(date: Date, netInsulinEffect: HKQuantity, insulinOnBoard: Double) {
+        self.date = date
+        self.netInsulinEffect = netInsulinEffect
+        self.insulinOnBoard = insulinOnBoard
+    }
+}
+
+struct AlgorithmEffectsTimeline {
+    let summaries: [AlgorithmEffectSummary]
+
+    public init(summaries: [AlgorithmEffectSummary]) {
+        self.summaries = summaries
+    }
+}
+
 extension LoopAlgorithm {
 
     static func fetchLoopChartsData(dataSource: any DataSource, interval: DateInterval, now: Date? = nil) async throws -> LoopChartsData {
         await dataSource.syncData(interval: interval)
         var data = LoopChartsData()
 
-        // Need to fetch doses and glucose back as far as  t - (DIA + DCA) for
-        // Dynamic carbs
-
-        let dynamicCarbsDuration = InsulinMath.defaultInsulinActivityDuration + CarbMath.maximumAbsorptionTimeInterval
-
-        let dynamicCarbsInterval = DateInterval(
-            start: interval.start.addingTimeInterval(-dynamicCarbsDuration),
+        // Need to fetch doses back as far as t - (DIA + DCA) for Dynamic carbs
+        let dosesInputHistory = CarbMath.maximumAbsorptionTimeInterval + InsulinMath.defaultInsulinActivityDuration
+        let doseFetchInterval = DateInterval(
+            start: interval.start.addingTimeInterval(-dosesInputHistory),
             end: interval.end)
+        var historicDoses = try await dataSource.getDoses(interval: doseFetchInterval)
 
-        let historicGlucose = try await dataSource.getGlucoseValues(interval: dynamicCarbsInterval)
-        var historicDoses = try await dataSource.getDoses(interval: dynamicCarbsInterval)
-        let historicBasal = try await dataSource.getBasalHistory(interval: dynamicCarbsInterval)
+
+        let minDoseStart = historicDoses.map { $0.startDate }.min() ?? doseFetchInterval.start
+        let doseHistoryInterval = DateInterval(start: minDoseStart, end: doseFetchInterval.end)
+        let historicBasal = try await dataSource.getBasalHistory(interval: doseHistoryInterval)
+        let historicSensitivity = try await dataSource.getInsulinSensitivityHistory(interval: doseHistoryInterval)
+
         // Annotate with scheduled basal
         historicDoses = historicDoses.annotated(with: historicBasal)
 
-        let historicSensitivity = try await dataSource.getInsulinSensitivityHistory(interval: dynamicCarbsInterval)
+        let insulinEffectsInterval = DateInterval(
+            start: interval.start.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval).dateFlooredToTimeInterval(GlucoseMath.defaultDelta),
+            end: interval.end.dateCeiledToTimeInterval(GlucoseMath.defaultDelta))
 
         let insulinEffects = historicDoses.glucoseEffects(
             insulinSensitivityTimeline: historicSensitivity,
-            from: dynamicCarbsInterval.start,
-            to: dynamicCarbsInterval.end
-        )
+            from: insulinEffectsInterval.start,
+            to: insulinEffectsInterval.end)
 
         // ICE
+        let historicGlucose = try await dataSource.getGlucoseValues(interval: insulinEffectsInterval)
         let insulinCounteractionEffects = data.glucose.counteractionEffects(to: insulinEffects)
 
         // Carb Effects
-        let carbInterval = DateInterval(start: interval.start.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval), end: interval.end)
+        let carbInterval = DateInterval(
+            start: interval.start.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval).dateFlooredToTimeInterval(GlucoseMath.defaultDelta),
+            end: interval.end.dateCeiledToTimeInterval(GlucoseMath.defaultDelta))
         let allCarbs = try await dataSource.getCarbEntries(interval: carbInterval)
-        //activeCarbs = allCarbs.dynamicCarbsOnBoard()
-
         let carbRatio = try await dataSource.getCarbRatioHistory(interval: carbInterval)
 
         data.activeCarbs = allCarbs.map(
@@ -55,6 +79,7 @@ extension LoopAlgorithm {
             insulinSensitivity: historicSensitivity
         ).dynamicCarbsOnBoard(from: interval.start, to: interval.end)
 
+        // Output
         data.basalHistory = historicBasal.filterDateInterval(interval: interval)
         data.insulinOnBoard = historicDoses.insulinOnBoard()
         let viewableDoses = historicDoses.filterDateInterval(interval: interval)

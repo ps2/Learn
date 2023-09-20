@@ -22,8 +22,6 @@ struct NightscoutMainView: View {
                 .refreshable {
                     await dataSource.syncRemoteData()
                 }
-            Divider()
-                .padding(.vertical)
         }
     }
 }

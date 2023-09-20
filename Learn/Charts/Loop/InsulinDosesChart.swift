@@ -323,6 +323,7 @@ struct InsulinDosesChart_Previews: PreviewProvider {
 
         return InsulinDosesChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+            .opaqueHorizontalPadding()
     }
 }
 

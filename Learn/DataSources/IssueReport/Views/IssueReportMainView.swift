@@ -31,11 +31,6 @@ struct IssueReportMainView: View {
                     IssueReportDetailsView(issueReport: issueReport)
                 }
                 LoopChartsView(dataSource: dataSource)
-                Divider()
-                    .padding(.vertical)
-                NavigationLink("Forecast Review") {
-                    ForecastReview(dataSource: dataSource)
-                }
             } else {
                 VStack(spacing: 10)  {
                     Text("Parsing...")
