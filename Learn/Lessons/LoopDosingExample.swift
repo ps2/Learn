@@ -46,29 +46,15 @@ struct LoopDosingExample: View {
             AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: 1.0)
         ]
 
-        let target = [
-            AbsoluteScheduleValue(
-                startDate: t(.hours(-7)),
-                endDate: t(.hours(7)),
-                value: ClosedRange(
-                    uncheckedBounds: (
-                        lower: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 100),
-                        upper: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 110))
-                )
-            )
-        ]
-
-        let settings = LoopAlgorithmSettings(
-            basal: basal,
-            sensitivity: sensitivity,
-            carbRatio: carbRatio,
-            target: target)
-
         return LoopPredictionInput(
             glucoseHistory: glucoseHistory,
             doses: [dose],
             carbEntries: [],
-            settings: settings)
+            basal: basal,
+            sensitivity: sensitivity,
+            carbRatio: carbRatio,
+            algorithmEffectsOptions: .all,
+            useIntegralRetrospectiveCorrection: false)
     }
 
     @EnvironmentObject private var formatters: QuantityFormatters
@@ -105,15 +91,11 @@ struct LoopDosingExample: View {
         }
         .padding()
         .onAppear {
-            do {
-                algorithmOutput = try LoopAlgorithm.generatePrediction(input: algorithmInput)
-            } catch {
-                print("Could not create forecast: \(error)")
-            }
+            algorithmOutput = LoopAlgorithm.generatePrediction(input: algorithmInput)
         }
     }
 
-    func chart(algorithmOutput: GlucosePrediction) -> some View {
+    func chart(algorithmOutput: LoopPrediction) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(

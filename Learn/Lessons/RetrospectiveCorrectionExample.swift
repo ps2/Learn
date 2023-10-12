@@ -67,17 +67,15 @@ struct RetrospectiveCorrectionExample: View {
         //let dose = DoseEntry(type: .tempBasal, startDate: t(.hours(-2)), endDate: t(.hours(-1)), value: 0.0, unit: .units)
         //let carbEntry = StoredCarbEntry(startDate: t(.hours(-2)), quantity: HKQuantity(unit: .gram(), doubleValue: 15))
 
-        let settings = LoopAlgorithmSettings(
-            basal: basal,
-            sensitivity: sensitivity,
-            carbRatio: carbRatio,
-            target: target)
-
         return LoopPredictionInput(
             glucoseHistory: glucoseHistory,
             doses: [dose],
             carbEntries: [],
-            settings: settings)
+            basal: basal,
+            sensitivity: sensitivity,
+            carbRatio: carbRatio,
+            algorithmEffectsOptions: .all,
+            useIntegralRetrospectiveCorrection: false)
     }
 
     @EnvironmentObject private var formatters: QuantityFormatters
@@ -121,18 +119,15 @@ struct RetrospectiveCorrectionExample: View {
         }
         .padding()
         .onAppear {
-            do {
-                algorithmOutput = try LoopAlgorithm.generatePrediction(input: algorithmInput)
-                algorithmInput.settings.algorithmEffectsOptions.remove(.retrospection)
-                algorithmOutputWithoutRC = try LoopAlgorithm.generatePrediction(input: algorithmInput)
-                exampleRCPrediction = algorithmOutput!.effects.insulinCounteraction.subtracting(algorithmOutput!.effects.carbs)
-            } catch {
-                print("Could not create forecast: \(error)")
-            }
+            algorithmOutput = LoopAlgorithm.generatePrediction(input: algorithmInput)
+            var algorithmInpuWithoutRC = algorithmInput
+            algorithmInpuWithoutRC.algorithmEffectsOptions.remove(.retrospection)
+            algorithmOutputWithoutRC = LoopAlgorithm.generatePrediction(input: algorithmInpuWithoutRC)
+            exampleRCPrediction = algorithmOutput!.effects.insulinCounteraction.subtracting(algorithmOutput!.effects.carbs)
         }
     }
 
-    func chart(algorithmOutput: GlucosePrediction, algorithmOutputWithoutRC: GlucosePrediction) -> some View {
+    func chart(algorithmOutput: LoopPrediction, algorithmOutputWithoutRC: LoopPrediction) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(

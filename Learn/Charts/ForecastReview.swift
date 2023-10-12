@@ -54,21 +54,22 @@ struct ForecastReview: View {
             let glucose = try await dataSource.getGlucoseValues(interval: insulinEffectsInterval)
             let carbEntries = try await dataSource.getCarbEntries(interval: carbHistoryInterval)
 
-            let settings = LoopAlgorithmSettings(
-                basal: basal,
-                sensitivity: try await dataSource.getInsulinSensitivityHistory(interval: doseHistoryInterval),
-                carbRatio: try await dataSource.getCarbRatioHistory(interval: carbHistoryInterval),
-                target: try await dataSource.getTargetRangeHistory(interval: displayInterval))
+            let sensitivity = try await dataSource.getInsulinSensitivityHistory(interval: doseHistoryInterval)
+            let carbRatio = try await dataSource.getCarbRatioHistory(interval: carbHistoryInterval)
 
             algorithmInput = LoopPredictionInput(
                 glucoseHistory: glucose,
                 doses: doses,
                 carbEntries: carbEntries,
-                settings: settings)
-            
+                basal: basal,
+                sensitivity: sensitivity,
+                carbRatio: carbRatio,
+                algorithmEffectsOptions: .all,
+                useIntegralRetrospectiveCorrection: false)
+
             algorithmInput?.printFixture()
 
-            algorithmOutput = try LoopAlgorithm.generatePrediction(input: algorithmInput!)
+            algorithmOutput = LoopAlgorithm.generatePrediction(input: algorithmInput!)
         } catch {
             print("Could not create forecast: \(error)")
         }
@@ -141,7 +142,7 @@ struct ForecastReview: View {
         }
     }
     
-    func glucoseChart(algorithmInput: GlucosePredictionInput, algorithmOutput: GlucosePrediction) -> some View {
+    func glucoseChart(algorithmInput: LoopPredictionInput, algorithmOutput: LoopPrediction) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory.filterDateRange(displayInterval.start, displayInterval.end), id: \.startDate) { effect in
                 PointMark(

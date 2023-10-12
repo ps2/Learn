@@ -46,9 +46,9 @@ extension LoopAlgorithm {
 
 
         let minDoseStart = historicDoses.map { $0.startDate }.min() ?? doseFetchInterval.start
-        let doseHistoryInterval = DateInterval(start: minDoseStart, end: doseFetchInterval.end)
-        let historicBasal = try await dataSource.getBasalHistory(interval: doseHistoryInterval)
-        let historicSensitivity = try await dataSource.getInsulinSensitivityHistory(interval: doseHistoryInterval)
+        let historicBasal = try await dataSource.getBasalHistory(interval: DateInterval(start: minDoseStart, end: doseFetchInterval.end))
+        let isfInterval = DateInterval(start: min(doseFetchInterval.start, minDoseStart), end: doseFetchInterval.end)
+        let historicSensitivity = try await dataSource.getInsulinSensitivityHistory(interval: isfInterval)
 
         // Annotate with scheduled basal
         historicDoses = historicDoses.annotated(with: historicBasal)
@@ -139,9 +139,10 @@ extension LoopAlgorithm {
         var index: Int = 0
         while summaryDate <= effectsInterval.end {
             let insulinEffects = annotatedDoses.glucoseEffects(
+
                 insulinModelProvider: insulinModelProvider,
                 longestEffectDuration: insulinActivityDuration,
-                insulinSensitivityHistory: sensitivityHistory,
+                insulinSensitivityTimeline: sensitivityHistory,
                 from: summaryDate,
                 to: summaryDate.addingTimeInterval(insulinActivityDuration))
 
