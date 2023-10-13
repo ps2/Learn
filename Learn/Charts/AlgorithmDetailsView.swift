@@ -1,5 +1,5 @@
 //
-//  ForecastReview.swift
+//  AlgorithmDetailsView.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 7/20/23.
@@ -11,7 +11,7 @@ import Charts
 import HealthKit
 import LoopKit
 
-struct ForecastReview: View {
+struct AlgorithmDetailsView: View {
 
     private var dataSource: any DataSource
 
@@ -19,8 +19,8 @@ struct ForecastReview: View {
 
     @State private var baseTime: Date
 
-    @State private var algorithmInput: LoopPredictionInput?
-    @State private var algorithmOutput: LoopPrediction?
+    @State private var algorithmInput: LoopAlgorithmInput?
+    @State private var algorithmOutput: LoopAlgorithmOutput?
 
     var displayInterval: DateInterval {
         DateInterval(
@@ -57,19 +57,38 @@ struct ForecastReview: View {
             let sensitivity = try await dataSource.getInsulinSensitivityHistory(interval: doseHistoryInterval)
             let carbRatio = try await dataSource.getCarbRatioHistory(interval: carbHistoryInterval)
 
-            algorithmInput = LoopPredictionInput(
+            let forecastInterval = DateInterval(
+                start: baseTime,
+                end: self.baseTime.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration).dateCeiledToTimeInterval(.minutes(5))
+            )
+            let target = try await dataSource.getTargetRangeHistory(interval: forecastInterval)
+
+            let dosingSettings = try await dataSource.getDosingLimits(at: baseTime)
+
+            guard let maxBolus = dosingSettings.maxBolus, let maxBasalRate = dosingSettings.maxBasalRate else {
+                return
+            }
+
+            algorithmInput = LoopAlgorithmInput(
+                predictionStart: baseTime,
                 glucoseHistory: glucose,
                 doses: doses,
                 carbEntries: carbEntries,
                 basal: basal,
                 sensitivity: sensitivity,
                 carbRatio: carbRatio,
-                algorithmEffectsOptions: .all,
-                useIntegralRetrospectiveCorrection: false)
+                target: target,
+                suspendThreshold: dosingSettings.suspendThreshold,
+                maxBolus: maxBolus,
+                maxBasalRate: maxBasalRate,
+                useIntegralRetrospectiveCorrection: false,
+                recommendationInsulinType: .novolog,
+                recommendationType: .automaticBolus
+            )
 
             algorithmInput?.printFixture()
 
-            algorithmOutput = LoopAlgorithm.generatePrediction(input: algorithmInput!)
+            algorithmOutput = try LoopAlgorithm.run(input: algorithmInput!)
         } catch {
             print("Could not create forecast: \(error)")
         }
@@ -77,13 +96,12 @@ struct ForecastReview: View {
     }
 
     var subTitle: String {
-        if let algorithmOutput, let quantity = algorithmOutput.glucose.last?.quantity {
+        if let algorithmOutput, let quantity = algorithmOutput.predictedGlucose.last?.quantity {
             return "Eventually " + formatters.glucoseFormatter.string(from: quantity)!
         } else {
             return ""
         }
     }
-
 
     var body: some View {
         ScrollView {
@@ -115,15 +133,28 @@ struct ForecastReview: View {
                         Text(subTitle)
                             .foregroundColor(.secondary)
                     }
-                    glucoseChart(algorithmInput: algorithmInput, algorithmOutput: algorithmOutput)
-                    Text("Insulin Effects")
+                    glucoseChart(algorithmInput: algorithmInput, predictedGlucose: algorithmOutput.predictedGlucose)
+                    QuantityLabel(
+                        name: "Insulin Effects",
+                        value: algorithmOutput.predictedInsulinEffect,
+                        formatter: formatters.glucoseFormatter)
                     GlucoseEffectChart(algorithmOutput.effects.insulin.asVelocities().filterDateInterval(interval: displayInterval), color: .insulin, yAxisWidth: 25)
+                    QuantityLabel(
+                        name: "Carb Effects",
+                        value: algorithmOutput.predictedCarbEffect,
+                        formatter: formatters.glucoseFormatter)
+                    GlucoseEffectChart(algorithmOutput.effects.carbs.asVelocities().filterDateInterval(interval: displayInterval), color: .carbs, yAxisWidth: 25)
+                    QuantityLabel(
+                        name: "Retrospective Correction Effects",
+                        value: algorithmOutput.predictedRetrospectiveCorrectionEffect,
+                        formatter: formatters.glucoseFormatter)
+                    GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin, yAxisWidth: 25)
                     Text("Insulin Counteraction")
                     GlucoseEffectChart(algorithmOutput.effects.insulinCounteraction.filterDateInterval(interval: displayInterval), color: .gray, yAxisWidth: 25)
-                    Text("Carb Effects")
-                    GlucoseEffectChart(algorithmOutput.effects.carbs.asVelocities().filterDateInterval(interval: displayInterval), color: .carbs, yAxisWidth: 25)
-                    Text("Retrospective Correction Effects")
-                    GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin, yAxisWidth: 25)
+                    QuantityLabel(
+                        name: "Active Insulin",
+                        value: algorithmOutput.activeInsulinQuantity,
+                        formatter: formatters.insulinFormatter)
                 }
             }
             .timeXAxis()
@@ -142,7 +173,7 @@ struct ForecastReview: View {
         }
     }
     
-    func glucoseChart(algorithmInput: LoopPredictionInput, algorithmOutput: LoopPrediction) -> some View {
+    func glucoseChart(algorithmInput: LoopAlgorithmInput, predictedGlucose: [PredictedGlucoseValue]) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory.filterDateRange(displayInterval.start, displayInterval.end), id: \.startDate) { effect in
                 PointMark(
@@ -153,7 +184,7 @@ struct ForecastReview: View {
                 .foregroundStyle(Color.glucose)
 
             }
-            ForEach(algorithmOutput.glucose, id: \.startDate) { effect in
+            ForEach(predictedGlucose, id: \.startDate) { effect in
                 LineMark(
                     x: .value("Time", effect.startDate),
                     y: .value("Current Effects", effect.quantity.doubleValue(for: formatters.glucoseUnit))
@@ -199,7 +230,7 @@ struct ForecastReview_Previews: PreviewProvider {
     @State private var date: Date = Date()
 
     static var previews: some View {
-        ForecastReview(dataSource: MockDataSource())
+        AlgorithmDetailsView(dataSource: MockDataSource())
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }

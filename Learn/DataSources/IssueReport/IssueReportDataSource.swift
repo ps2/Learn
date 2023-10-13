@@ -19,7 +19,6 @@ enum IssueReportError: Error {
 }
 
 final class IssueReportDataSource: DataSource, ObservableObject {
-
     static var localizedTitle = "Issue Report"
 
     static var dataSourceTypeIdentifier = "issuereportdatasource"
@@ -220,6 +219,13 @@ final class IssueReportDataSource: DataSource, ObservableObject {
             return []
         }
         return report.cachedCarbEntries.filterDateInterval(interval: interval)
+    }
+
+    func getDosingLimits(at date: Date) async throws -> DosingLimits {
+        return DosingLimits(
+            suspendThreshold: issueReport?.loopSettings.suspendThreshold,
+            maxBolus: issueReport?.loopSettings.maximumBolus,
+            maxBasalRate: issueReport?.loopSettings.maximumBasalRatePerHour)
     }
 }
 

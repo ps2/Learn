@@ -333,6 +333,15 @@ final class NightscoutDataSource: DataSource {
 
         return items
     }
+
+    func getDosingLimits(at date: Date) async throws -> DosingLimits {
+        // Get the one in effect before the given date. The underlying query already sorts by date descending.
+        let settings = try await cache.settingsStore.getStoredSettings(end: date, limit: 1).first
+        return DosingLimits(
+            suspendThreshold: settings?.suspendThreshold?.quantity,
+            maxBolus: settings?.maximumBolus,
+            maxBasalRate: settings?.maximumBasalRatePerHour)
+    }
 }
 
 extension NightscoutDataSource: NightscoutDataCacheDelegate {

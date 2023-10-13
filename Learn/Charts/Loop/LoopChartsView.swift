@@ -116,7 +116,7 @@ struct LoopChartsView: View {
             )
             NavigationLink(
                 isActive: $showingForecastReview,
-                destination: { ForecastReview(dataSource: dataSource, initialBaseTime: forecastReviewDate) },
+                destination: { AlgorithmDetailsView(dataSource: dataSource, initialBaseTime: forecastReviewDate) },
                 label: { EmptyView() } )
         }
         .opaqueHorizontalPadding()

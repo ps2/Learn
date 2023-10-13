@@ -34,6 +34,12 @@ protocol StateStorage {
     func remove() throws
 }
 
+struct DosingLimits {
+    var suspendThreshold: HKQuantity?
+    var maxBolus: Double?
+    var maxBasalRate: Double?
+}
+
 protocol DataSource: AnyObject, ObservableObject, Identifiable {
     typealias RawStateValue = [String: Any]
 
@@ -73,6 +79,7 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
     func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>]
     func getCarbRatioHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>]
     func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>]
+    func getDosingLimits(at: Date) async throws -> DosingLimits
 }
 
 extension DataSource {

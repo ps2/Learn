@@ -1,5 +1,5 @@
 //
-//  ForecastReviewExample.swift
+//  AlgorithmDetailsViewExample.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 7/24/23.
@@ -8,15 +8,15 @@
 
 import SwiftUI
 
-struct ForecastReviewExample: View {
+struct AlgorithmDetailsViewExample: View {
     var body: some View {
-        ForecastReview(dataSource: MockDataSource())
+        AlgorithmDetailsView(dataSource: MockDataSource())
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
     }
 }
 
 struct ForecastReviewExample_Previews: PreviewProvider {
     static var previews: some View {
-        ForecastReviewExample()
+        AlgorithmDetailsViewExample()
     }
 }

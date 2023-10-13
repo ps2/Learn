@@ -39,7 +39,7 @@ struct LoopLessons: View {
                 Text("Insulin Delivery")
             }
             NavigationLink {
-                ForecastReviewExample()
+                AlgorithmDetailsViewExample()
             } label: {
                 Text("Forecast Review")
             }

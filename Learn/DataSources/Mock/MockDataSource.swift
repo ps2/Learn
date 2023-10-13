@@ -53,15 +53,19 @@ class MockDataSource: DataSource {
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: spaceBetweenBoluses) + spaceBetweenBoluses
 
-        return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).map { date in
-            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2) + 1
-            return DoseEntry(
-                type: .bolus,
-                startDate: date,
-                value: value / 2,
-                unit: .units,
-                automatic: true
-            )
+        return stride(from: intervalStart, through: end, by: spaceBetweenBoluses).compactMap { date in
+            let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 2)
+            if value > 0 {
+                return DoseEntry(
+                    type: .bolus,
+                    startDate: date,
+                    value: value / 2,
+                    unit: .units,
+                    automatic: true
+                )
+            } else {
+                return nil
+            }
         }
     }
 
@@ -113,7 +117,7 @@ class MockDataSource: DataSource {
                 return nil
             }
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 3) / (3600*3) * Double.pi * 80) + 10
-            return StoredCarbEntry(startDate: date, quantity: HKQuantity(unit: .gram(), doubleValue: value))
+            return StoredCarbEntry(startDate: date, quantity: HKQuantity(unit: .gram(), doubleValue: value * 3))
         }
     }
 
@@ -167,10 +171,10 @@ class MockDataSource: DataSource {
         let insulinSensitivitySchedule = InsulinSensitivitySchedule(
             unit: .milligramsPerDeciliter,
             dailyItems: [
-                RepeatingScheduleValue(startTime: .hours(0), value: 50),
-                RepeatingScheduleValue(startTime: .hours(6), value: 40),
-                RepeatingScheduleValue(startTime: .hours(12), value: 45),
-                RepeatingScheduleValue(startTime: .hours(18), value: 55)
+                RepeatingScheduleValue(startTime: .hours(0), value: 25),
+                RepeatingScheduleValue(startTime: .hours(6), value: 20),
+                RepeatingScheduleValue(startTime: .hours(12), value: 23),
+                RepeatingScheduleValue(startTime: .hours(18), value: 27)
             ]
         )!
 
@@ -179,8 +183,14 @@ class MockDataSource: DataSource {
         }
     }
 
-    func syncData(interval: DateInterval) async { }
+    func getDosingLimits(at: Date) async throws -> DosingLimits {
+        return DosingLimits(
+            suspendThreshold: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 65),
+            maxBolus: 5,
+            maxBasalRate: 3)
+    }
 
+    func syncData(interval: DateInterval) async { }
 
     static var localizedTitle: String = "MockDataSource"
     static var dataSourceTypeIdentifier: String = "mockdatasource"
