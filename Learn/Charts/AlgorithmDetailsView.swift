@@ -22,6 +22,8 @@ struct AlgorithmDetailsView: View {
     @State private var algorithmInput: LoopAlgorithmInput?
     @State private var algorithmOutput: LoopAlgorithmOutput?
 
+    @State private var algorithmError: AlgorithmError?
+
     var displayInterval: DateInterval {
         DateInterval(
             start: self.baseTime.addingTimeInterval(-InsulinMath.defaultInsulinActivityDuration).dateFlooredToTimeInterval(.minutes(5)),
@@ -36,7 +38,7 @@ struct AlgorithmDetailsView: View {
 
     func generateForecast() async {
         do {
-            // Need to fetch doses back as far as  t - (DIA + DCA) for Dynamic carbs
+            // Need to fetch doses back as far as t - (DIA + DCA) for Dynamic carbs
             let dosesInputHistory = CarbMath.maximumAbsorptionTimeInterval + InsulinMath.defaultInsulinActivityDuration
             let doseFetchInterval = DateInterval(
                 start: baseTime.addingTimeInterval(-dosesInputHistory),
@@ -47,15 +49,25 @@ struct AlgorithmDetailsView: View {
             let doseHistoryInterval = DateInterval(start: minDoseStart, end: doseFetchInterval.end)
             let basal = try await dataSource.getBasalHistory(interval: doseHistoryInterval)
 
+            let forecastEndTime = baseTime.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration)
+
             let carbHistoryInterval = DateInterval(
                 start: baseTime.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval),
-                end: baseTime)
-            let insulinEffectsInterval = carbHistoryInterval
-            let glucose = try await dataSource.getGlucoseValues(interval: insulinEffectsInterval)
+                end: forecastEndTime)
             let carbEntries = try await dataSource.getCarbEntries(interval: carbHistoryInterval)
-
-            let sensitivity = try await dataSource.getInsulinSensitivityHistory(interval: doseHistoryInterval)
             let carbRatio = try await dataSource.getCarbRatioHistory(interval: carbHistoryInterval)
+
+            let insulinEffectsInterval = DateInterval(
+                start: carbHistoryInterval.start,
+                end: baseTime
+            )
+            let glucose = try await dataSource.getGlucoseValues(interval: insulinEffectsInterval)
+
+            let sensitivityInterval = DateInterval(
+                start: min(carbHistoryInterval.start, doseHistoryInterval.start),
+                end: forecastEndTime
+            )
+            let sensitivity = try await dataSource.getInsulinSensitivityHistory(interval: sensitivityInterval)
 
             let forecastInterval = DateInterval(
                 start: baseTime,
@@ -89,8 +101,13 @@ struct AlgorithmDetailsView: View {
             algorithmInput?.printFixture()
 
             algorithmOutput = try LoopAlgorithm.run(input: algorithmInput!)
-        } catch {
+            algorithmError = nil
+        } catch let error as AlgorithmError {
+            algorithmError = error
+            algorithmOutput = nil
             print("Could not create forecast: \(error)")
+        } catch {
+            preconditionFailure("Unexpected error: \(error)")
         }
 
     }
@@ -127,34 +144,46 @@ struct AlgorithmDetailsView: View {
             }
             VStack(alignment: .leading) {
                 if let algorithmInput, let algorithmOutput {
-                    HStack {
-                        Text("Glucose")
-                        Spacer()
-                        Text(subTitle)
-                            .foregroundColor(.secondary)
-                    }
+                    QuantityLabel(
+                        name: "Starting Glucose",
+                        value: algorithmInput.glucoseHistory.last?.quantity,
+                        formatter: formatters.glucoseFormatter)
+                    QuantityLabel(
+                        name: "Eventual Glucose",
+                        value: algorithmOutput.predictedGlucose.last?.quantity,
+                        formatter: formatters.glucoseFormatter)
                     glucoseChart(algorithmInput: algorithmInput, predictedGlucose: algorithmOutput.predictedGlucose)
                     QuantityLabel(
                         name: "Insulin Effects",
-                        value: algorithmOutput.predictedInsulinEffect,
+                        value: algorithmOutput.effects.insulin.netEffect(after: baseTime)?.quantity,
                         formatter: formatters.glucoseFormatter)
                     GlucoseEffectChart(algorithmOutput.effects.insulin.asVelocities().filterDateInterval(interval: displayInterval), color: .insulin, yAxisWidth: 25)
                     QuantityLabel(
                         name: "Carb Effects",
-                        value: algorithmOutput.predictedCarbEffect,
+                        value: algorithmOutput.effects.carbs.netEffect(after: baseTime)?.quantity,
                         formatter: formatters.glucoseFormatter)
                     GlucoseEffectChart(algorithmOutput.effects.carbs.asVelocities().filterDateInterval(interval: displayInterval), color: .carbs, yAxisWidth: 25)
                     QuantityLabel(
                         name: "Retrospective Correction Effects",
-                        value: algorithmOutput.predictedRetrospectiveCorrectionEffect,
+                        value: algorithmOutput.effects.retrospectiveCorrection.netEffect(after: baseTime)?.quantity,
                         formatter: formatters.glucoseFormatter)
                     GlucoseEffectChart(algorithmOutput.effects.retrospectiveCorrection.asVelocities(), color: .insulin, yAxisWidth: 25)
                     Text("Insulin Counteraction")
                     GlucoseEffectChart(algorithmOutput.effects.insulinCounteraction.filterDateInterval(interval: displayInterval), color: .gray, yAxisWidth: 25)
                     QuantityLabel(
+                        name: "Momentum Effects",
+                        value: algorithmOutput.effects.momentum.netEffect(after: baseTime)?.quantity,
+                        formatter: formatters.glucoseFormatter)
+                    GlucoseEffectChart(algorithmOutput.effects.momentum.asVelocities(), color: .glucose, yAxisWidth: 25)
+                    QuantityLabel(
                         name: "Active Insulin",
                         value: algorithmOutput.activeInsulinQuantity,
                         formatter: formatters.insulinFormatter)
+                    DoseRecommendationView(recommendation: algorithmOutput.doseRecommendation)
+
+                }
+                if let algorithmError {
+                    Text("Algorithm Error: \(String(describing: algorithmError))")
                 }
             }
             .timeXAxis()

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C10424672AD9C44600DF7722 /* LoopAlgorithmOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10424662AD9C44600DF7722 /* LoopAlgorithmOutput.swift */; };
 		C10424692AD9C7C100DF7722 /* QuantityLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10424682AD9C7C100DF7722 /* QuantityLabel.swift */; };
+		C104246B2AD9E7E800DF7722 /* DoseRecommendationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C104246A2AD9E7E800DF7722 /* DoseRecommendationView.swift */; };
 		C117B79D2A75833000FDD015 /* LearnTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C117B79C2A75833000FDD015 /* LearnTests.swift */; };
 		C117B7A42A75835E00FDD015 /* LoopAlgorithmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C117B7A32A75835E00FDD015 /* LoopAlgorithmTests.swift */; };
 		C11E62C72A2EDC6900F9BECF /* PropertyListStateStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11E62C62A2EDC6900F9BECF /* PropertyListStateStorage.swift */; };
@@ -97,6 +98,7 @@
 /* Begin PBXFileReference section */
 		C10424662AD9C44600DF7722 /* LoopAlgorithmOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopAlgorithmOutput.swift; sourceTree = "<group>"; };
 		C10424682AD9C7C100DF7722 /* QuantityLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantityLabel.swift; sourceTree = "<group>"; };
+		C104246A2AD9E7E800DF7722 /* DoseRecommendationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseRecommendationView.swift; sourceTree = "<group>"; };
 		C117B79A2A75833000FDD015 /* LearnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C117B79C2A75833000FDD015 /* LearnTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnTests.swift; sourceTree = "<group>"; };
 		C117B7A32A75835E00FDD015 /* LoopAlgorithmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopAlgorithmTests.swift; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 				C1EA322D29A6CB8200949EA3 /* ActionButtonStyle.swift */,
 				C11EB29D29BE733100FCDB24 /* OpaquePadding.swift */,
 				C10424682AD9C7C100DF7722 /* QuantityLabel.swift */,
+				C104246A2AD9E7E800DF7722 /* DoseRecommendationView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -645,6 +648,7 @@
 				C16992322A6B39C400B06881 /* TimeXAxis.swift in Sources */,
 				C1E4BEE329A4243200B54132 /* DataSource.swift in Sources */,
 				C185A0FB2A34EE9F00F9F86D /* QuantityFormatters.swift in Sources */,
+				C104246B2AD9E7E800DF7722 /* DoseRecommendationView.swift in Sources */,
 				C10424672AD9C44600DF7722 /* LoopAlgorithmOutput.swift in Sources */,
 				C142CF9C29AB2756008FB16F /* Date.swift in Sources */,
 				C1E4BECE29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift in Sources */,
