@@ -38,19 +38,20 @@ struct DoseRecommendationView: View {
 
     var body: some View {
         VStack {
-            switch recommendation {
-            case .automaticBolus(let automaticRecommendation):
+            if let automaticRecommendation = recommendation.automaticBolus {
                 HStack {
                     Text("Automatic Bolus:")
-                    Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: automaticRecommendation?.bolusUnits ?? 0))!)
+                    Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: automaticRecommendation.bolusUnits ?? 0))!)
                 }
-                TempBasalRecommendationView(recommendation: automaticRecommendation?.basalAdjustment)
-            case .manualBolus(let manualBolus):
+                TempBasalRecommendationView(recommendation: automaticRecommendation.basalAdjustment)
+            }
+            if let manualBolus = recommendation.manualBolus {
                 HStack {
                     Text("Manual Bolus:")
                     Text(formatters.insulinFormatter.string(from: manualBolus.quantity)!)
                 }
-            case .tempBasal(let temp):
+            }
+            if let temp = recommendation.tempBasal {
                 TempBasalRecommendationView(recommendation: temp)
             }
         }
@@ -58,9 +59,7 @@ struct DoseRecommendationView: View {
 }
 
 #Preview {
-    DoseRecommendationView(
-        recommendation: .automaticBolus(
-            AutomaticDoseRecommendation(
+    DoseRecommendationView(recommendation: LoopAlgorithmDoseRecommendation(automaticBolus: AutomaticDoseRecommendation(
                 basalAdjustment: TempBasalRecommendation(unitsPerHour: 0, duration: 0),
                 bolusUnits: 0.5)))
     .padding()

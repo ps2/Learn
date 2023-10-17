@@ -101,6 +101,10 @@ struct AlgorithmDetailsView: View {
             algorithmInput?.printFixture()
 
             algorithmOutput = try LoopAlgorithm.run(input: algorithmInput!)
+
+            print("*******************************************")
+            algorithmOutput!.doseRecommendation.printFixture()
+
             algorithmError = nil
         } catch let error as AlgorithmError {
             algorithmError = error
