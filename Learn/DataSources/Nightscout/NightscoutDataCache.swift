@@ -143,7 +143,8 @@ actor NightscoutDataCache {
                     value: tempBasal.rate,
                     unit: .unitsPerHour,
                     deliveredUnits: tempBasal.amount,
-                    syncIdentifier: tempBasal.syncIdentifier
+                    syncIdentifier: tempBasal.syncIdentifier,
+                    insulinType: InsulinType(nightscoutString: tempBasal.insulinType)
                 ))
             case let bolus as BolusNightscoutTreatment:
                 doses.append(DoseEntry(
@@ -154,7 +155,7 @@ actor NightscoutDataCache {
                     unit: .unitsPerHour,
                     deliveredUnits: bolus.amount,
                     syncIdentifier: bolus.syncIdentifier,
-                    insulinType: nil, // TODO
+                    insulinType: InsulinType(nightscoutString: bolus.insulinType),
                     automatic: bolus.automatic
                 ))
             case let entry as CarbCorrectionNightscoutTreatment:
@@ -269,4 +270,25 @@ actor NightscoutDataCache {
         try await syncTreatments(start: startDate, end: endDate, updateExistingRecords: updateExistingRecords)
     }
 
+}
+
+extension InsulinType {
+    init?(nightscoutString: String?) {
+        switch nightscoutString {
+        case "Novolog":
+            self = .novolog
+        case "Humalog":
+            self = .humalog
+        case "Apidra":
+            self = .apidra
+        case "Fiasp":
+            self = .fiasp
+        case "Lyumjev":
+            self = .lyumjev
+        case "Afrezza":
+            self = .afrezza
+        default:
+            return nil
+        }
+    }
 }

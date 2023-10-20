@@ -13,4 +13,6 @@ extension Color {
     static let insulin = Color("insulin")
     static let carbs = Color("carbs")
     static let glucose = Color("glucose")
+    static let lowGlucose = Color("lowGlucose")
+    static let highGlucose = Color("highGlucose")
 }

@@ -11,13 +11,6 @@ import Charts
 import HealthKit
 import LoopKit
 
-struct TargetRange: Equatable {
-    let min: HKQuantity
-    let max: HKQuantity
-    let startTime: Date
-    let endTime: Date
-}
-
 struct LoopGlucoseChart: View {
 
     @EnvironmentObject private var formatters: QuantityFormatters
@@ -38,20 +31,8 @@ struct LoopGlucoseChart: View {
         }
     }
 
-    private var highValue: Double {
-        if formatters.glucoseUnit == .milligramsPerDeciliter {
-            return 180
-        } else {
-            return 10
-        }
-    }
-
-    private var lowValue: Double {
-        if formatters.glucoseUnit == .milligramsPerDeciliter {
-            return 70
-        } else {
-            return 3.9
-        }
+    private var targetRange: TargetRange {
+        return .standardRanges(for: formatters.glucoseUnit)
     }
 
     private var xScale: ClosedRange<Date> { return startTime...endTime }
@@ -122,16 +103,16 @@ struct LoopGlucoseChart: View {
                         xStart: .value("Segment Start", startTime, unit: .second),
                         xEnd: .value("Segment End", endTime, unit: .second),
                         yStart: .value("TargetBottom", yScale.lowerBound),
-                        yEnd: .value("TargetTop", lowValue)
+                        yEnd: .value("TargetTop", targetRange.low)
                     )
-                    .foregroundStyle(.red.opacity(0.2))
+                    .foregroundStyle(Color.lowGlucose.opacity(0.1))
                     RectangleMark(
                         xStart: .value("Segment Start", startTime, unit: .second),
                         xEnd: .value("Segment End", endTime, unit: .second),
-                        yStart: .value("TargetBottom", highValue),
+                        yStart: .value("TargetBottom", targetRange.high),
                         yEnd: .value("TargetTop", yScale.upperBound)
                     )
-                    .foregroundStyle(.yellow.opacity(0.1))
+                    .foregroundStyle(Color.highGlucose.opacity(0.1))
 
                     ForEach(manualBoluses, id: \.startDate) { dose in
                         PointMark(

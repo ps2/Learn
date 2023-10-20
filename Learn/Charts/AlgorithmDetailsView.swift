@@ -51,10 +51,14 @@ struct AlgorithmDetailsView: View {
 
             let forecastEndTime = baseTime.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration)
 
+            // Include future carbs in query, but filter out ones entered after basetime.
             let carbHistoryInterval = DateInterval(
                 start: baseTime.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval),
                 end: forecastEndTime)
-            let carbEntries = try await dataSource.getCarbEntries(interval: carbHistoryInterval)
+            let carbEntries = try await dataSource.getCarbEntries(interval: carbHistoryInterval).filter {
+                $0.userCreatedDate ?? $0.startDate < baseTime
+            }
+
             let carbRatio = try await dataSource.getCarbRatioHistory(interval: carbHistoryInterval)
 
             let insulinEffectsInterval = DateInterval(

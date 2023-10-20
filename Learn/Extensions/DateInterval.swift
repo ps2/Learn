@@ -1,0 +1,22 @@
+//
+//  DateInterval.swift
+//  Learn
+//
+//  Created by Pete Schwamb on 10/20/23.
+//  Copyright © 2023 LoopKit Authors. All rights reserved.
+//
+
+import Foundation
+
+extension DateInterval {
+    static var lastWeek: DateInterval {
+        let now = Date()
+        return DateInterval(start: now.addingTimeInterval(.days(-7)), end: now)
+    }
+
+    static var lastTwoWeeks: DateInterval {
+        let now = Date()
+        return DateInterval(start: now.addingTimeInterval(.days(-14)), end: now)
+    }
+
+}

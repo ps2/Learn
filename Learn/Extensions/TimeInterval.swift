@@ -77,5 +77,4 @@ extension TimeInterval {
     var days: Double {
         return hours / 24.0
     }
-
 }

@@ -22,6 +22,14 @@ struct NightscoutMainView: View {
                 .refreshable {
                     await dataSource.syncRemoteData()
                 }
+            NavigationLink {
+                GlucoseDistribution(dataSource: dataSource, interval: .lastTwoWeeks)
+                    .frame(maxHeight: 200)
+            } label: {
+                Text("Glucose Distribution")
+            }
+            .padding()
+
         }
     }
 }

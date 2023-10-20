@@ -49,9 +49,19 @@ struct DataSourcesSummaryView: View {
                     }
                     NavigationLink {
                         LoopLessons()
-                            .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
                     } label: {
                         Text("Loop Lessons")
+                    }
+                    NavigationLink {
+                        List {
+                            NavigationLink {
+                                GlucoseDistribution(dataSource: MockDataSource(), interval: .lastWeek)
+                            } label: {
+                                Text("Glucose Distribution")
+                            }
+                        }
+                    } label: {
+                        Text("Data Review")
                     }
 
                     Button(role: .none, action: {
@@ -69,6 +79,7 @@ struct DataSourcesSummaryView: View {
                         }
                     }
                 }
+                .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
                 .sheet(item: $addingDataSource) { (dataSource) in
                     dataSourceManager.dataSourceTypeByIdentifier(identifier: dataSource.id)?.setupView(didSetupDataSource: { dataSource in
                         dataSourceManager.addDataSource(dataSource: dataSource)
