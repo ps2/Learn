@@ -1,5 +1,5 @@
 //
-//  TimeXAxis.swift
+//  DateTimeXAxisModifier.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 7/21/23.
@@ -10,7 +10,7 @@ import SwiftUI
 import Charts
 
 
-struct TimeXAxisModifier: ViewModifier {
+struct DateTimeXAxisModifier: ViewModifier {
     @State private var inspectionDate: Date?
 
     var values: AxisMarkValues
@@ -43,7 +43,7 @@ struct TimeXAxisModifier: ViewModifier {
 }
 
 extension View {
-    func timeXAxis(values: AxisMarkValues = .automatic, labelOpacity: Double = 1.0) -> some View {
-        modifier(TimeXAxisModifier(values: values, labelOpacity: labelOpacity))
+    func dateTimeXAxis(values: AxisMarkValues = .automatic, labelOpacity: Double = 1.0) -> some View {
+        modifier(DateTimeXAxisModifier(values: values, labelOpacity: labelOpacity))
     }
 }

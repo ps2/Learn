@@ -19,4 +19,9 @@ extension DateInterval {
         return DateInterval(start: now.addingTimeInterval(.days(-14)), end: now)
     }
 
+    static var lastMonth: DateInterval {
+        let now = Date()
+        return DateInterval(start: now.addingTimeInterval(.days(-30)), end: now)
+    }
+
 }

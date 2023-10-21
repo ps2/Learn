@@ -100,7 +100,7 @@ struct ActiveInsulinChart: View {
                 .chartOverlay { proxy in
                     Color.clear.anchorPreference(key: ChartInspectionAnchorPreferenceKey.self, value: .point(getSelectedPoint(selectedElement: inspectedElement, proxy: proxy))) { $0 }
                 }
-                .timeXAxis(values: .stride(by: .hour), labelOpacity: inspectedElement == nil ? 1 : 0)
+                .dateTimeXAxis(values: .stride(by: .hour), labelOpacity: inspectedElement == nil ? 1 : 0)
                 .chartYAxis {
                     AxisMarks(position: .trailing, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) {
                         AxisGridLine()
@@ -180,7 +180,7 @@ struct IOBChart_Previews: PreviewProvider {
 
         return ActiveInsulinChart(startTime: start, endTime: end, activeInsulin: insulinValues, chartUnitOffset: .constant(0), numSegments: 6)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
-            .timeXAxis()
+            .dateTimeXAxis()
             .opaqueHorizontalPadding()
     }
 }

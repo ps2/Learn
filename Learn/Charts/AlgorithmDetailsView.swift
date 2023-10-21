@@ -194,7 +194,7 @@ struct AlgorithmDetailsView: View {
                     Text("Algorithm Error: \(String(describing: algorithmError))")
                 }
             }
-            .timeXAxis()
+            .dateTimeXAxis()
             .chartXScale(domain: displayInterval.start...displayInterval.end)
             .padding()
             .onAppear {

@@ -13,6 +13,8 @@ import HealthKit
 struct GlucoseDistribution: View {
     @EnvironmentObject private var formatters: QuantityFormatters
 
+    @State var asLogNormal: Bool = false
+
     let dataSource: any DataSource
 
     struct Bin {
@@ -22,22 +24,31 @@ struct GlucoseDistribution: View {
     }
 
     @State var histogram: [Bin] = []
-    @State var averageGlucose: HKQuantity?
     @State var interval: DateInterval
     @State var error: Error?
+
+    init(dataSource: any DataSource, interval: DateInterval) {
+        self.dataSource = dataSource
+        self._interval = State(initialValue: interval)
+    }
 
     func computeHistogram() async {
         let unit = formatters.glucoseUnit
 
-        let binCount: Int
-        let limits: ClosedRange<Double>
+        let binCount: Int = 37
+        var limits: ClosedRange<Double>
 
         if unit == HKUnit.milligramsPerDeciliter {
-            binCount = 37
             limits = 40...400
         } else {
-            binCount = 37
             limits = 2.2...22.2
+        }
+
+        if asLogNormal {
+            limits = ClosedRange(uncheckedBounds: (
+                lower: log(limits.lowerBound),
+                upper: log(limits.upperBound)
+            ))
         }
 
         let binSize = (limits.upperBound - limits.lowerBound) / Double(binCount-1)
@@ -45,22 +56,30 @@ struct GlucoseDistribution: View {
         do {
             let glucose = try await dataSource.getGlucoseValues(interval: interval)
             let sampleCount = glucose.count
-            var sum: Double = 0
             var result: [Int] = Array(repeating: 0, count: binCount)
             for sample in glucose {
-                let sampleValue = sample.quantity.doubleValue(for: unit)
-                sum += sampleValue
+                var sampleValue = sample.quantity.doubleValue(for: unit)
+                if asLogNormal {
+                    sampleValue = log(sampleValue)
+                }
+
                 let bin = Int(((sampleValue-limits.lowerBound)/binSize).rounded())
                 result[bin] += 1
             }
-            averageGlucose = HKQuantity(unit: unit, doubleValue: sum / Double(sampleCount))
             let target = TargetRange.standardRanges(for: unit)
             histogram = result.enumerated().map({ (index, count) in
                 let value = Double(index) * binSize + limits.lowerBound
+
+                var color = target.category(for: value).color
+
+                if asLogNormal {
+                    color = target.category(for: exp(value)).color
+                }
+
                 return Bin(
                     value: value,
                     percent: Double(count) / Double(sampleCount) * 100,
-                    color: target.category(for: value).color
+                    color: color
                 )
             })
         } catch {
@@ -70,16 +89,22 @@ struct GlucoseDistribution: View {
 
     var body: some View {
         VStack {
-            if let averageGlucose {
-                Text("Average Glucose: \(formatters.glucoseFormatter.string(from: averageGlucose)!)")
-            }
             chart
+            Toggle("Logarithmic Glucose Scale", isOn: $asLogNormal)
         }
         .onAppear(perform: {
-            Task {
-                await computeHistogram()
-            }
+            refresh()
         })
+        .onChange(of: asLogNormal) { oldValue, newValue in
+            refresh()
+        }
+
+    }
+
+    func refresh() {
+        Task {
+            await computeHistogram()
+        }
     }
 
     private var chart: some View {

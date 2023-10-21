@@ -72,6 +72,6 @@ struct GlucoseEffectChart_Previews: PreviewProvider {
 
         return GlucoseEffectChart(effect, color: .glucose)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
-            .timeXAxis()
+            .dateTimeXAxis()
     }
 }
