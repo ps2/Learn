@@ -63,7 +63,7 @@ struct NightscoutSetupView: View {
                 .padding()
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(5.0)
-                .onChange(of: urlString) { newValue in
+                .onChange(of: urlString) { oldValue, newValue in
                     error = nil
                     if let newHostname = URL(string: newValue)?.host?.components(separatedBy: ".").first, !didEditNickname {
                         shortHostname = newHostname

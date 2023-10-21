@@ -17,34 +17,34 @@ struct NightscoutMainView: View {
 
     var body: some View {
         ScrollView {
-            Text(dataSource.name)
-            LoopChartsView(dataSource: dataSource)
-                .refreshable {
-                    await dataSource.syncRemoteData()
+            VStack(spacing: 20) {
+                Text(dataSource.name)
+                LoopChartsView(dataSource: dataSource)
+                    .refreshable {
+                        await dataSource.syncRemoteData()
+                    }
+                NavigationLink {
+                    GlucoseDistribution(dataSource: dataSource, interval: .lastMonth)
+                        .frame(maxHeight: 200)
+                        .padding()
+                } label: {
+                    Text("Glucose Distribution")
                 }
-            NavigationLink {
-                GlucoseDistribution(dataSource: dataSource, interval: .lastMonth)
-                    .frame(maxHeight: 200)
-                    .padding()
-            } label: {
-                Text("Glucose Distribution")
+                NavigationLink {
+                    GlucoseLagPlot(dataSource: dataSource, interval: .lastTwoWeeks)
+                        .frame(maxHeight: 500)
+                        .padding()
+                } label: {
+                    Text("Glucose Lag Plot")
+                }
+                NavigationLink {
+                    AutocorrelationPlot(dataSource: dataSource, interval: .lastTwoWeeks)
+                        .frame(maxHeight: 500)
+                        .padding()
+                } label: {
+                    Text("Autocorrelation Plot")
+                }
             }
-            NavigationLink {
-                GlucoseLagPlot(dataSource: dataSource, interval: .lastTwoWeeks)
-                    .frame(maxHeight: 500)
-                    .padding()
-            } label: {
-                Text("Glucose Lag Plot")
-            }
-            NavigationLink {
-                AutocorrelationPlot(dataSource: dataSource, interval: .lastTwoWeeks)
-                    .frame(maxHeight: 500)
-                    .padding()
-            } label: {
-                Text("Autocorrelation Plot")
-            }
-            .padding()
-
         }
     }
 }

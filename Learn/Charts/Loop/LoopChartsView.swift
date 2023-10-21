@@ -131,10 +131,10 @@ struct LoopChartsView: View {
         .onAppear {
             refreshData()
         }
-        .onChange(of: scrollCoordinator.chartUnitOffset) { newValue in
+        .onChange(of: scrollCoordinator.chartUnitOffset) { oldValue, newValue in
             refreshData()
         }
-        .onChange(of: baseTime) { newValue in
+        .onChange(of: baseTime) { oldValue, newValue in
             refreshData()
         }
     }

@@ -90,7 +90,7 @@ struct GlucoseDistribution: View {
     var body: some View {
         VStack {
             chart
-            Toggle("Logarithmic Glucose Scale", isOn: $asLogNormal)
+            Toggle("Log Glucose Scale", isOn: $asLogNormal)
         }
         .onAppear(perform: {
             refresh()

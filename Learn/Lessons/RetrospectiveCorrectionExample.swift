@@ -49,18 +49,6 @@ struct RetrospectiveCorrectionExample: View {
             AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: 1.0)
         ]
 
-        let target = [
-            AbsoluteScheduleValue(
-                startDate: t(.hours(-7)),
-                endDate: t(.hours(7)),
-                value: ClosedRange(
-                    uncheckedBounds: (
-                        lower: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 100),
-                        upper: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 110))
-                )
-            )
-        ]
-
         let dose = DoseEntry(type: .bolus, startDate: t(.hours(-2)), value: 1.0, unit: .units)
 
         // 0 temp basal for an hour

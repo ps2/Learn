@@ -202,7 +202,7 @@ struct AlgorithmDetailsView: View {
                     await generateForecast()
                 }
             }
-            .onChange(of: baseTime) { newValue in
+            .onChange(of: baseTime) { oldValue, newValue in
                 Task {
                     await generateForecast()
                 }
