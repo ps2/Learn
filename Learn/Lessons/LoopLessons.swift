@@ -19,24 +19,9 @@ struct LoopLessons: View {
                 Text("Mid-Absorption ISF Change")
             }
             NavigationLink {
-                LoopChartsView(dataSource: dataSource)
-            } label: {
-                Text("Algo Effects from Mock Data Source")
-            }
-            NavigationLink {
-                LoopDosingExample()
-            } label: {
-                Text("Loop Dosing Example")
-            }
-            NavigationLink {
                 RetrospectiveCorrectionExample()
             } label: {
                 Text("Retrospective Correction")
-            }
-            NavigationLink {
-                InsulinDeliveryExample()
-            } label: {
-                Text("Insulin Delivery")
             }
             NavigationLink {
                 AlgorithmDetailsViewExample()

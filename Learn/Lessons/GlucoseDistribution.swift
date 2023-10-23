@@ -27,15 +27,9 @@ struct GlucoseDistribution: View {
     @State var interval: DateInterval
     @State var error: Error?
 
-    init(dataSource: any DataSource, interval: DateInterval) {
-        self.dataSource = dataSource
-        self._interval = State(initialValue: interval)
-    }
-
-    func computeHistogram() async {
+    var limits: ClosedRange<Double> {
         let unit = formatters.glucoseUnit
 
-        let binCount: Int = 37
         var limits: ClosedRange<Double>
 
         if unit == HKUnit.milligramsPerDeciliter {
@@ -50,6 +44,21 @@ struct GlucoseDistribution: View {
                 upper: log(limits.upperBound)
             ))
         }
+
+        return limits
+    }
+
+    init(dataSource: any DataSource, interval: DateInterval) {
+        self.dataSource = dataSource
+        self._interval = State(initialValue: interval)
+    }
+
+    func computeHistogram() async {
+        let unit = formatters.glucoseUnit
+
+        let binCount: Int = 37
+
+        let limits = self.limits
 
         let binSize = (limits.upperBound - limits.lowerBound) / Double(binCount-1)
 
@@ -116,10 +125,12 @@ struct GlucoseDistribution: View {
             )
             .foregroundStyle($0.color)
         }
+        .chartXScale(domain: limits)
     }
 }
 
 #Preview {
     GlucoseDistribution(dataSource: MockDataSource(), interval: .lastWeek)
         .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
+        .padding()
 }

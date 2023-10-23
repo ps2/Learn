@@ -52,17 +52,6 @@ struct DataSourcesSummaryView: View {
                     } label: {
                         Text("Loop Lessons")
                     }
-                    NavigationLink {
-                        List {
-                            NavigationLink {
-                                GlucoseDistribution(dataSource: MockDataSource(), interval: .lastWeek)
-                            } label: {
-                                Text("Glucose Distribution")
-                            }
-                        }
-                    } label: {
-                        Text("Data Review")
-                    }
 
                     Button(role: .none, action: {
                         showingAvailableDataSources = true
