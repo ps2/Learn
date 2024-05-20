@@ -9,6 +9,7 @@
 import Foundation
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 public struct AlgorithmEffectSummary {
     let date: Date
@@ -31,6 +32,35 @@ struct AlgorithmEffectsTimeline {
     }
 }
 
+extension DoseEntry: InsulinDose {
+
+    public var insulinModel: any InsulinModel {
+        switch insulinType {
+        case .fiasp:
+            return ExponentialInsulinModelPreset.fiasp
+        case .lyumjev:
+            return ExponentialInsulinModelPreset.lyumjev
+        case .afrezza:
+            return ExponentialInsulinModelPreset.afrezza
+        default:
+            return ExponentialInsulinModelPreset.rapidActingAdult
+        }
+    }
+
+    public var deliveryType: InsulinDeliveryType {
+        switch self.type {
+        case .bolus:
+            return .bolus
+        default:
+            return .basal
+        }
+    }
+    
+    public var volume: Double {
+        self.deliveredUnits ?? self.programmedUnits
+    }    
+}
+
 extension LoopAlgorithm {
 
     static func fetchLoopChartsData(dataSource: any DataSource, interval: DateInterval, now: Date? = nil) async throws -> LoopChartsData {
@@ -42,8 +72,7 @@ extension LoopAlgorithm {
         let doseFetchInterval = DateInterval(
             start: interval.start.addingTimeInterval(-dosesInputHistory),
             end: interval.end)
-        var historicDoses = try await dataSource.getDoses(interval: doseFetchInterval)
-
+        let historicDoses = try await dataSource.getDoses(interval: doseFetchInterval)
 
         let minDoseStart = historicDoses.map { $0.startDate }.min() ?? doseFetchInterval.start
         let historicBasal = try await dataSource.getBasalHistory(interval: DateInterval(start: minDoseStart, end: doseFetchInterval.end))
@@ -51,13 +80,13 @@ extension LoopAlgorithm {
         let historicSensitivity = try await dataSource.getInsulinSensitivityHistory(interval: isfInterval)
 
         // Annotate with scheduled basal
-        historicDoses = historicDoses.annotated(with: historicBasal)
+        let annotatedDoses = historicDoses.annotated(with: historicBasal)
 
         let insulinEffectsInterval = DateInterval(
             start: interval.start.addingTimeInterval(-CarbMath.maximumAbsorptionTimeInterval).dateFlooredToTimeInterval(GlucoseMath.defaultDelta),
             end: interval.end.dateCeiledToTimeInterval(GlucoseMath.defaultDelta))
 
-        let insulinEffects = historicDoses.glucoseEffects(
+        let insulinEffects = annotatedDoses.glucoseEffects(
             insulinSensitivityTimeline: historicSensitivity,
             from: insulinEffectsInterval.start,
             to: insulinEffectsInterval.end)
@@ -81,7 +110,7 @@ extension LoopAlgorithm {
 
         // Output
         data.basalHistory = historicBasal.filterDateInterval(interval: interval)
-        data.insulinOnBoard = historicDoses.insulinOnBoard()
+        data.insulinOnBoard = annotatedDoses.insulinOnBoardTimeline()
         let viewableDoses = historicDoses.filterDateInterval(interval: interval)
         data.doses = viewableDoses.filter({ dose in
             dose.type != .bolus || dose.automatic == true
@@ -101,7 +130,6 @@ extension LoopAlgorithm {
         effectsInterval: DateInterval,
         dataSource: any DataSource,
         delta: TimeInterval = TimeInterval(minutes: 5),
-        insulinModelProvider: InsulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: nil),
         insulinActivityDuration: TimeInterval = TimeInterval(hours: 6) + TimeInterval(minutes: 10)
     ) async throws -> AlgorithmEffectsTimeline {
 
@@ -127,8 +155,7 @@ extension LoopAlgorithm {
         // Make sure sensitivity history covers doses that overlap the effectsInterval start
         let sensitivityHistory = try await dataSource.getInsulinSensitivityHistory(interval: settingsTimespan)
 
-        let insulinOnBoard = annotatedDoses.insulinOnBoard(
-            insulinModelProvider: insulinModelProvider,
+        let insulinOnBoard = annotatedDoses.insulinOnBoardTimeline(
             longestEffectDuration: insulinActivityDuration,
             from: effectsInterval.start,
             to: effectsInterval.end)
@@ -139,8 +166,6 @@ extension LoopAlgorithm {
         var index: Int = 0
         while summaryDate <= effectsInterval.end {
             let insulinEffects = annotatedDoses.glucoseEffects(
-
-                insulinModelProvider: insulinModelProvider,
                 longestEffectDuration: insulinActivityDuration,
                 insulinSensitivityTimeline: sensitivityHistory,
                 from: summaryDate,
@@ -161,4 +186,46 @@ extension LoopAlgorithm {
 
         return AlgorithmEffectsTimeline(summaries: summaries)
     }
+}
+
+struct StoredDataAlgorithmInput: AlgorithmInput {
+    typealias CarbType = StoredCarbEntry
+
+    typealias GlucoseType = StoredGlucoseSample
+
+    typealias InsulinDoseType = DoseEntry
+
+    var glucoseHistory: [StoredGlucoseSample]
+
+    var doses: [DoseEntry]
+
+    var carbEntries: [StoredCarbEntry]
+
+    var predictionStart: Date
+
+    var basal: [AbsoluteScheduleValue<Double>]
+
+    var sensitivity: [AbsoluteScheduleValue<HKQuantity>]
+
+    var carbRatio: [AbsoluteScheduleValue<Double>]
+
+    var target: GlucoseRangeTimeline
+
+    var suspendThreshold: HKQuantity?
+
+    var maxBolus: Double
+
+    var maxBasalRate: Double
+
+    var useIntegralRetrospectiveCorrection: Bool
+
+    var includePositiveVelocityAndRC: Bool
+
+    var carbAbsorptionModel: CarbAbsorptionModel
+
+    var recommendationInsulinModel: InsulinModel
+
+    var recommendationType: DoseRecommendationType
+
+    var automaticBolusApplicationFactor: Double?
 }

@@ -12,6 +12,7 @@ import LoopKit
 import LoopIssueReportParser
 import os.log
 import HealthKit
+import LoopAlgorithm
 
 enum IssueReportError: Error {
     case permissionDenied
@@ -181,7 +182,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         }
     }
 
-    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<HKQuantity>] {
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>] {
         guard let report = issueReport, let isf = report.loopSettings.insulinSensitivitySchedule else
         {
             return []
@@ -210,7 +211,8 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         {
             return []
         }
-        return report.normalizedDoseEntries.filterDateInterval(interval: interval)
+        let doses = report.normalizedDoseEntries.filterDateInterval(interval: interval)
+        return doses.filter { $0.deliveryType == .bolus || $0.duration > 0 }
     }
 
     func getCarbEntries(interval: DateInterval) async throws -> [StoredCarbEntry] {

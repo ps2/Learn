@@ -10,10 +10,11 @@ import SwiftUI
 import Charts
 import HealthKit
 import LoopKit
+import LoopAlgorithm
 
 struct LoopDosingExample: View {
 
-    static func scenario(baseTime: Date) -> LoopPredictionInput {
+    static func scenario(baseTime: Date) -> LoopPredictionInput<StoredCarbEntry, StoredGlucoseSample, DoseEntry> {
         func t(_ offset: TimeInterval) -> Date {
             return baseTime.addingTimeInterval(offset)
         }
@@ -54,15 +55,17 @@ struct LoopDosingExample: View {
             sensitivity: sensitivity,
             carbRatio: carbRatio,
             algorithmEffectsOptions: .all,
-            useIntegralRetrospectiveCorrection: false)
+            useIntegralRetrospectiveCorrection: false,
+            includePositiveVelocityAndRC: true
+        )
     }
 
     @EnvironmentObject private var formatters: QuantityFormatters
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    private var algorithmInput: LoopPredictionInput
-    @State private var algorithmOutput: LoopPrediction?
+    private var algorithmInput: LoopPredictionInput<StoredCarbEntry, StoredGlucoseSample, DoseEntry>
+    @State private var algorithmOutput: LoopPrediction<StoredCarbEntry>?
 
     init()  {
         algorithmInput = Self.scenario(baseTime: baseTime)
@@ -95,7 +98,7 @@ struct LoopDosingExample: View {
         }
     }
 
-    func chart(algorithmOutput: LoopPrediction) -> some View {
+    func chart(algorithmOutput: LoopPrediction<StoredCarbEntry>) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(

@@ -10,6 +10,7 @@ import SwiftUI
 import Charts
 import HealthKit
 import LoopKit
+import LoopAlgorithm
 
 struct MidAbsorptionISFChange: View {
 
@@ -41,32 +42,27 @@ struct MidAbsorptionISFChange: View {
     }
 
     init()  {
-        let dose = DoseEntry(type: .bolus, startDate: baseTime, value: 1.0, unit: .units)
-
-        let schedule = InsulinSensitivitySchedule(
-            unit: .milligramsPerDeciliter,
-            dailyItems: [RepeatingScheduleValue(startTime: 0, value: 50),
-                         RepeatingScheduleValue(startTime: 3600*2, value: 75)],
-            timeZone: TimeZone(secondsFromGMT: 0))!
+        let dose = BasalRelativeDose(type: .bolus, startDate: baseTime, endDate: baseTime, volume: 1.0)
+        let endTime = baseTime.addingTimeInterval(.hours(6))
+        let isfNoChange = [
+            AbsoluteScheduleValue(startDate: baseTime, endDate: endTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
+        ]
 
         effects = []
         effects = [dose].glucoseEffects(
-            insulinModelProvider:  PresetInsulinModelProvider(defaultRapidActingModel: nil),
-            longestEffectDuration: .hours(6), insulinSensitivity: schedule)
+            longestEffectDuration: .hours(6),
+            insulinSensitivityTimeline: isfNoChange)
 
         let changeTime = baseTime.addingTimeInterval(.hours(2))
-        let endTime = baseTime.addingTimeInterval(.hours(6))
 
-        let timeline = [
+        let isfWithChange = [
             AbsoluteScheduleValue(startDate: baseTime, endDate: changeTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50)),
             AbsoluteScheduleValue(startDate: changeTime, endDate: endTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 75))
         ]
         effectsWithInflection = []
         effectsWithInflection = [dose].glucoseEffects(
-            insulinModelProvider: PresetInsulinModelProvider(defaultRapidActingModel: nil),
             longestEffectDuration: .hours(6),
-            insulinSensitivityTimeline: timeline)
-
+            insulinSensitivityTimeline: isfWithChange)
     }
 
     var body: some View {

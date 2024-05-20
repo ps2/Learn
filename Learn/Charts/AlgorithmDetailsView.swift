@@ -10,6 +10,7 @@ import SwiftUI
 import Charts
 import HealthKit
 import LoopKit
+import LoopAlgorithm
 
 struct AlgorithmDetailsView: View {
 
@@ -19,8 +20,8 @@ struct AlgorithmDetailsView: View {
 
     @State private var baseTime: Date
 
-    @State private var algorithmInput: LoopAlgorithmInput?
-    @State private var algorithmOutput: LoopAlgorithmOutput?
+    @State private var algorithmInput: StoredDataAlgorithmInput?
+    @State private var algorithmOutput: AlgorithmOutput<StoredCarbEntry>?
 
     @State private var algorithmError: AlgorithmError?
 
@@ -49,7 +50,7 @@ struct AlgorithmDetailsView: View {
             let doseHistoryInterval = DateInterval(start: minDoseStart, end: doseFetchInterval.end)
             let basal = try await dataSource.getBasalHistory(interval: doseHistoryInterval)
 
-            let forecastEndTime = baseTime.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration)
+            let forecastEndTime = baseTime.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration).dateCeiledToTimeInterval(.minutes(GlucoseMath.defaultDelta))
 
             // Include future carbs in query, but filter out ones entered after basetime.
             let carbHistoryInterval = DateInterval(
@@ -85,11 +86,11 @@ struct AlgorithmDetailsView: View {
                 return
             }
 
-            algorithmInput = LoopAlgorithmInput(
-                predictionStart: baseTime,
+            algorithmInput = StoredDataAlgorithmInput(
                 glucoseHistory: glucose,
                 doses: doses,
                 carbEntries: carbEntries,
+                predictionStart: baseTime,
                 basal: basal,
                 sensitivity: sensitivity,
                 carbRatio: carbRatio,
@@ -98,16 +99,19 @@ struct AlgorithmDetailsView: View {
                 maxBolus: maxBolus,
                 maxBasalRate: maxBasalRate,
                 useIntegralRetrospectiveCorrection: false,
-                recommendationInsulinType: .novolog,
-                recommendationType: .automaticBolus
+                includePositiveVelocityAndRC: true,
+                carbAbsorptionModel: .piecewiseLinear,
+                recommendationInsulinModel: ExponentialInsulinModelPreset.rapidActingAdult,
+                recommendationType: .manualBolus,
+                automaticBolusApplicationFactor: 0.4
             )
 
-            algorithmInput?.printFixture()
+            //algorithmInput?.printFixture()
 
-            algorithmOutput = try LoopAlgorithm.run(input: algorithmInput!)
+            algorithmOutput = LoopAlgorithm.run(input: algorithmInput!)
 
-            print("*******************************************")
-            algorithmOutput!.doseRecommendation.printFixture()
+            //print("*******************************************")
+            //algorithmOutput!.recommendation!.printFixture()
 
             algorithmError = nil
         } catch let error as AlgorithmError {
@@ -151,7 +155,7 @@ struct AlgorithmDetailsView: View {
                 Spacer()
             }
             VStack(alignment: .leading) {
-                if let algorithmInput, let algorithmOutput {
+                if let algorithmInput, let algorithmOutput, let recommendation = algorithmOutput.recommendation {
                     QuantityLabel(
                         name: "Starting Glucose",
                         value: algorithmInput.glucoseHistory.last?.quantity,
@@ -187,7 +191,7 @@ struct AlgorithmDetailsView: View {
                         name: "Active Insulin",
                         value: algorithmOutput.activeInsulinQuantity,
                         formatter: formatters.insulinFormatter)
-                    DoseRecommendationView(recommendation: algorithmOutput.doseRecommendation)
+                    DoseRecommendationView(recommendation: recommendation)
 
                 }
                 if let algorithmError {
@@ -210,7 +214,7 @@ struct AlgorithmDetailsView: View {
         }
     }
     
-    func glucoseChart(algorithmInput: LoopAlgorithmInput, predictedGlucose: [PredictedGlucoseValue]) -> some View {
+    func glucoseChart(algorithmInput: StoredDataAlgorithmInput, predictedGlucose: [PredictedGlucoseValue]) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory.filterDateRange(displayInterval.start, displayInterval.end), id: \.startDate) { effect in
                 PointMark(
@@ -259,6 +263,16 @@ struct AlgorithmDetailsView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+extension AlgorithmOutput {
+    var activeInsulinQuantity: HKQuantity? {
+        if let activeInsulin {
+            HKQuantity(unit: .internationalUnit(), doubleValue: activeInsulin)
+        } else {
+            nil
         }
     }
 }

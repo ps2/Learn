@@ -9,6 +9,7 @@
 import Foundation
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 extension Collection where Element: GlucoseSampleValue, Index == Int {
     /// Resamples a timeline of glucose values to regular intervals specified by delta, using
@@ -101,5 +102,20 @@ extension GlucoseMath {
         }
 
         return numerator / denominator
+    }
+
+    static func meanAndStandardDeviation(of numbers: [Double]) -> (mean: Double, standardDeviation: Double)? {
+        guard !numbers.isEmpty else { return nil }
+
+        // Calculate the mean
+        let mean = numbers.reduce(0, +) / Double(numbers.count)
+
+        // Calculate the variance
+        let variance = numbers.map { let d = ($0 - mean); return d*d }.reduce(0, +) / Double(numbers.count)
+
+        // Standard Deviation is the square root of variance
+        let standardDeviation = sqrt(variance)
+
+        return (mean, standardDeviation)
     }
 }

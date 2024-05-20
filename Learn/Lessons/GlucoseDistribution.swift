@@ -9,6 +9,8 @@
 import SwiftUI
 import Charts
 import HealthKit
+import LoopKit
+import LoopAlgorithm
 
 struct GlucoseDistribution: View {
     @EnvironmentObject private var formatters: QuantityFormatters
@@ -25,6 +27,8 @@ struct GlucoseDistribution: View {
 
     @State var histogram: [Bin] = []
     @State var interval: DateInterval
+    @State var mean: Double?
+    @State var standardDeviation: Double?
     @State var error: Error?
 
     var limits: ClosedRange<Double> {
@@ -64,17 +68,20 @@ struct GlucoseDistribution: View {
 
         do {
             let glucose = try await dataSource.getGlucoseValues(interval: interval)
-            let sampleCount = glucose.count
-            var result: [Int] = Array(repeating: 0, count: binCount)
-            for sample in glucose {
-                var sampleValue = sample.quantity.doubleValue(for: unit)
-                if asLogNormal {
-                    sampleValue = log(sampleValue)
-                }
+            var samples: [Double]
+            samples = glucose.map { $0.quantity.doubleValue(for: unit) }
+            if asLogNormal {
+                samples = samples.map { log($0) }
+            }
 
-                let bin = Int(((sampleValue-limits.lowerBound)/binSize).rounded())
+            let sampleCount = samples.count
+            var result: [Int] = Array(repeating: 0, count: binCount)
+            for sample in samples {
+                let bin = Int(((sample-limits.lowerBound)/binSize).rounded())
                 result[bin] += 1
             }
+
+            (mean, standardDeviation) = GlucoseMath.meanAndStandardDeviation(of: samples)!
             let target = TargetRange.standardRanges(for: unit)
             histogram = result.enumerated().map({ (index, count) in
                 let value = Double(index) * binSize + limits.lowerBound
@@ -98,8 +105,21 @@ struct GlucoseDistribution: View {
 
     var body: some View {
         VStack {
+            Text("Distribution of Glucose Values")
+            Text("\(Int(interval.duration.days)) days of data included.")
             chart
             Toggle("Log Glucose Scale", isOn: $asLogNormal)
+            if let mean, let standardDeviation {
+                if asLogNormal {
+                    Text("mean(log(glucose)) = \(mean)")
+                    Text("exp(mean(log(glucose))) = \(exp(mean))")
+                    Text("stddev(log(glucose)) = \(standardDeviation)")
+                } else {
+                    Text("mean(glucose) = \(mean)")
+                    Text("log(mean(glucose)) = \(log(mean))")
+                    Text("stddev(glucose) = \(standardDeviation)")
+                }
+            }
         }
         .onAppear(perform: {
             refresh()

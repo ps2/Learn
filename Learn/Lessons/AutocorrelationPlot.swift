@@ -11,6 +11,7 @@ import SwiftUI
 import HealthKit
 import Charts
 import LoopKit
+import LoopAlgorithm
 
 struct AutocorrelationPlot: View {
     @EnvironmentObject private var formatters: QuantityFormatters

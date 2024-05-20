@@ -9,6 +9,7 @@
 import NightscoutKit
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 extension GlucoseEntry {
     var newGlucoseSample: NewGlucoseSample? {

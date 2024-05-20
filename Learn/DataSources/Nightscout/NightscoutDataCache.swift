@@ -11,6 +11,7 @@ import LoopKit
 import HealthKit
 import NightscoutKit
 import os.log
+import LoopAlgorithm
 
 protocol NightscoutDataCacheDelegate: AnyObject {
     func didUpdateCache(coverage: DateInterval)
@@ -57,8 +58,6 @@ actor NightscoutDataCache {
 
         let cacheStore = PersistenceController(directoryURL: storeURL)
 
-        let insulinModelProvider = PresetInsulinModelProvider(defaultRapidActingModel: nil)
-
         let provenance = Bundle.main.bundleIdentifier!
 
 
@@ -70,19 +69,15 @@ actor NightscoutDataCache {
         doseStore = DoseStore(
             cacheStore: cacheStore,
             cacheLength: cacheLength,
-            insulinModelProvider: insulinModelProvider,
             longestEffectDuration: ExponentialInsulinModelPreset.rapidActingAdult.effectDuration,
             basalProfile: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: 0, value: 1.5)]),
             insulinSensitivitySchedule: InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue(startTime: 0, value: 50)]),
             provenanceIdentifier: provenance)
 
-        let defaultCarbAbsorptionTimes: CarbStore.DefaultAbsorptionTimes = (fast: .minutes(30), medium: .hours(3), slow: .hours(5))
-
         carbStore = CarbStore(
             healthKitSampleStore: nil,
             cacheStore: cacheStore,
             cacheLength: cacheLength,
-            defaultAbsorptionTimes: defaultCarbAbsorptionTimes,
             provenanceIdentifier: provenance)
 
         settingsStore = SettingsStore(store: cacheStore, expireAfter: cacheLength)

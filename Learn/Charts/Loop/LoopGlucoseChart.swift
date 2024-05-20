@@ -10,6 +10,7 @@ import SwiftUI
 import Charts
 import HealthKit
 import LoopKit
+import LoopAlgorithm
 
 struct LoopGlucoseChart: View {
 

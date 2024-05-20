@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 enum LoadingState: Equatable {
     static func == (lhs: LoadingState, rhs: LoadingState) -> Bool {

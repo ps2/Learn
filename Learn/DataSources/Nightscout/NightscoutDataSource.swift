@@ -10,6 +10,7 @@ import LoopKit
 import NightscoutKit
 import SwiftUI
 import HealthKit
+import LoopAlgorithm
 
 final class NightscoutDataSource: DataSource {
     static var localizedTitle: String = "Nightscout"
@@ -120,14 +121,14 @@ final class NightscoutDataSource: DataSource {
     }
 
     func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
-        return try await cache.doseStore.getDoses(start: interval.start, end: interval.end)
+        return try await cache.doseStore.getNormalizedDoseEntries(start: interval.start, end: interval.end)
     }
 
     func getCarbEntries(interval: DateInterval) async throws -> [StoredCarbEntry] {
         return try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
     }
 
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         // Get any changes during the period
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
@@ -156,7 +157,7 @@ final class NightscoutDataSource: DataSource {
 
         var idx = schedules.startIndex
         var date = interval.start
-        var items = [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>]()
+        var items = [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]()
         while date < interval.end {
             let scheduleActiveEnd: Date
             if idx+1 < schedules.endIndex {
@@ -284,7 +285,7 @@ final class NightscoutDataSource: DataSource {
         return items
     }
 
-    func getCarbRatioHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
+    func getCarbRatioHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
         // Get any settings changes during the period
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 

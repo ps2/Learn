@@ -24,4 +24,14 @@ extension DateInterval {
         return DateInterval(start: now.addingTimeInterval(.days(-30)), end: now)
     }
 
+    static var lastDay: DateInterval {
+        let now = Date()
+        return DateInterval(start: now.addingTimeInterval(.hours(-24)), end: now)
+    }
+
+    static var lastSixHours: DateInterval {
+        let now = Date()
+        return DateInterval(start: now.addingTimeInterval(.hours(-6)), end: now)
+    }
+
 }

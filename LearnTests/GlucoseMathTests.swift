@@ -7,17 +7,20 @@
 //
 
 import XCTest
+import LoopAlgorithm
+import HealthKit
+@testable import Learn
 
 final class GlucoseMathTests: XCTestCase {
 
     func testResample() {
         let date = Date()
-        let input = [
-            GlucoseFixtureValue(date + .minutes( 1), mgdl: 100),
-            GlucoseFixtureValue(date + .minutes( 7), mgdl: 110),
-            GlucoseFixtureValue(date + .minutes(14), mgdl: 120),
-            GlucoseFixtureValue(date + .minutes(19), mgdl: 130),
-            GlucoseFixtureValue(date + .minutes(24), mgdl: 140),
+        let input: [FixtureGlucoseSample] = [
+            FixtureGlucoseSample(date + .minutes( 1), mgdl: 100),
+            FixtureGlucoseSample(date + .minutes( 7), mgdl: 110),
+            FixtureGlucoseSample(date + .minutes(14), mgdl: 120),
+            FixtureGlucoseSample(date + .minutes(19), mgdl: 130),
+            FixtureGlucoseSample(date + .minutes(24), mgdl: 140),
         ]
 
         let expected: [Double?] = [
@@ -31,5 +34,11 @@ final class GlucoseMathTests: XCTestCase {
         ]
 
         XCTAssertEqual(expected, input.resampleNN(startDate: date, endDate: date + .minutes(30), delta: .minutes(5)))
+    }
+}
+
+extension FixtureGlucoseSample {
+    init(_ date: Date, mgdl: Double) {
+        self.init(startDate: date, quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: mgdl))
     }
 }

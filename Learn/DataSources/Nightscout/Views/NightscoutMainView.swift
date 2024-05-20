@@ -25,7 +25,7 @@ struct NightscoutMainView: View {
                     }
                 NavigationLink {
                     GlucoseDistribution(dataSource: dataSource, interval: .lastMonth)
-                        .frame(maxHeight: 200)
+                        .frame(maxHeight: 500)
                         .padding()
                 } label: {
                     Text("Glucose Distribution")
@@ -43,6 +43,13 @@ struct NightscoutMainView: View {
                         .padding()
                 } label: {
                     Text("Autocorrelation Plot")
+                }
+                NavigationLink {
+                    KalmanSmoothedGlucose(dataSource: dataSource, interval: .lastSixHours)
+                        .frame(maxHeight: 500)
+                        .padding()
+                } label: {
+                    Text("Kalman Smoothed Glucose")
                 }
             }
         }

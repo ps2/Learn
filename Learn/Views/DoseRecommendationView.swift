@@ -9,6 +9,13 @@
 import SwiftUI
 import LoopKit
 import HealthKit
+import LoopAlgorithm
+
+extension TempBasalRecommendation {
+    var rateQuantity: HKQuantity {
+        return HKQuantity(unit: .internationalUnitsPerHour, doubleValue: unitsPerHour)
+    }
+}
 
 struct TempBasalRecommendationView: View {
     @EnvironmentObject private var formatters: QuantityFormatters
@@ -38,28 +45,29 @@ struct DoseRecommendationView: View {
 
     var body: some View {
         VStack {
-            if let automaticRecommendation = recommendation.automaticBolus {
+            if let automaticRecommendation = recommendation.automatic {
                 HStack {
                     Text("Automatic Bolus:")
                     Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: automaticRecommendation.bolusUnits ?? 0))!)
                 }
                 TempBasalRecommendationView(recommendation: automaticRecommendation.basalAdjustment)
             }
-            if let manualBolus = recommendation.manualBolus {
+            if let manualBolus = recommendation.manual {
                 HStack {
                     Text("Manual Bolus:")
                     Text(formatters.insulinFormatter.string(from: manualBolus.quantity)!)
                 }
             }
-            if let temp = recommendation.tempBasal {
-                TempBasalRecommendationView(recommendation: temp)
-            }
         }
     }
 }
 
+extension ManualBolusRecommendation {
+    public var quantity: HKQuantity { HKQuantity(unit: .internationalUnit(), doubleValue: amount) }
+}
+
 #Preview {
-    DoseRecommendationView(recommendation: LoopAlgorithmDoseRecommendation(automaticBolus: AutomaticDoseRecommendation(
+    DoseRecommendationView(recommendation: LoopAlgorithmDoseRecommendation(automatic: AutomaticDoseRecommendation(
                 basalAdjustment: TempBasalRecommendation(unitsPerHour: 0, duration: 0),
                 bolusUnits: 0.5)))
     .padding()

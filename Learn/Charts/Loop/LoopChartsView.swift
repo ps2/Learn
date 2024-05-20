@@ -9,6 +9,7 @@
 import SwiftUI
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 struct LoopChartsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass

@@ -10,6 +10,7 @@ import SwiftUI
 import Charts
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 struct ActiveCarbohydratesChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters

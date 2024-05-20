@@ -10,6 +10,7 @@ import SwiftUI
 import Charts
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 struct GlucoseEffectChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters

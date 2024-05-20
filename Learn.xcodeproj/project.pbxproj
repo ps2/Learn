@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C10424672AD9C44600DF7722 /* LoopAlgorithmOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10424662AD9C44600DF7722 /* LoopAlgorithmOutput.swift */; };
 		C10424692AD9C7C100DF7722 /* QuantityLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10424682AD9C7C100DF7722 /* QuantityLabel.swift */; };
 		C104246B2AD9E7E800DF7722 /* DoseRecommendationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C104246A2AD9E7E800DF7722 /* DoseRecommendationView.swift */; };
 		C10E1EC82AE2D1D700B4E993 /* GlucoseDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E1EC72AE2D1D700B4E993 /* GlucoseDistribution.swift */; };
@@ -19,6 +18,9 @@
 		C10E1ED72AE4221F00B4E993 /* GlucoseMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E1ED62AE4221F00B4E993 /* GlucoseMath.swift */; };
 		C10E1ED92AE4268100B4E993 /* GlucoseMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E1ED82AE4268100B4E993 /* GlucoseMathTests.swift */; };
 		C10E1EDB2AE447EE00B4E993 /* TimeIntervalXAxisModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E1EDA2AE447EE00B4E993 /* TimeIntervalXAxisModifier.swift */; };
+		C10E1EEA2AE69BF300B4E993 /* KalmanFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E1EE92AE69BF300B4E993 /* KalmanFilter.swift */; };
+		C10E1EEC2AE69C1F00B4E993 /* KalmanFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E1EEB2AE69C1F00B4E993 /* KalmanFilterType.swift */; };
+		C10E1EEE2AE7226B00B4E993 /* KalmanSmoothedGlucose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E1EED2AE7226B00B4E993 /* KalmanSmoothedGlucose.swift */; };
 		C117B79D2A75833000FDD015 /* LearnTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C117B79C2A75833000FDD015 /* LearnTests.swift */; };
 		C11E62C72A2EDC6900F9BECF /* PropertyListStateStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11E62C62A2EDC6900F9BECF /* PropertyListStateStorage.swift */; };
 		C11EB29E29BE733100FCDB24 /* OpaquePadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11EB29D29BE733100FCDB24 /* OpaquePadding.swift */; };
@@ -28,6 +30,7 @@
 		C135B7D229A50B710012C1F6 /* DataSourceListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D129A50B710012C1F6 /* DataSourceListItemView.swift */; };
 		C135B7D429A50BD00012C1F6 /* MockDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D329A50BD00012C1F6 /* MockDataSource.swift */; };
 		C135B7D729A518BC0012C1F6 /* DataSourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */; };
+		C138029E2B45ECA100225BBE /* LoopAlgorithm in Frameworks */ = {isa = PBXBuildFile; productRef = C138029D2B45ECA100225BBE /* LoopAlgorithm */; };
 		C139CF2929ABB7CC00A4D022 /* AutomaticDosingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */; };
 		C14013272A4F3869008F7412 /* LoopLessons.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14013262A4F3869008F7412 /* LoopLessons.swift */; };
 		C140C3B72A1593200038BAFD /* NightscoutDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */; };
@@ -54,6 +57,7 @@
 		C185A0F92A34CEEB00F9F86D /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = C185A0F82A34CEEB00F9F86D /* Color.swift */; };
 		C185A0FB2A34EE9F00F9F86D /* QuantityFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C185A0FA2A34EE9F00F9F86D /* QuantityFormatters.swift */; };
 		C18AF8E229ACF2FA00C40B82 /* TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = C18AF8E129ACF2FA00C40B82 /* TimeInterval.swift */; };
+		C1ABC0942BF804AD00E9724B /* InsulinMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ABC0932BF804AD00E9724B /* InsulinMath.swift */; };
 		C1AD0DBE28D4FE40002246E7 /* LearnApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AD0DBD28D4FE40002246E7 /* LearnApp.swift */; };
 		C1AD0DC228D4FE40002246E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AD0DC128D4FE40002246E7 /* Assets.xcassets */; };
 		C1AD0DC628D4FE40002246E7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AD0DC528D4FE40002246E7 /* Preview Assets.xcassets */; };
@@ -103,7 +107,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C10424662AD9C44600DF7722 /* LoopAlgorithmOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopAlgorithmOutput.swift; sourceTree = "<group>"; };
 		C10424682AD9C7C100DF7722 /* QuantityLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantityLabel.swift; sourceTree = "<group>"; };
 		C104246A2AD9E7E800DF7722 /* DoseRecommendationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseRecommendationView.swift; sourceTree = "<group>"; };
 		C10E1EC72AE2D1D700B4E993 /* GlucoseDistribution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseDistribution.swift; sourceTree = "<group>"; };
@@ -116,6 +119,9 @@
 		C10E1ED62AE4221F00B4E993 /* GlucoseMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseMath.swift; sourceTree = "<group>"; };
 		C10E1ED82AE4268100B4E993 /* GlucoseMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseMathTests.swift; sourceTree = "<group>"; };
 		C10E1EDA2AE447EE00B4E993 /* TimeIntervalXAxisModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalXAxisModifier.swift; sourceTree = "<group>"; };
+		C10E1EE92AE69BF300B4E993 /* KalmanFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KalmanFilter.swift; sourceTree = "<group>"; };
+		C10E1EEB2AE69C1F00B4E993 /* KalmanFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KalmanFilterType.swift; sourceTree = "<group>"; };
+		C10E1EED2AE7226B00B4E993 /* KalmanSmoothedGlucose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KalmanSmoothedGlucose.swift; sourceTree = "<group>"; };
 		C117B79A2A75833000FDD015 /* LearnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C117B79C2A75833000FDD015 /* LearnTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnTests.swift; sourceTree = "<group>"; };
 		C11E62C62A2EDC6900F9BECF /* PropertyListStateStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyListStateStorage.swift; sourceTree = "<group>"; };
@@ -125,6 +131,7 @@
 		C135B7D129A50B710012C1F6 /* DataSourceListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceListItemView.swift; sourceTree = "<group>"; };
 		C135B7D329A50BD00012C1F6 /* MockDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataSource.swift; sourceTree = "<group>"; };
 		C135B7D629A518BC0012C1F6 /* DataSourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceManager.swift; sourceTree = "<group>"; };
+		C13802A12B45FAC700225BBE /* LoopAlgorithm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = LoopAlgorithm; path = ../LoopAlgorithm; sourceTree = "<group>"; };
 		C139CF2829ABB7CC00A4D022 /* AutomaticDosingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticDosingStrategy.swift; sourceTree = "<group>"; };
 		C14013262A4F3869008F7412 /* LoopLessons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopLessons.swift; sourceTree = "<group>"; };
 		C140C3B62A1593200038BAFD /* NightscoutDataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutDataCache.swift; sourceTree = "<group>"; };
@@ -152,6 +159,7 @@
 		C185A0F82A34CEEB00F9F86D /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		C185A0FA2A34EE9F00F9F86D /* QuantityFormatters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuantityFormatters.swift; sourceTree = "<group>"; };
 		C18AF8E129ACF2FA00C40B82 /* TimeInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeInterval.swift; sourceTree = "<group>"; };
+		C1ABC0932BF804AD00E9724B /* InsulinMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinMath.swift; sourceTree = "<group>"; };
 		C1AD0DBA28D4FE40002246E7 /* Learn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Learn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1AD0DBD28D4FE40002246E7 /* LearnApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnApp.swift; sourceTree = "<group>"; };
 		C1AD0DC128D4FE40002246E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -206,6 +214,7 @@
 			files = (
 				C135B7CA29A442B00012C1F6 /* NightscoutKit in Frameworks */,
 				C1BD5A2529DB9BEC001865A5 /* LoopKit in Frameworks */,
+				C138029E2B45ECA100225BBE /* LoopAlgorithm in Frameworks */,
 				C1E595572A3832730040288A /* LoopIssueReportParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -233,7 +242,6 @@
 				C10E1EC92AE2E3A000B4E993 /* DateInterval.swift */,
 				C135B7CC29A45A050012C1F6 /* HKUnit.swift */,
 				C1D476B02A8E825D002C1C87 /* LoopAlgorithm.swift */,
-				C10424662AD9C44600DF7722 /* LoopAlgorithmOutput.swift */,
 				C156EB5F2A2BDF1900AC9DED /* OSLog.swift */,
 				C18AF8E129ACF2FA00C40B82 /* TimeInterval.swift */,
 			);
@@ -284,6 +292,7 @@
 				C10E1EC72AE2D1D700B4E993 /* GlucoseDistribution.swift */,
 				C10E1ECF2AE3101600B4E993 /* GlucoseLagPlot.swift */,
 				C10E1ED12AE33F0700B4E993 /* AutocorrelationPlot.swift */,
+				C10E1EED2AE7226B00B4E993 /* KalmanSmoothedGlucose.swift */,
 			);
 			path = Lessons;
 			sourceTree = "<group>";
@@ -348,6 +357,7 @@
 				C1AD0DBB28D4FE40002246E7 /* Products */,
 				C15C323929A437B600CFE6F9 /* Frameworks */,
 				C10E1ED52AE41EC900B4E993 /* LoopKit */,
+				C13802A12B45FAC700225BBE /* LoopAlgorithm */,
 				C1D476B22A8E87FA002C1C87 /* LoopIssueReportParser */,
 			);
 			sourceTree = "<group>";
@@ -422,6 +432,9 @@
 				C10E1ECB2AE2E81000B4E993 /* TargetRange.swift */,
 				C10E1ECD2AE2F46000B4E993 /* TargetRangeCategory.swift */,
 				C10E1ED62AE4221F00B4E993 /* GlucoseMath.swift */,
+				C10E1EE92AE69BF300B4E993 /* KalmanFilter.swift */,
+				C10E1EEB2AE69C1F00B4E993 /* KalmanFilterType.swift */,
+				C1ABC0932BF804AD00E9724B /* InsulinMath.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -528,6 +541,7 @@
 				C135B7C929A442B00012C1F6 /* NightscoutKit */,
 				C1BD5A2429DB9BEC001865A5 /* LoopKit */,
 				C1E595562A3832730040288A /* LoopIssueReportParser */,
+				C138029D2B45ECA100225BBE /* LoopAlgorithm */,
 			);
 			productName = Learn;
 			productReference = C1AD0DBA28D4FE40002246E7 /* Learn.app */;
@@ -566,6 +580,7 @@
 				C135B7C829A442B00012C1F6 /* XCRemoteSwiftPackageReference "NightscoutKit" */,
 				C1BD5A2329DB9BD7001865A5 /* XCRemoteSwiftPackageReference "LoopKit" */,
 				C14F53A029DBE8CF002A0DED /* XCRemoteSwiftPackageReference "LoopIssueReportParser" */,
+				C138029C2B45ECA100225BBE /* XCRemoteSwiftPackageReference "LoopAlgorithm" */,
 			);
 			productRefGroup = C1AD0DBB28D4FE40002246E7 /* Products */;
 			projectDirPath = "";
@@ -617,6 +632,7 @@
 				C1AF1D172A4DDA1100F46A26 /* MidAbsorptionISFChange.swift in Sources */,
 				C1EC4A792AA505CC00B6FFAB /* LoopChartsData.swift in Sources */,
 				C10E1ED02AE3101600B4E993 /* GlucoseLagPlot.swift in Sources */,
+				C1ABC0942BF804AD00E9724B /* InsulinMath.swift in Sources */,
 				C1E4BED029A41E3C00B54132 /* ChartScrollCoordinator.swift in Sources */,
 				C135B7D029A508C20012C1F6 /* DataSourcesSummaryView.swift in Sources */,
 				C1E4BECA29A41D4800B54132 /* ChartLongPressInspectionModifier.swift in Sources */,
@@ -628,6 +644,7 @@
 				C1EA322E29A6CB8200949EA3 /* ActionButtonStyle.swift in Sources */,
 				C1BD5A2D29DBB81A001865A5 /* DocumentPicker.swift in Sources */,
 				C142CF9629A93D9A008FB16F /* InspectGestureView.swift in Sources */,
+				C10E1EEE2AE7226B00B4E993 /* KalmanSmoothedGlucose.swift in Sources */,
 				C1EA322829A6C7A800949EA3 /* NightscoutSetupView.swift in Sources */,
 				C178C5D729AB9C55004B7C32 /* ProfileSet.swift in Sources */,
 				C11EB29E29BE733100FCDB24 /* OpaquePadding.swift in Sources */,
@@ -642,6 +659,7 @@
 				C1449B4C2A3BFE1A009F7AB3 /* DeviceLogsView.swift in Sources */,
 				C1D476B12A8E825D002C1C87 /* LoopAlgorithm.swift in Sources */,
 				C1AD3D152A3539B90090972E /* Data.swift in Sources */,
+				C10E1EEA2AE69BF300B4E993 /* KalmanFilter.swift in Sources */,
 				C178C5DB29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift in Sources */,
 				C1DDFAB229A67BEB0019E4CB /* LoopChartsView.swift in Sources */,
 				C10E1ECA2AE2E3A000B4E993 /* DateInterval.swift in Sources */,
@@ -674,10 +692,10 @@
 				C10E1EC82AE2D1D700B4E993 /* GlucoseDistribution.swift in Sources */,
 				C10E1ECE2AE2F46000B4E993 /* TargetRangeCategory.swift in Sources */,
 				C16992322A6B39C400B06881 /* DateTimeXAxisModifier.swift in Sources */,
+				C10E1EEC2AE69C1F00B4E993 /* KalmanFilterType.swift in Sources */,
 				C1E4BEE329A4243200B54132 /* DataSource.swift in Sources */,
 				C185A0FB2A34EE9F00F9F86D /* QuantityFormatters.swift in Sources */,
 				C104246B2AD9E7E800DF7722 /* DoseRecommendationView.swift in Sources */,
-				C10424672AD9C44600DF7722 /* LoopAlgorithmOutput.swift in Sources */,
 				C142CF9C29AB2756008FB16F /* Date.swift in Sources */,
 				C1E4BECE29A41DF100B54132 /* HorizontallyPositionedViewContainer.swift in Sources */,
 				C1F298C92A315C4600372926 /* IssueReportMainView.swift in Sources */,
@@ -985,6 +1003,14 @@
 				kind = branch;
 			};
 		};
+		C138029C2B45ECA100225BBE /* XCRemoteSwiftPackageReference "LoopAlgorithm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LoopKit/LoopAlgorithm";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		C14F53A029DBE8CF002A0DED /* XCRemoteSwiftPackageReference "LoopIssueReportParser" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/LoopKit/LoopIssueReportParser.git";
@@ -1008,6 +1034,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C135B7C829A442B00012C1F6 /* XCRemoteSwiftPackageReference "NightscoutKit" */;
 			productName = NightscoutKit;
+		};
+		C138029D2B45ECA100225BBE /* LoopAlgorithm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C138029C2B45ECA100225BBE /* XCRemoteSwiftPackageReference "LoopAlgorithm" */;
+			productName = LoopAlgorithm;
 		};
 		C1BD5A2429DB9BEC001865A5 /* LoopKit */ = {
 			isa = XCSwiftPackageProductDependency;

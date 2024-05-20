@@ -10,10 +10,11 @@ import SwiftUI
 import Charts
 import HealthKit
 import LoopKit
+import LoopAlgorithm
 
 struct RetrospectiveCorrectionExample: View {
 
-    static func scenario(baseTime: Date) -> LoopPredictionInput {
+    static func scenario(baseTime: Date) -> LoopPredictionInput<StoredCarbEntry, StoredGlucoseSample, DoseEntry> {
         func t(_ offset: TimeInterval) -> Date {
             return baseTime.addingTimeInterval(offset)
         }
@@ -63,16 +64,18 @@ struct RetrospectiveCorrectionExample: View {
             sensitivity: sensitivity,
             carbRatio: carbRatio,
             algorithmEffectsOptions: .all,
-            useIntegralRetrospectiveCorrection: false)
+            useIntegralRetrospectiveCorrection: false,
+            includePositiveVelocityAndRC: true
+        )
     }
 
     @EnvironmentObject private var formatters: QuantityFormatters
 
     private var baseTime: Date = Date(timeIntervalSinceReferenceDate: 0)
 
-    @State private var algorithmInput: LoopPredictionInput
-    @State private var algorithmOutput: LoopPrediction?
-    @State private var algorithmOutputWithoutRC: LoopPrediction?
+    @State private var algorithmInput: LoopPredictionInput<StoredCarbEntry, StoredGlucoseSample, DoseEntry>
+    @State private var algorithmOutput: LoopPrediction<StoredCarbEntry>?
+    @State private var algorithmOutputWithoutRC: LoopPrediction<StoredCarbEntry>?
 
     // construct a prediction of ICE + carbs
     @State private var exampleRCPrediction: [GlucoseEffect]?
@@ -115,7 +118,7 @@ struct RetrospectiveCorrectionExample: View {
         }
     }
 
-    func chart(algorithmOutput: LoopPrediction, algorithmOutputWithoutRC: LoopPrediction) -> some View {
+    func chart(algorithmOutput: LoopPrediction<StoredCarbEntry>, algorithmOutputWithoutRC: LoopPrediction<StoredCarbEntry>) -> some View {
         Chart {
             ForEach(algorithmInput.glucoseHistory, id: \.startDate) { effect in
                 PointMark(

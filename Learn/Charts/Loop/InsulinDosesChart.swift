@@ -10,6 +10,7 @@ import SwiftUI
 import Charts
 import HealthKit
 import LoopKit
+import LoopAlgorithm
 
 protocol DateSelectableValue {
     var dateForSelection: Date { get }

@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 class MockDataSource: DataSource {
     @Published var loadingState: LoadingState = .isLoading
@@ -99,11 +100,11 @@ class MockDataSource: DataSource {
         return getMockDoses(interval: interval)
     }
 
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         return getMockTargetRanges(start: interval.start, end: interval.end)
     }
 
-    func getCarbRatioHistory(interval: DateInterval) async throws -> [LoopKit.AbsoluteScheduleValue<Double>] {
+    func getCarbRatioHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
         return getMockCarbRatioHistory(start: interval.start, end: interval.end)
     }
 
@@ -125,7 +126,7 @@ class MockDataSource: DataSource {
         return getMockCarbEntries(start: interval.start, end: interval.end)
     }
 
-    func getMockTargetRanges(start: Date, end: Date) -> [LoopKit.AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+    func getMockTargetRanges(start: Date, end: Date) -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
         let targetTimeInterval = TimeInterval(90 * 60)
 
         let intervalStart: Date = start - start.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: targetTimeInterval)
