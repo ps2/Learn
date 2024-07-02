@@ -40,6 +40,7 @@ final class NightscoutDataSource: DataSource {
 
         Task { @MainActor in
             await cache.setDelegate(self)
+            self.endOfData = await cache.glucoseStore.latestGlucose?.startDate
         }
     }
 
@@ -112,9 +113,7 @@ final class NightscoutDataSource: DataSource {
         AnyView(NightscoutMainView(dataSource: self))
     }
 
-    var endOfData: Date? {
-        return nil
-    }
+    var endOfData: Date?
 
     func getGlucoseValues(interval: DateInterval) async throws -> [StoredGlucoseSample] {
         try await cache.glucoseStore.getGlucoseSamples(start: interval.start, end: interval.end)
