@@ -1,12 +1,40 @@
 {
+  "originHash" : "9a4d04e6b81ea2d889e94c2fc84e6290dac9d677ee4b9a0bf7682f0673127eeb",
   "pins" : [
+    {
+      "identity" : "loopalgorithm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LoopKit/LoopAlgorithm",
+      "state" : {
+        "branch" : "main",
+        "revision" : "6f0697aed001bba75af1e5566a2afdab34ea0fd4"
+      }
+    },
+    {
+      "identity" : "loopissuereportparser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LoopKit/LoopIssueReportParser.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "f4e992d5bf49ca4fc091c3ceee0ea51b14ce6995"
+      }
+    },
+    {
+      "identity" : "loopkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LoopKit/LoopKit",
+      "state" : {
+        "branch" : "tidepool-dev",
+        "revision" : "21340c3cbb7249f3801b0515306c8374b69d0c7b"
+      }
+    },
     {
       "identity" : "nightscoutkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LoopKit/NightscoutKit",
       "state" : {
         "branch" : "main",
-        "revision" : "4b61e4e280a3e26784b7697f64d9c51cdf152e2d"
+        "revision" : "ca8e2cea82ab465282cd180ce01d64c1cf25478d"
       }
     },
     {
@@ -14,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "fc45e7b2cfece9dd80b5a45e6469ffe67fe67984",
-        "version" : "0.14.1"
+        "revision" : "b871e5ed11a23e52c2896a92ce2c829982ff8619",
+        "version" : "1.4.2"
       }
     },
     {
@@ -24,7 +52,16 @@
       "location" : "https://github.com/pointfreeco/swift-parsing",
       "state" : {
         "branch" : "main",
-        "revision" : "01ded1787ba38eed370b964499e40bf44e8c12e5"
+        "revision" : "f949081268f1f67f2cbc6e4f13a1494f6bcb0cd2"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-syntax",
+      "state" : {
+        "revision" : "303e5c5c36d6a558407d364878df131c3546fad8",
+        "version" : "510.0.2"
       }
     },
     {
@@ -41,10 +78,10 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "4af50b38daf0037cfbab15514a241224c3f62f98",
-        "version" : "0.8.5"
+        "revision" : "6f30bdba373bbd7fbfe241dddd732651f2fbd1e2",
+        "version" : "1.1.2"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
