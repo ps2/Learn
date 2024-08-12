@@ -26,6 +26,7 @@ struct DateTimeXAxisModifier: ViewModifier {
                         Text(date, format: .dateTime.hour())
                             .opacity(labelOpacity)
                     }
+                   .font(.system(size: 14))
 
                     if labelOpacity != 0 {
                         if hour == 0 {

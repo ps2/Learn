@@ -79,7 +79,10 @@ struct LoopGlucoseChart: View {
         .chartYScale(domain: yScale)
         .foregroundStyle(.clear)
         .chartYAxis {
-            AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks))
+            AxisMarks(position: .leading, values: .automatic(desiredCount: desiredYAxisNumberOfMarks)) { value in
+                AxisValueLabel()
+                    .font(.system(size: 14))
+            }
         }
         .frame(width:30, alignment: .trailing)
         .chartXAxis(.hidden)

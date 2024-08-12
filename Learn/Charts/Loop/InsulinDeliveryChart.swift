@@ -1,5 +1,5 @@
 //
-//  InsulinDosesChart.swift
+//  InsulinDeliverChart.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 1/15/23.
@@ -12,33 +12,8 @@ import HealthKit
 import LoopKit
 import LoopAlgorithm
 
-protocol DateSelectableValue {
-    var dateForSelection: Date { get }
-    var selectionValue: Double { get }
-}
 
-extension DoseEntry: Identifiable {
-    public var id: String {
-        return syncIdentifier ?? startDate.description
-    }
-}
-
-extension DoseEntry: DateSelectableValue {
-    var dateForSelection: Date {
-        return startDate
-    }
-
-    var selectionValue: Double {
-        switch type {
-        case .bolus:
-            return deliveredUnits ?? programmedUnits
-        default:
-            return unitsPerHour
-        }
-    }
-}
-
-struct InsulinDosesChart: View {
+struct InsulinDeliveryChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
 
@@ -303,18 +278,8 @@ struct InsulinDosesChart: View {
     }
 }
 
-extension AbsoluteScheduleValue<Double>: DateSelectableValue {
-    var dateForSelection: Date {
-        return startDate
-    }
 
-    var selectionValue: Double {
-        return value
-    }
-}
-
-
-struct InsulinDosesChart_Previews: PreviewProvider {
+struct InsulinDeliveryChart_Previews: PreviewProvider {
     static var previews: some View {
         let endDate = Date()
         let startDate = endDate.addingTimeInterval(-18 * 3600)
@@ -325,22 +290,8 @@ struct InsulinDosesChart_Previews: PreviewProvider {
         let doses = mockDataSource.getMockDoses(interval: interval)
         let basalHistory = mockDataSource.getMockBasalHistory(start: interval.start, end: interval.end)
 
-        return InsulinDosesChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
+        return InsulinDeliveryChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             .opaqueHorizontalPadding()
     }
-}
-
-extension DoseEntry {
-    @ViewBuilder
-    var symbol: some View {
-        Image(automatic == true ? "autobolus" : "bolus")
-            .foregroundColor(.insulin)
-    }
-
-    var selectedSymbol: some View {
-        Image("bolus")
-            .foregroundColor(.insulin)
-    }
-
 }
