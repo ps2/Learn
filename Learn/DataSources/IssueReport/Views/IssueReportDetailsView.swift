@@ -22,7 +22,7 @@ struct IssueReportDetailsView: View {
                 DeviceLogsView(deviceLogs: issueReport.deviceLogs)
             }
             NavigationLink("Loop Settings") {
-                Text("Not Implemented Yet")
+                LoopSettingsView(settings: issueReport.loopSettings)
             }
             NavigationLink("Cached Glucose Samples") {
                 Text("Not Implemented Yet")
@@ -33,7 +33,6 @@ struct IssueReportDetailsView: View {
             NavigationLink("Cached Dose Entries") {
                 DoseEntriesView(doseEntries: issueReport.cachedDoseEntries)
             }
-
         }
     }
 }
