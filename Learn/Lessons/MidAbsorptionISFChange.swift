@@ -50,8 +50,7 @@ struct MidAbsorptionISFChange: View {
 
         effects = []
         effects = [dose].glucoseEffects(
-            longestEffectDuration: .hours(6),
-            insulinSensitivityTimeline: isfNoChange)
+            insulinSensitivityHistory: isfNoChange)
 
         let changeTime = baseTime.addingTimeInterval(.hours(2))
 
@@ -61,8 +60,7 @@ struct MidAbsorptionISFChange: View {
         ]
         effectsWithInflection = []
         effectsWithInflection = [dose].glucoseEffects(
-            longestEffectDuration: .hours(6),
-            insulinSensitivityTimeline: isfWithChange)
+            insulinSensitivityHistory: isfWithChange)
     }
 
     var body: some View {

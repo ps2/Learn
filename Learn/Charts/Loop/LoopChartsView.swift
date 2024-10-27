@@ -99,15 +99,24 @@ struct LoopChartsView: View {
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments
             )
-            InsulinDosesChart(
-                startTime: start,
-                endTime: end,
-                doses: data.doses,
-                basalHistory: data.basalHistory,
-                chartUnitOffset: $scrollCoordinator.chartUnitOffset,
-                numSegments: numSegments,
-                basalEndTime: dataSource.endOfData
-            )
+//            AutomatedDeliveryChart(
+//                startTime: start,
+//                endTime: end,
+//                doses: data.doses,
+//                basalHistory: data.basalHistory,
+//                chartUnitOffset: $scrollCoordinator.chartUnitOffset,
+//                numSegments: numSegments,
+//                basalEndTime: dataSource.endOfData
+//            )
+//            InsulinDosesChart(
+//                startTime: start,
+//                endTime: end,
+//                doses: data.doses,
+//                basalHistory: data.basalHistory,
+//                chartUnitOffset: $scrollCoordinator.chartUnitOffset,
+//                numSegments: numSegments,
+//                basalEndTime: dataSource.endOfData
+//            )
             ActiveCarbohydratesChart(
                 startTime: start,
                 endTime: end,

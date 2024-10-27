@@ -70,8 +70,6 @@ actor NightscoutDataCache {
             cacheStore: cacheStore,
             cacheLength: cacheLength,
             longestEffectDuration: ExponentialInsulinModelPreset.rapidActingAdult.effectDuration,
-            basalProfile: BasalRateSchedule(dailyItems: [RepeatingScheduleValue(startTime: 0, value: 1.5)]),
-            insulinSensitivitySchedule: InsulinSensitivitySchedule(unit: .milligramsPerDeciliter, dailyItems: [RepeatingScheduleValue(startTime: 0, value: 50)]),
             provenanceIdentifier: provenance)
 
         carbStore = CarbStore(

@@ -12,15 +12,40 @@ import HealthKit
 import LoopKit
 import LoopAlgorithm
 
+struct DeliverySegment {
+    var startTime: Date
+    var endTime: Date
+    var rate: Double
+}
 
-struct InsulinDeliveryChart: View {
+extension Sequence where Element == DoseEntry {
+
+}
+
+extension DoseEntry {
+    func splitIntoSimulationTimelineDeliverySegments(using interval: TimeInterval = .minutes(5)) -> [DeliverySegment] {
+        var out: [DeliverySegment] = []
+        var date = startDate
+        let intervalHourRate = TimeInterval(hours: 1) / interval
+        while date < endDate {
+            let segmentEnd = min(endDate, date.addingTimeInterval(interval).dateFlooredToTimeInterval(interval))
+            let portion = segmentEnd.timeIntervalSince(date) / duration
+            let segmentVolume = (deliveredUnits ?? programmedUnits) * portion
+            out.append(DeliverySegment(startTime: date, endTime: segmentEnd, rate: segmentVolume * intervalHourRate))
+            date = segmentEnd
+        }
+        return out
+    }
+}
+
+struct AutomatedDeliveryChart: View {
     @EnvironmentObject private var formatters: QuantityFormatters
     @Environment(\.chartInspectionDate) private var chartInspectionDate
 
     @State private var localInspectionDate: Date?
 
     private let desiredYAxisNumberOfMarks: Int = 4
-    private let chartYDomain: ClosedRange<Double> = 0...4
+    private let chartYDomain: ClosedRange<Double> = 0...10
 
     private var maxDoseValue: Double {
         return chartYDomain.upperBound - 0.2
@@ -53,11 +78,11 @@ struct InsulinDeliveryChart: View {
     struct BasalRatePoint: Hashable {
         let date: Date
         let rate: Double
-        let type: BasalRatePointType
     }
 
-    var basalPoints: [BasalRatePoint]
+    var deliveryPoints: [BasalRatePoint]
     var basalDoses: [DoseEntry]
+    var deliverySegments: [DeliverySegment]
 
 
     init(startTime: Date, endTime: Date, doses: [DoseEntry], basalHistory: [AbsoluteScheduleValue<Double>], chartUnitOffset: Binding<Int>, numSegments: Int, basalEndTime: Date? = nil) {
@@ -69,33 +94,37 @@ struct InsulinDeliveryChart: View {
         self.numSegments = numSegments
 
         // Fill in missing basal doses with basal history
-        basalDoses = doses.infill(with: basalHistory, endDate: basalEndTime ?? Date(), gapPatchInterval: .seconds(10))
+        let end = basalEndTime ?? Date()
+        basalDoses = doses.overlayBasal(basalHistory, endDate: end, lastPumpEventsReconciliation: end, gapPatchInterval: .seconds(10))
 
-        // Includes points for both scheduled (dotted) and dose (solid) lines.
-        var basalLines = [BasalRatePoint]()
+        let boluses = doses.filter { $0.type == .bolus }
 
-        for dose in basalDoses {
-            switch dose.type {
-            case .basal, .tempBasal, .suspend:
-                basalLines.append(BasalRatePoint(date: dose.startDate, rate: dose.unitsPerHour, type: .dose))
-                basalLines.append(BasalRatePoint(date: dose.endDate, rate: dose.unitsPerHour, type: .dose))
-            default:
-                break
+        let allDoses = basalDoses + boluses
+        let allSegments = allDoses.flatMap { $0.splitIntoSimulationTimelineDeliverySegments() }
+
+        let simulationTimelineStart = startTime.dateFlooredToTimeInterval(GlucoseMath.defaultDelta)
+        let simulationTimelineEnd = endTime.dateCeiledToTimeInterval(GlucoseMath.defaultDelta)
+        var segmentStart = simulationTimelineStart
+        deliverySegments = []
+        while segmentStart < simulationTimelineEnd {
+            deliverySegments.append(DeliverySegment(startTime: segmentStart, endTime: segmentStart.addingTimeInterval(GlucoseMath.defaultDelta), rate: 0))
+            segmentStart += GlucoseMath.defaultDelta
+        }
+
+        for delivery in allSegments {
+            let idx = Int(delivery.startTime.timeIntervalSince(simulationTimelineStart) / GlucoseMath.defaultDelta)
+            if idx > 0 && idx < deliverySegments.count {
+                deliverySegments[idx].rate += delivery.rate
             }
         }
-        if var previousItem = basalHistory.first {
-            for item in basalHistory {
-                if item.startDate != previousItem.startDate {
-                    basalLines.append(BasalRatePoint(date: item.startDate, rate: previousItem.value, type: .schedule))
-                }
-                basalLines.append(BasalRatePoint(date: item.startDate, rate: item.value, type: .schedule))
-                previousItem = item
-            }
-            if previousItem.startDate < endTime {
-                basalLines.append(BasalRatePoint(date: endTime, rate: previousItem.value, type: .schedule))
-            }
+
+
+        var deliveryLines = [BasalRatePoint]()
+
+        for segment in deliverySegments {
+            deliveryLines.append(BasalRatePoint(date: segment.endTime, rate: segment.rate))
         }
-        basalPoints = basalLines
+        deliveryPoints = deliveryLines
     }
 
     var yAxis: some View {
@@ -123,43 +152,22 @@ struct InsulinDeliveryChart: View {
         let inspectedElement = findElement(by: localInspectionDate ?? chartInspectionDate)
         VStack {
             HStack {
-                Text("Insulin Delivery").bold()
+                Text("Automated Delivery").bold()
                 Spacer()
             }
             .opacity(inspectedElement == nil ? 1 : 0)
 
             ScrollableChart(yAxis: yAxis, chartUnitOffset: $chartUnitOffset, height: 100, numSegments: numSegments) {
                 Chart {
-                    // Boluses
-                    ForEach(doses) { dose in
-                        if dose.type == .bolus {
-                            PointMark(
-                                x: .value("Time", dose.startDate, unit: .second),
-                                y: .value("Value", clippedBolusValue(units: dose.deliveredUnits ?? dose.programmedUnits))
-                            )
-                            .symbol {
-                                dose.symbol
-                            }
-                        }
-                    }
-                    // Basal Doses
-                    ForEach(basalDoses) { dose in
-                        RectangleMark(
-                            xStart: .value("Start Time", dose.startDate),
-                            xEnd: .value("End Time", dose.endDate),
-                            yStart: .value("Base", 0),
-                            yEnd: .value("Base", dose.unitsPerHour))
-                        .foregroundStyle(Color.insulin.opacity(0.5))
-                    }
-                    // Basal Schedule
-                    ForEach(basalPoints, id: \.self) { point in
+                    // Automated Delivery
+                    ForEach(deliveryPoints, id: \.self) { point in
                         LineMark(
                             x: .value("Time", point.date, unit: .second),
-                            y: .value("Scheduled Rate", point.rate),
-                            series: .value("Type", point.type.rawValue)
+                            y: .value("Scheduled Rate", point.rate)
                         )
-                        .lineStyle(point.type.strokeStyle)
+                        .lineStyle(StrokeStyle(lineWidth: 2))
                         .foregroundStyle(Color.insulin)
+                        .interpolationMethod(.cardinal)
                     }
 
                     // Inspected element
@@ -279,7 +287,7 @@ struct InsulinDeliveryChart: View {
 }
 
 
-struct InsulinDeliveryChart_Previews: PreviewProvider {
+struct AutomatedDeliveryChart_Previews: PreviewProvider {
     static var previews: some View {
         let endDate = Date()
         let startDate = endDate.addingTimeInterval(-18 * 3600)
@@ -290,7 +298,7 @@ struct InsulinDeliveryChart_Previews: PreviewProvider {
         let doses = mockDataSource.getMockDoses(interval: interval)
         let basalHistory = mockDataSource.getMockBasalHistory(start: interval.start, end: interval.end)
 
-        return InsulinDeliveryChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
+        return AutomatedDeliveryChart(startTime: startDate, endTime: endDate, doses: doses, basalHistory: basalHistory, chartUnitOffset: .constant(0), numSegments: 6)
             .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
             .opaqueHorizontalPadding()
     }

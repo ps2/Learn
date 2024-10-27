@@ -94,7 +94,7 @@
 		C1F298C72A315B5E00372926 /* MockMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298C62A315B5E00372926 /* MockMainView.swift */; };
 		C1F298C92A315C4600372926 /* IssueReportMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298C82A315C4600372926 /* IssueReportMainView.swift */; };
 		C1F298CB2A315CFD00372926 /* NightscoutMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F298CA2A315CFD00372926 /* NightscoutMainView.swift */; };
-		C1F5BDC82C6A83D000ECBAAF /* InsulinDeliveryChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F5BDC72C6A83D000ECBAAF /* InsulinDeliveryChart.swift */; };
+		C1F5BDC82C6A83D000ECBAAF /* AutomatedDeliveryChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F5BDC72C6A83D000ECBAAF /* AutomatedDeliveryChart.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -196,7 +196,7 @@
 		C1F298C62A315B5E00372926 /* MockMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMainView.swift; sourceTree = "<group>"; };
 		C1F298C82A315C4600372926 /* IssueReportMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReportMainView.swift; sourceTree = "<group>"; };
 		C1F298CA2A315CFD00372926 /* NightscoutMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightscoutMainView.swift; sourceTree = "<group>"; };
-		C1F5BDC72C6A83D000ECBAAF /* InsulinDeliveryChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsulinDeliveryChart.swift; sourceTree = "<group>"; };
+		C1F5BDC72C6A83D000ECBAAF /* AutomatedDeliveryChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomatedDeliveryChart.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -488,7 +488,7 @@
 				C1E4BED129A41E7C00B54132 /* InsulinDosesChart.swift */,
 				C1DDFAB129A67BEB0019E4CB /* LoopChartsView.swift */,
 				C1EF206428D5033B007A8097 /* LoopGlucoseChart.swift */,
-				C1F5BDC72C6A83D000ECBAAF /* InsulinDeliveryChart.swift */,
+				C1F5BDC72C6A83D000ECBAAF /* AutomatedDeliveryChart.swift */,
 			);
 			path = Loop;
 			sourceTree = "<group>";
@@ -655,7 +655,7 @@
 				C1E4BEE529A425A100B54132 /* NightscoutDataSource.swift in Sources */,
 				C1449B4C2A3BFE1A009F7AB3 /* DeviceLogsView.swift in Sources */,
 				C1D476B12A8E825D002C1C87 /* LoopAlgorithm.swift in Sources */,
-				C1F5BDC82C6A83D000ECBAAF /* InsulinDeliveryChart.swift in Sources */,
+				C1F5BDC82C6A83D000ECBAAF /* AutomatedDeliveryChart.swift in Sources */,
 				C1AD3D152A3539B90090972E /* Data.swift in Sources */,
 				C10E1EEA2AE69BF300B4E993 /* KalmanFilter.swift in Sources */,
 				C178C5DB29AB9D1A004B7C32 /* TemporaryScheduleOverride.swift in Sources */,

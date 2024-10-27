@@ -87,7 +87,7 @@ extension LoopAlgorithm {
             end: interval.end.dateCeiledToTimeInterval(GlucoseMath.defaultDelta))
 
         let insulinEffects = annotatedDoses.glucoseEffects(
-            insulinSensitivityTimeline: historicSensitivity,
+            insulinSensitivityHistory: historicSensitivity,
             from: insulinEffectsInterval.start,
             to: insulinEffectsInterval.end)
 
@@ -166,8 +166,7 @@ extension LoopAlgorithm {
         var index: Int = 0
         while summaryDate <= effectsInterval.end {
             let insulinEffects = annotatedDoses.glucoseEffects(
-                longestEffectDuration: insulinActivityDuration,
-                insulinSensitivityTimeline: sensitivityHistory,
+                insulinSensitivityHistory: sensitivityHistory,
                 from: summaryDate,
                 to: summaryDate.addingTimeInterval(insulinActivityDuration))
 
@@ -228,4 +227,6 @@ struct StoredDataAlgorithmInput: AlgorithmInput {
     var recommendationType: DoseRecommendationType
 
     var automaticBolusApplicationFactor: Double?
+
+    var useMidAbsorptionISF: Bool = false
 }

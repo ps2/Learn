@@ -7,6 +7,8 @@
 //
 
 import XCTest
+import LoopKit
+@testable import Learn
 
 final class LearnTests: XCTestCase {
 
@@ -18,12 +20,27 @@ final class LearnTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testDoseSplitting() {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ssZZZZZ"
+
+        let f = { (input) in
+            return formatter.date(from: input)!
+        }
+
+        let start = f("2018-08-16 01:07:00 +0000")
+
+        let dose = DoseEntry(type: .tempBasal, startDate: start, endDate: start.addingTimeInterval(.minutes(15)), value: 8, unit: .unitsPerHour, deliveredUnits: 2)
+
+        let segments = dose.splitIntoSimulationTimelineDeliverySegments()
+
+        XCTAssertEqual(4, segments.count)
+
+        let expectedRates = [4.8, 8, 8, 3.2]
+        for (expected, computed) in zip(expectedRates, segments.map { $0.rate }) {
+            XCTAssertEqual(expected, computed, accuracy: 0.01)
+        }
+
     }
 
     func testPerformanceExample() throws {

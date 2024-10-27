@@ -94,7 +94,8 @@ struct InsulinDosesChart: View {
         self.numSegments = numSegments
 
         // Fill in missing basal doses with basal history
-        basalDoses = doses.infill(with: basalHistory, endDate: basalEndTime ?? Date(), gapPatchInterval: .seconds(10))
+        let end = basalEndTime ?? Date()
+        basalDoses = doses.overlayBasal(basalHistory, endDate: end, lastPumpEventsReconciliation: end, gapPatchInterval: .seconds(10))
 
         // Includes points for both scheduled (dotted) and dose (solid) lines.
         var basalLines = [BasalRatePoint]()
