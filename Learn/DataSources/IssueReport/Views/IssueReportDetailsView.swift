@@ -24,6 +24,9 @@ struct IssueReportDetailsView: View {
             NavigationLink("Loop Settings") {
                 LoopSettingsView(settings: issueReport.loopSettings)
             }
+            NavigationLink("Forecast") {
+                ForecastDetailsView(report: issueReport)
+            }
             NavigationLink("Cached Glucose Samples") {
                 Text("Not Implemented Yet")
             }

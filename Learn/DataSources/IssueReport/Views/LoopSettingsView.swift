@@ -30,7 +30,7 @@ struct LoopSettingsView: View {
             LabeledContent("Dosing Strategy", value: String(describing: settings.automaticDosingStrategy))
             LabeledContent("Rapid Acting Insulin Model", value: String(describing: settings.defaultRapidActingModel))
         }
-        .navigationTitle("Build Details")
+        .navigationTitle("Loop Settings")
     }
 }
 
