@@ -12,7 +12,10 @@ import SwiftUI
 import HealthKit
 import LoopAlgorithm
 
-final class NightscoutDataSource: DataSource {
+final class NightscoutDataSource: RefreshableDataSource {
+
+
+
     static var localizedTitle: String = "Nightscout"
     static var dataSourceTypeIdentifier: String = "nightscout"
 
@@ -27,7 +30,7 @@ final class NightscoutDataSource: DataSource {
     var cacheCoverage: DateInterval?
     var stateStorage: StateStorage?
 
-    private var cache: NightscoutDataCache
+    private var cache: NightscoutDataCache?
 
     init(name: String, url: URL, apiSecret: String? = nil, instanceIdentifier: String? = nil, cacheCoverage: DateInterval? = nil) {
         self.name = name
@@ -36,11 +39,11 @@ final class NightscoutDataSource: DataSource {
         self.dataSourceInstanceIdentifier = instanceIdentifier ?? UUID().uuidString
         self.cacheCoverage = cacheCoverage
         nightscoutClient = NightscoutClient(siteURL: url, apiSecret: apiSecret)
-        cache = NightscoutDataCache(instanceIdentifier: self.dataSourceInstanceIdentifier, nightscoutClient: nightscoutClient, cacheCoverage: cacheCoverage)
 
         Task { @MainActor in
-            await cache.setDelegate(self)
-            self.endOfData = await cache.glucoseStore.latestGlucose?.startDate
+            cache = await NightscoutDataCache(instanceIdentifier: self.dataSourceInstanceIdentifier, nightscoutClient: nightscoutClient, cacheCoverage: cacheCoverage)
+            await cache!.setDelegate(self)
+            self.endOfData = await cache!.glucoseStore.latestGlucose?.startDate
         }
     }
 
@@ -81,18 +84,18 @@ final class NightscoutDataSource: DataSource {
         return raw
     }
 
-    func syncRemoteData() async {
-        await cache.syncRemoteData()
+    func refresh() async {
+        await cache?.syncRemoteData()
     }
 
     func syncData(interval: DateInterval) async {
         guard let cacheCoverage else {
-            await syncRemoteData()
+            await refresh()
             return
         }
 
         if cacheCoverage.intersection(with: interval) != interval {
-            await syncRemoteData()
+            await refresh()
         }
     }
 
@@ -100,8 +103,10 @@ final class NightscoutDataSource: DataSource {
     static func setupView(didSetupDataSource: @escaping (any DataSource) -> Void) -> AnyView {
         let configurationChecker = NightscoutConfigurationChecker()
         return AnyView(NightscoutSetupView(configurationChecker: configurationChecker, didFinishSetup: { url, nickname, apiSecret in
-            let dataSource = NightscoutDataSource(name: nickname, url: url, apiSecret: apiSecret)
-            didSetupDataSource(dataSource)
+            Task {
+                let dataSource = NightscoutDataSource(name: nickname, url: url, apiSecret: apiSecret)
+                didSetupDataSource(dataSource)
+            }
         }))
     }
 
@@ -116,18 +121,32 @@ final class NightscoutDataSource: DataSource {
     var endOfData: Date?
 
     func getGlucoseValues(interval: DateInterval) async throws -> [StoredGlucoseSample] {
-        try await cache.glucoseStore.getGlucoseSamples(start: interval.start, end: interval.end)
+        guard let cache else {
+            return []
+        }
+        return try await cache.glucoseStore.getGlucoseSamples(start: interval.start, end: interval.end)
     }
 
     func getDoses(interval: DateInterval) async throws -> [DoseEntry] {
+        guard let cache else {
+            return []
+        }
         return try await cache.doseStore.getNormalizedDoseEntries(start: interval.start, end: interval.end)
     }
 
     func getCarbEntries(interval: DateInterval) async throws -> [StoredCarbEntry] {
+        guard let cache else {
+            return []
+        }
         return try await cache.carbStore.getCarbEntries(start: interval.start, end: interval.end)
     }
 
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<LoopQuantity>>] {
+
+        guard let cache else {
+            return []
+        }
+
         // Get any changes during the period
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
@@ -156,7 +175,7 @@ final class NightscoutDataSource: DataSource {
 
         var idx = schedules.startIndex
         var date = interval.start
-        var items = [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]()
+        var items = [AbsoluteScheduleValue<ClosedRange<LoopQuantity>>]()
         while date < interval.end {
             let scheduleActiveEnd: Date
             if idx+1 < schedules.endIndex {
@@ -181,6 +200,10 @@ final class NightscoutDataSource: DataSource {
 
     func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
         // Get any settings changes during the period
+        guard let cache else {
+            return []
+        }
+
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
         // Also need to get the one in effect before the start of the period
@@ -229,8 +252,12 @@ final class NightscoutDataSource: DataSource {
         return items
     }
 
-    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>] {
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<LoopQuantity>] {
         // Get any settings changes during the period
+        guard let cache else {
+            return []
+        }
+
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
         // Also need to get the one in effect before the start of the period
@@ -258,7 +285,7 @@ final class NightscoutDataSource: DataSource {
 
         var idx = schedules.startIndex
         var date = interval.start
-        var items = [AbsoluteScheduleValue<HKQuantity>]()
+        var items = [AbsoluteScheduleValue<LoopQuantity>]()
         while date < interval.end {
             let scheduleActiveEnd: Date
             if idx+1 < schedules.endIndex {
@@ -273,7 +300,7 @@ final class NightscoutDataSource: DataSource {
                 AbsoluteScheduleValue(
                     startDate: $0.startDate,
                     endDate: $0.endDate,
-                    value: HKQuantity(unit: schedule.unit, doubleValue: $0.value))
+                    value: LoopQuantity(unit: schedule.unit, doubleValue: $0.value))
             }
 
             items.append(contentsOf: absoluteScheduleValues)
@@ -286,6 +313,10 @@ final class NightscoutDataSource: DataSource {
 
     func getCarbRatioHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>] {
         // Get any settings changes during the period
+        guard let cache else {
+            return []
+        }
+
         var settingsHistory = try await cache.settingsStore.getStoredSettings(start: interval.start, end: interval.end)
 
         // Also need to get the one in effect before the start of the period
@@ -334,7 +365,11 @@ final class NightscoutDataSource: DataSource {
         return items
     }
 
-    func getDosingLimits(at date: Date) async throws -> DosingLimits {
+    func getDosingLimits(at date: Date) async throws -> DosingLimits? {
+        guard let cache else {
+            return nil
+        }
+
         // Get the one in effect before the given date. The underlying query already sorts by date descending.
         let settings = try await cache.settingsStore.getStoredSettings(end: date, limit: 1).first
         return DosingLimits(

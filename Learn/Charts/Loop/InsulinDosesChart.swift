@@ -233,11 +233,11 @@ struct InsulinDosesChart: View {
                         if let inspectedElement, let dose = inspectedElement as? DoseEntry {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
                                 if dose.type == .bolus {
-                                    Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
+                                    Text(formatters.insulinFormatter.string(from: LoopQuantity(unit: .internationalUnit, doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
                                         .bold()
                                         .foregroundStyle(Color.insulin)
                                 } else {
-                                    Text(formatters.insulinRateFormatter.string(from: HKQuantity(unit: .internationalUnitsPerHour, doubleValue: inspectedElement.selectionValue))!)
+                                    Text(formatters.insulinRateFormatter.string(from: LoopQuantity(unit: .internationalUnitsPerHour, doubleValue: inspectedElement.selectionValue))!)
                                         .bold()
                                         .foregroundStyle(Color.insulin)
                                 }

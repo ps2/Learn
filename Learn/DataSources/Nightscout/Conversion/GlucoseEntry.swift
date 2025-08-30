@@ -13,7 +13,7 @@ import LoopAlgorithm
 
 extension GlucoseEntry {
     var newGlucoseSample: NewGlucoseSample? {
-        let quantity = HKQuantity(unit: .milligramsPerDeciliter, doubleValue: glucose)
+        let quantity = LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: glucose)
 
         guard let id else { return nil }
 
@@ -34,9 +34,9 @@ extension GlucoseEntry {
             glucoseTrend = nil
         }
 
-        let trendRate: HKQuantity?
+        let trendRate: LoopQuantity?
         if let changeRate {
-            trendRate = HKQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: changeRate)
+            trendRate = LoopQuantity(unit: .milligramsPerDeciliterPerMinute, doubleValue: changeRate)
         } else {
             trendRate = nil
         }

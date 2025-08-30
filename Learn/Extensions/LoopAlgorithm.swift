@@ -14,10 +14,10 @@ import LoopAlgorithm
 public struct AlgorithmEffectSummary {
     let date: Date
 
-    let netInsulinEffect: HKQuantity
+    let netInsulinEffect: LoopQuantity
     let insulinOnBoard: Double // IU
 
-    public init(date: Date, netInsulinEffect: HKQuantity, insulinOnBoard: Double) {
+    public init(date: Date, netInsulinEffect: LoopQuantity, insulinOnBoard: Double) {
         self.date = date
         self.netInsulinEffect = netInsulinEffect
         self.insulinOnBoard = insulinOnBoard
@@ -176,7 +176,7 @@ extension LoopAlgorithm {
 
             summaries.append(AlgorithmEffectSummary(
                 date: summaryDate,
-                netInsulinEffect: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: netInsulinEffect),
+                netInsulinEffect: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: netInsulinEffect),
                 insulinOnBoard: insulinOnBoard[index].value
             ))
             index += 1
@@ -204,13 +204,13 @@ struct StoredDataAlgorithmInput: AlgorithmInput {
 
     var basal: [AbsoluteScheduleValue<Double>]
 
-    var sensitivity: [AbsoluteScheduleValue<HKQuantity>]
+    var sensitivity: [AbsoluteScheduleValue<LoopQuantity>]
 
     var carbRatio: [AbsoluteScheduleValue<Double>]
 
     var target: GlucoseRangeTimeline
 
-    var suspendThreshold: HKQuantity?
+    var suspendThreshold: LoopQuantity?
 
     var maxBolus: Double
 

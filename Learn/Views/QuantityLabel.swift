@@ -9,10 +9,11 @@
 import SwiftUI
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 struct QuantityLabel: View {
     var name: LocalizedStringKey
-    var value: HKQuantity?
+    var value: LoopQuantity?
     var formatter: QuantityFormatter
 
     var body: some View {
@@ -30,7 +31,7 @@ struct QuantityLabel: View {
 #Preview {
     QuantityLabel(
         name: "Glucose",
-        value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 70),
+        value: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 70),
         formatter: QuantityFormatter(for: .milligramsPerDeciliter))
     .padding()
 }

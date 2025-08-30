@@ -17,6 +17,7 @@ extension DoseEntry {
             endDate: Date(),
             value: 5,
             unit: .units,
+            decisionId: nil,
             deliveredUnits: nil,
             description: nil,
             syncIdentifier: "503e0f3d031e447fa770c4e41d13a3e4",

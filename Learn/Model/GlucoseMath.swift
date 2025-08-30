@@ -21,7 +21,7 @@ extension Collection where Element: GlucoseSampleValue, Index == Int {
     ///   - delta: The time between returned samples
     ///   - unit: the unit to return interpolated values in. If nil, mg/dL is returned
     /// - Returns: An array of glucose values
-    public func resampleNN(startDate: Date, endDate: Date, delta: TimeInterval = GlucoseMath.defaultDelta, unit: HKUnit? = nil) -> [Double?] {
+    public func resampleNN(startDate: Date, endDate: Date, delta: TimeInterval = GlucoseMath.defaultDelta, unit: LoopUnit? = nil) -> [Double?] {
         var result: [Double?] = []
         var dataIdx = 0
         var currentTimestamp = startDate

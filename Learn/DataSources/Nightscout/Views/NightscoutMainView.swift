@@ -9,9 +9,9 @@
 import SwiftUI
 
 struct NightscoutMainView: View {
-    var dataSource: NightscoutDataSource
+    var dataSource: any RefreshableDataSource
 
-    init(dataSource: NightscoutDataSource) {
+    init(dataSource: any RefreshableDataSource) {
         self.dataSource = dataSource
     }
 
@@ -21,7 +21,7 @@ struct NightscoutMainView: View {
                 Text(dataSource.name)
                 LoopChartsView(dataSource: dataSource)
                     .refreshable {
-                        await dataSource.syncRemoteData()
+                        await dataSource.refresh()
                     }
                 NavigationLink {
                     GlucoseDistribution(dataSource: dataSource, interval: .lastMonth)
@@ -59,7 +59,7 @@ struct NightscoutMainView: View {
 struct NightscoutMainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            NightscoutMainView(dataSource: NightscoutDataSource(name: "Nightscout Mock", url: URL(string: "https://test.com")!))
+            NightscoutMainView(dataSource: MockDataSource())
                 .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
         }
     }

@@ -119,7 +119,7 @@ struct ActiveInsulinChart: View {
                         if let selectedElement = inspectedElement {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
                                 Text(formatters.insulinFormatter.string(
-                                    from: HKQuantity(unit: .internationalUnit(), doubleValue: selectedElement.value))!)
+                                    from: LoopQuantity(unit: .internationalUnit, doubleValue: selectedElement.value))!)
                                     .bold()
                                     .foregroundStyle(Color.insulin)
                             }

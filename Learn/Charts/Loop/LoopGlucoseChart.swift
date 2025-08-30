@@ -43,7 +43,7 @@ struct LoopGlucoseChart: View {
     private var upperRightLabel: String
 
     private var historicalGlucose: [GlucoseSampleValue]
-    private var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]
+    private var targetRanges: [AbsoluteScheduleValue<ClosedRange<LoopQuantity>>]
     private var carbEntries: [CarbEntry]
     private var manualBoluses: [DoseEntry]
     private var glucoseSampleTapped: ((GlucoseSampleValue) -> Void)?
@@ -51,7 +51,7 @@ struct LoopGlucoseChart: View {
     init(startTime: Date,
          endTime: Date,
          historicalGlucose: [GlucoseSampleValue],
-         targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>],
+         targetRanges: [AbsoluteScheduleValue<ClosedRange<LoopQuantity>>],
          carbEntries: [CarbEntry],
          manualBoluses: [DoseEntry],
          upperRightLabel: String,
@@ -128,7 +128,7 @@ struct LoopGlucoseChart: View {
                                 .foregroundColor(.insulin)
                         }
                         .annotation(position: .bottom, spacing: -14) {
-                            Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
+                            Text(formatters.insulinFormatter.string(from: LoopQuantity(unit: .internationalUnit, doubleValue: dose.deliveredUnits ?? dose.programmedUnits))!)
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }

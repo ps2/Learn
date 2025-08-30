@@ -22,7 +22,7 @@ struct LoopDosingExample: View {
         func glucose(_ date: Date, value: Double) -> StoredGlucoseSample {
             return StoredGlucoseSample(
                 startDate: date,
-                quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value))
+                quantity: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: value))
         }
 
         let glucoseHistory = [
@@ -33,10 +33,18 @@ struct LoopDosingExample: View {
             glucose(t(.minutes(-1)), value: 130)
         ]
 
-        let dose = DoseEntry(type: .bolus, startDate: t(.hours(-1)), value: 1.0, unit: .units)
+        let dose = DoseEntry(
+            type: .bolus,
+            startDate: t(
+                .hours(-1)
+            ),
+            value: 1.0,
+            unit: .units,
+            decisionId: nil
+        )
 
         let sensitivity = [
-            AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
+            AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
         ]
 
         let carbRatio = [
@@ -128,7 +136,7 @@ struct LoopDosingExample: View {
                 AxisGridLine()
 
                 if let glucose: Double = value.as(Double.self) {
-                    let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
+                    let quantity = LoopQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
                     AxisValueLabel(formatters.glucoseFormatter.string(from: quantity)!)
                 }
             }

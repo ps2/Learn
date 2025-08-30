@@ -50,6 +50,13 @@ struct AlgorithmDetailsView: View {
             let doseHistoryInterval = DateInterval(start: minDoseStart, end: doseFetchInterval.end)
             let basal = try await dataSource.getBasalHistory(interval: doseHistoryInterval)
 
+            let recommendationInsulinModel = ExponentialInsulinModelPreset.rapidActingAdult
+
+            let recommendationEffectInterval = DateInterval(
+                start: baseTime,
+                duration: recommendationInsulinModel.effectDuration
+            )
+
             let forecastEndTime = baseTime.addingTimeInterval(InsulinMath.defaultInsulinActivityDuration).dateCeiledToTimeInterval(.minutes(GlucoseMath.defaultDelta))
 
             // Include future carbs in query, but filter out ones entered after basetime.
@@ -62,17 +69,19 @@ struct AlgorithmDetailsView: View {
 
             let carbRatio = try await dataSource.getCarbRatioHistory(interval: carbHistoryInterval)
 
-            let insulinEffectsInterval = DateInterval(
+            let glucoseInterval = DateInterval(
                 start: carbHistoryInterval.start,
-                end: baseTime
+                end: baseTime.addingTimeInterval(1) // add a second, because end date is exclusive
             )
-            let glucose = try await dataSource.getGlucoseValues(interval: insulinEffectsInterval)
+            let glucose = try await dataSource.getGlucoseValues(interval: glucoseInterval)
 
-            let sensitivityInterval = DateInterval(
-                start: min(carbHistoryInterval.start, doseHistoryInterval.start),
-                end: forecastEndTime
+            let neededSensitivityTimeline = LoopAlgorithm.timelineIntervalForSensitivity(
+                doses: doses,
+                glucoseHistoryStart: glucose.first?.startDate ?? baseTime,
+                recommendationEffectInterval: recommendationEffectInterval
             )
-            let sensitivity = try await dataSource.getInsulinSensitivityHistory(interval: sensitivityInterval)
+
+            let sensitivity = try await dataSource.getInsulinSensitivityHistory(interval: neededSensitivityTimeline)
 
             let forecastInterval = DateInterval(
                 start: baseTime,
@@ -80,7 +89,9 @@ struct AlgorithmDetailsView: View {
             )
             let target = try await dataSource.getTargetRangeHistory(interval: forecastInterval)
 
-            let dosingSettings = try await dataSource.getDosingLimits(at: baseTime)
+            guard let dosingSettings = try await dataSource.getDosingLimits(at: baseTime) else {
+                return
+            }
 
             guard let maxBolus = dosingSettings.maxBolus, let maxBasalRate = dosingSettings.maxBasalRate else {
                 return
@@ -101,7 +112,7 @@ struct AlgorithmDetailsView: View {
                 useIntegralRetrospectiveCorrection: false,
                 includePositiveVelocityAndRC: true,
                 carbAbsorptionModel: .piecewiseLinear,
-                recommendationInsulinModel: ExponentialInsulinModelPreset.rapidActingAdult,
+                recommendationInsulinModel: recommendationInsulinModel,
                 recommendationType: .manualBolus,
                 automaticBolusApplicationFactor: 0.4
             )
@@ -109,6 +120,10 @@ struct AlgorithmDetailsView: View {
             //algorithmInput?.printFixture()
 
             algorithmOutput = LoopAlgorithm.run(input: algorithmInput!)
+
+            if case .failure(let error) = algorithmOutput?.recommendationResult {
+                throw error
+            }
 
             //print("*******************************************")
             //algorithmOutput!.recommendation!.printFixture()
@@ -147,12 +162,12 @@ struct AlgorithmDetailsView: View {
                     selection: $baseTime
                 )
                 .datePickerStyle(.compact)
+                .fixedSize()
                 Button {
                     baseTime += .minutes(5)
                 } label: {
                     Image(systemName: "arrow.right.circle")
                 }
-                Spacer()
             }
             VStack(alignment: .leading) {
                 if let algorithmInput, let algorithmOutput, let recommendation = algorithmOutput.recommendation {
@@ -256,7 +271,7 @@ struct AlgorithmDetailsView: View {
                 AxisGridLine()
 
                 if let glucose: Double = value.as(Double.self) {
-                    let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
+                    let quantity = LoopQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
                     AxisValueLabel {
                         Text(formatters.glucoseFormatter.string(from: quantity, includeUnit: false)!)
                             .frame(width: 25, alignment: .trailing)
@@ -268,9 +283,9 @@ struct AlgorithmDetailsView: View {
 }
 
 extension AlgorithmOutput {
-    var activeInsulinQuantity: HKQuantity? {
+    var activeInsulinQuantity: LoopQuantity? {
         if let activeInsulin {
-            HKQuantity(unit: .internationalUnit(), doubleValue: activeInsulin)
+            LoopQuantity(unit: .internationalUnit, doubleValue: activeInsulin)
         } else {
             nil
         }

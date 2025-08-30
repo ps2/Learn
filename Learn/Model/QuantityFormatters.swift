@@ -9,26 +9,27 @@
 import Foundation
 import HealthKit
 import LoopKit
+import LoopAlgorithm
 
 public class QuantityFormatters: ObservableObject {
-    @Published public private(set) var glucoseUnit: HKUnit
+    @Published public private(set) var glucoseUnit: LoopUnit
     @Published public private(set) var glucoseFormatter: QuantityFormatter
-    @Published public private(set) var glucoseRateUnit: HKUnit
+    @Published public private(set) var glucoseRateUnit: LoopUnit
     @Published public private(set) var glucoseRateFormatter: QuantityFormatter
     @Published public private(set) var insulinFormatter: QuantityFormatter
     @Published public private(set) var insulinRateFormatter: QuantityFormatter
     @Published public private(set) var carbFormatter: QuantityFormatter
 
-    public init(glucoseUnit: HKUnit? = nil) {
+    public init(glucoseUnit: LoopUnit? = nil) {
         let configuredGlucoseUnit = glucoseUnit ?? .milligramsPerDeciliter
         self.glucoseUnit = configuredGlucoseUnit
         self.glucoseFormatter = QuantityFormatter(for: configuredGlucoseUnit)
-        let glucoseRateUnit = configuredGlucoseUnit.unitDivided(by: .minute())
+        let glucoseRateUnit = configuredGlucoseUnit.unitDivided(by: .minute)
         self.glucoseRateUnit = glucoseRateUnit
         self.glucoseRateFormatter = QuantityFormatter(for: glucoseRateUnit)
-        self.insulinFormatter = QuantityFormatter(for: .internationalUnit())
+        self.insulinFormatter = QuantityFormatter(for: .internationalUnit)
         self.insulinRateFormatter = QuantityFormatter(for: .internationalUnitsPerHour)
-        self.carbFormatter = QuantityFormatter(for: .gram())
+        self.carbFormatter = QuantityFormatter(for: .gram)
 
 
         self.glucoseFormatter.numberFormatter.notANumberSymbol = "–"

@@ -15,7 +15,7 @@ import LoopAlgorithm
 
 struct LoopChartsData {
     var glucose: [StoredGlucoseSample] = []
-    var targetRanges: [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] = []
+    var targetRanges: [AbsoluteScheduleValue<ClosedRange<LoopQuantity>>] = []
     var basalHistory: [AbsoluteScheduleValue<Double>] = []
     var doses: [DoseEntry] = []
     var manualBoluses: [DoseEntry] = []

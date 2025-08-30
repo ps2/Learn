@@ -39,6 +39,6 @@ final class GlucoseMathTests: XCTestCase {
 
 extension FixtureGlucoseSample {
     init(_ date: Date, mgdl: Double) {
-        self.init(startDate: date, quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: mgdl))
+        self.init(startDate: date, quantity: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: mgdl))
     }
 }

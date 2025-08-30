@@ -36,7 +36,7 @@ struct GlucoseDistribution: View {
 
         var limits: ClosedRange<Double>
 
-        if unit == HKUnit.milligramsPerDeciliter {
+        if unit == LoopUnit.milligramsPerDeciliter {
             limits = 40...400
         } else {
             limits = 2.2...22.2

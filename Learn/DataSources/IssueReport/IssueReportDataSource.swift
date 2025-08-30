@@ -20,6 +20,7 @@ enum IssueReportError: Error {
 }
 
 final class IssueReportDataSource: DataSource, ObservableObject {
+
     static var localizedTitle = "Issue Report"
 
     static var dataSourceTypeIdentifier = "issuereportdatasource"
@@ -168,7 +169,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         cachedGlucoseSamples.filter { $0.startDate >= interval.start && $0.startDate <= interval.end }
     }
 
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>] {
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<LoopQuantity>>] {
         guard let report = issueReport,
               let schedule = report.loopSettings.glucoseTargetRangeSchedule else
         {
@@ -176,13 +177,13 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         }
 
         return schedule.truncatingBetween(start: interval.start, end: interval.end).map { entry in
-            let min = HKQuantity(unit: schedule.unit, doubleValue: entry.value.minValue)
-            let max = HKQuantity(unit: schedule.unit, doubleValue: entry.value.maxValue)
+            let min = LoopQuantity(unit: schedule.unit, doubleValue: entry.value.minValue)
+            let max = LoopQuantity(unit: schedule.unit, doubleValue: entry.value.maxValue)
             return AbsoluteScheduleValue(startDate: entry.startDate, endDate: entry.endDate, value: ClosedRange(uncheckedBounds: (lower: min, upper: max)))
         }
     }
 
-    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>] {
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<LoopQuantity>] {
         guard let report = issueReport, let isf = report.loopSettings.insulinSensitivitySchedule else
         {
             return []
@@ -223,7 +224,7 @@ final class IssueReportDataSource: DataSource, ObservableObject {
         return report.cachedCarbEntries.filterDateInterval(interval: interval)
     }
 
-    func getDosingLimits(at date: Date) async throws -> DosingLimits {
+    func getDosingLimits(at: Date) async throws -> DosingLimits? {
         return DosingLimits(
             suspendThreshold: issueReport?.loopSettings.suspendThreshold,
             maxBolus: issueReport?.loopSettings.maximumBolus,

@@ -89,7 +89,7 @@ struct LoopChartsView: View {
                 upperRightLabel: dateStr,
                 chartUnitOffset: $scrollCoordinator.chartUnitOffset,
                 numSegments: numSegments) { sample in
-                    forecastReviewDate = sample.startDate.addingTimeInterval(1)
+                    forecastReviewDate = sample.startDate
                     showingForecastReview = true
                 }
             ActiveInsulinChart(

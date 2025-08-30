@@ -118,7 +118,7 @@ struct ActiveCarbohydratesChart: View {
                         if let selectedElement = inspectedElement {
                             HorizontallyPositionedViewContainer(centeredAt: geometry[anchor].x) {
                                 Text(formatters.carbFormatter.string(
-                                    from: HKQuantity(unit: .gram(), doubleValue: selectedElement.value))!)
+                                    from: LoopQuantity(unit: .gram, doubleValue: selectedElement.value))!)
                                     .bold()
                                     .foregroundStyle(Color.carbs)
                             }

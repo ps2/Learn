@@ -22,7 +22,7 @@ struct RetrospectiveCorrectionExample: View {
         func glucose(_ date: Date, value: Double) -> StoredGlucoseSample {
             return StoredGlucoseSample(
                 startDate: date,
-                quantity: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: value))
+                quantity: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: value))
         }
 
         let glucoseHistory = [
@@ -39,7 +39,7 @@ struct RetrospectiveCorrectionExample: View {
         ]
 
         let sensitivity = [
-            AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
+            AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
         ]
 
         let carbRatio = [
@@ -50,11 +50,17 @@ struct RetrospectiveCorrectionExample: View {
             AbsoluteScheduleValue(startDate: t(.hours(-7)), endDate: t(.hours(7)), value: 1.0)
         ]
 
-        let dose = DoseEntry(type: .bolus, startDate: t(.hours(-2)), value: 1.0, unit: .units)
+        let dose = DoseEntry(
+            type: .bolus,
+            startDate: t(.hours(-2)),
+            value: 1.0,
+            unit: .units,
+            decisionId: nil
+        )
 
         // 0 temp basal for an hour
         //let dose = DoseEntry(type: .tempBasal, startDate: t(.hours(-2)), endDate: t(.hours(-1)), value: 0.0, unit: .units)
-        //let carbEntry = StoredCarbEntry(startDate: t(.hours(-2)), quantity: HKQuantity(unit: .gram(), doubleValue: 15))
+        //let carbEntry = StoredCarbEntry(startDate: t(.hours(-2)), quantity: LoopQuantity(unit: .gram(), doubleValue: 15))
 
         return LoopPredictionInput(
             glucoseHistory: glucoseHistory,
@@ -156,7 +162,7 @@ struct RetrospectiveCorrectionExample: View {
                 AxisGridLine()
 
                 if let glucose: Double = value.as(Double.self) {
-                    let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
+                    let quantity = LoopQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
                     AxisValueLabel(formatters.glucoseFormatter.string(from: quantity)!)
                 }
             }

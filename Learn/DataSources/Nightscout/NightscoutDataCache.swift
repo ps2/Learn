@@ -44,7 +44,7 @@ actor NightscoutDataCache {
 
     private let log = OSLog(subsystem: "org.loopkit.Learn", category: "NightscoutDataManager")
 
-    init(instanceIdentifier: String, nightscoutClient: NightscoutClient, cacheCoverage: DateInterval?) {
+    init(instanceIdentifier: String, nightscoutClient: NightscoutClient, cacheCoverage: DateInterval?) async {
 
         guard let directoryURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
             fatalError("Could not access the document directory of the current process")
@@ -61,12 +61,12 @@ actor NightscoutDataCache {
         let provenance = Bundle.main.bundleIdentifier!
 
 
-        glucoseStore = GlucoseStore(
+        glucoseStore = await GlucoseStore(
             cacheStore: cacheStore,
             cacheLength: cacheLength,
             provenanceIdentifier: provenance)
 
-        doseStore = DoseStore(
+        doseStore = await DoseStore(
             cacheStore: cacheStore,
             cacheLength: cacheLength,
             longestEffectDuration: ExponentialInsulinModelPreset.rapidActingAdult.effectDuration,
@@ -97,13 +97,11 @@ actor NightscoutDataCache {
                 }
             }
         }
-        glucoseStore.addGlucoseSamples(samples) { result in
-            switch result {
-            case .success(let storedSamples):
-                print("added \(storedSamples.count) glucose samples")
-            case .failure(let error):
-                self.log.error("Unable to store glucose samples: %{public}@", error.localizedDescription)
-            }
+        do {
+            let storedSamples = try await glucoseStore.addGlucoseSamples(samples)
+            print("added \(storedSamples.count) glucose samples")
+        } catch {
+            self.log.error("Unable to store glucose samples: %{public}@", error.localizedDescription)
         }
     }
 
@@ -135,6 +133,7 @@ actor NightscoutDataCache {
                     endDate: tempBasal.timestamp.addingTimeInterval(tempBasal.duration),
                     value: tempBasal.rate,
                     unit: .unitsPerHour,
+                    decisionId: nil,
                     deliveredUnits: tempBasal.amount,
                     syncIdentifier: tempBasal.syncIdentifier,
                     insulinType: InsulinType(nightscoutString: tempBasal.insulinType)
@@ -146,6 +145,7 @@ actor NightscoutDataCache {
                     endDate: bolus.timestamp.addingTimeInterval(bolus.duration),
                     value: bolus.programmed,
                     unit: .unitsPerHour,
+                    decisionId: nil,
                     deliveredUnits: bolus.amount,
                     syncIdentifier: bolus.syncIdentifier,
                     insulinType: InsulinType(nightscoutString: bolus.insulinType),

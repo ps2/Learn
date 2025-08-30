@@ -45,7 +45,7 @@ struct MidAbsorptionISFChange: View {
         let dose = BasalRelativeDose(type: .bolus, startDate: baseTime, endDate: baseTime, volume: 1.0)
         let endTime = baseTime.addingTimeInterval(.hours(6))
         let isfNoChange = [
-            AbsoluteScheduleValue(startDate: baseTime, endDate: endTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
+            AbsoluteScheduleValue(startDate: baseTime, endDate: endTime, value: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 50))
         ]
 
         effects = []
@@ -55,8 +55,8 @@ struct MidAbsorptionISFChange: View {
         let changeTime = baseTime.addingTimeInterval(.hours(2))
 
         let isfWithChange = [
-            AbsoluteScheduleValue(startDate: baseTime, endDate: changeTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 50)),
-            AbsoluteScheduleValue(startDate: changeTime, endDate: endTime, value: HKQuantity(unit: .milligramsPerDeciliter, doubleValue: 75))
+            AbsoluteScheduleValue(startDate: baseTime, endDate: changeTime, value: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 50)),
+            AbsoluteScheduleValue(startDate: changeTime, endDate: endTime, value: LoopQuantity(unit: .milligramsPerDeciliter, doubleValue: 75))
         ]
         effectsWithInflection = []
         effectsWithInflection = [dose].glucoseEffects(
@@ -110,7 +110,7 @@ struct MidAbsorptionISFChange: View {
                     AxisGridLine()
 
                     if let glucose: Double = value.as(Double.self) {
-                        let quantity = HKQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
+                        let quantity = LoopQuantity(unit: formatters.glucoseUnit, doubleValue: glucose)
                         AxisValueLabel(formatters.glucoseFormatter.string(from: quantity)!)
                     }
                 }

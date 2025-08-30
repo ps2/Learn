@@ -8,6 +8,7 @@
 
 import Foundation
 import HealthKit
+import LoopAlgorithm
 
 struct TargetRange {
     var low: Double
@@ -15,7 +16,7 @@ struct TargetRange {
     var veryLow: Double
     var veryHigh: Double
 
-    static func standardRanges(for unit: HKUnit) -> TargetRange {
+    static func standardRanges(for unit: LoopUnit) -> TargetRange {
         if unit == .millimolesPerLiter {
             return TargetRange(
                 low: 3.9,

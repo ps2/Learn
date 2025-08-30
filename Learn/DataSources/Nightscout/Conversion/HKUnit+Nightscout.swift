@@ -1,5 +1,5 @@
 //
-//  HKUnit.swift
+//  LoopUnit.swift
 //  Learn
 //
 //  Created by Pete Schwamb on 2/26/23.
@@ -7,21 +7,21 @@
 //
 
 import Foundation
-import HealthKit
+import LoopAlgorithm
 
-extension HKUnit {
+extension LoopUnit {
 
-    static func glucoseUnitFromNightscoutUnitString(_ unitString: String) -> HKUnit? {
+    static func glucoseUnitFromNightscoutUnitString(_ unitString: String) -> LoopUnit? {
         // Some versions of Loop incorrectly uploaded units with
         // special characters to avoid line breaking.
-        if unitString == HKUnit.millimolesPerLiter.shortLocalizedUnitString() ||
-            unitString == HKUnit.millimolesPerLiter.shortLocalizedUnitString(avoidLineBreaking: false)
+        if unitString == LoopUnit.millimolesPerLiter.shortLocalizedUnitString() ||
+            unitString == LoopUnit.millimolesPerLiter.shortLocalizedUnitString(avoidLineBreaking: false)
         {
             return .millimolesPerLiter
         }
 
-        if unitString == HKUnit.milligramsPerDeciliter.shortLocalizedUnitString() ||
-            unitString == HKUnit.milligramsPerDeciliter.shortLocalizedUnitString(avoidLineBreaking: false)
+        if unitString == LoopUnit.milligramsPerDeciliter.shortLocalizedUnitString() ||
+            unitString == LoopUnit.milligramsPerDeciliter.shortLocalizedUnitString(avoidLineBreaking: false)
         {
             return .milligramsPerDeciliter
         }

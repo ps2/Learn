@@ -12,8 +12,8 @@ import HealthKit
 import LoopAlgorithm
 
 extension TempBasalRecommendation {
-    var rateQuantity: HKQuantity {
-        return HKQuantity(unit: .internationalUnitsPerHour, doubleValue: unitsPerHour)
+    var rateQuantity: LoopQuantity {
+        return LoopQuantity(unit: .internationalUnitsPerHour, doubleValue: unitsPerHour)
     }
 }
 
@@ -48,7 +48,7 @@ struct DoseRecommendationView: View {
             if let automaticRecommendation = recommendation.automatic {
                 HStack {
                     Text("Automatic Bolus:")
-                    Text(formatters.insulinFormatter.string(from: HKQuantity(unit: .internationalUnit(), doubleValue: automaticRecommendation.bolusUnits ?? 0))!)
+                    Text(formatters.insulinFormatter.string(from: LoopQuantity(unit: .internationalUnit, doubleValue: automaticRecommendation.bolusUnits ?? 0))!)
                 }
                 TempBasalRecommendationView(recommendation: automaticRecommendation.basalAdjustment)
             }
@@ -63,13 +63,15 @@ struct DoseRecommendationView: View {
 }
 
 extension ManualBolusRecommendation {
-    public var quantity: HKQuantity { HKQuantity(unit: .internationalUnit(), doubleValue: amount) }
+    public var quantity: LoopQuantity { LoopQuantity(unit: .internationalUnit, doubleValue: amount) }
 }
 
 #Preview {
     DoseRecommendationView(recommendation: LoopAlgorithmDoseRecommendation(automatic: AutomaticDoseRecommendation(
                 basalAdjustment: TempBasalRecommendation(unitsPerHour: 0, duration: 0),
-                bolusUnits: 0.5)))
+                direction: .increase,
+                bolusUnits: 0.5,
+    )))
     .padding()
     .environmentObject(QuantityFormatters(glucoseUnit: .milligramsPerDeciliter))
 }

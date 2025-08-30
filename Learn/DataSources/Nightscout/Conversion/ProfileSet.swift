@@ -10,13 +10,14 @@ import Foundation
 import NightscoutKit
 import LoopKit
 import HealthKit
+import LoopAlgorithm
 
 extension ProfileSet {
     var storedSettings: StoredSettings? {
 
         guard let profile = store["Default"],
               let glucoseSafetyLimit = settings.minimumBGGuard,
-              let settingsGlucoseUnit = HKUnit.glucoseUnitFromNightscoutUnitString(units)
+              let settingsGlucoseUnit = LoopUnit.glucoseUnitFromNightscoutUnitString(units)
         else {
             return nil
         }
@@ -43,8 +44,8 @@ extension ProfileSet {
 
 
         // If units are specified on the schedule, prefer those over the units specified on the ProfileSet
-        let scheduleGlucoseUnit: HKUnit
-        if let profileUnitString = profile.units, let profileUnit = HKUnit.glucoseUnitFromNightscoutUnitString(profileUnitString)
+        let scheduleGlucoseUnit: LoopUnit
+        if let profileUnitString = profile.units, let profileUnit = LoopUnit.glucoseUnitFromNightscoutUnitString(profileUnitString)
         {
             scheduleGlucoseUnit = profileUnit
         } else {
@@ -77,7 +78,7 @@ extension ProfileSet {
             timeZone: profile.timeZone)
 
         let carbSchedule = CarbRatioSchedule(
-            unit: .gram(),
+            unit: .gram,
             dailyItems: profile.carbratio.map { RepeatingScheduleValue(startTime: $0.offset, value: $0.value) },
             timeZone: profile.timeZone)
 

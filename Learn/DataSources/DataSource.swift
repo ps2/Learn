@@ -36,7 +36,7 @@ protocol StateStorage {
 }
 
 struct DosingLimits {
-    var suspendThreshold: HKQuantity?
+    var suspendThreshold: LoopQuantity?
     var maxBolus: Double?
     var maxBasalRate: Double?
 }
@@ -76,11 +76,15 @@ protocol DataSource: AnyObject, ObservableObject, Identifiable {
     func getCarbEntries(interval: DateInterval) async throws -> [StoredCarbEntry]
 
     // Algorithm settings
-    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<HKQuantity>>]
+    func getTargetRangeHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<ClosedRange<LoopQuantity>>]
     func getBasalHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>]
     func getCarbRatioHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<Double>]
-    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<HKQuantity>]
-    func getDosingLimits(at: Date) async throws -> DosingLimits
+    func getInsulinSensitivityHistory(interval: DateInterval) async throws -> [AbsoluteScheduleValue<LoopQuantity>]
+    func getDosingLimits(at: Date) async throws -> DosingLimits?
+}
+
+protocol RefreshableDataSource: DataSource {
+    func refresh() async
 }
 
 extension DataSource {

@@ -1,24 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "loopalgorithm",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LoopKit/LoopAlgorithm",
-      "state" : {
-        "branch" : "main",
-        "revision" : "9d2405464d16a3bd2953e114f046b20bf2cabb48"
-      }
-    },
-    {
-      "identity" : "loopkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/LoopKit/LoopKit",
-      "state" : {
-        "branch" : "tidepool-dev",
-        "revision" : "7804972a854ee67ee9d783def2f91b132ab0ed94"
-      }
-    },
-    {
       "identity" : "nightscoutkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LoopKit/NightscoutKit",

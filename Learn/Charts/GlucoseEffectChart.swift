@@ -46,7 +46,7 @@ struct GlucoseEffectChart: View {
                 AxisGridLine()
 
                 if let glucose: Double = value.as(Double.self) {
-                    let quantity = HKQuantity(unit: formatters.glucoseRateUnit, doubleValue: glucose)
+                    let quantity = LoopQuantity(unit: formatters.glucoseRateUnit, doubleValue: glucose)
                     AxisValueLabel {
                         Text(formatters.glucoseRateFormatter.string(from: quantity, includeUnit: includeUnits)!)
                             .frame(width: yAxisWidth, alignment: .trailing)
@@ -62,11 +62,11 @@ struct GlucoseEffectChart_Previews: PreviewProvider {
 
         let end = Date()
         let start = end.addingTimeInterval(-8 * 3600)
-        let rateUnit: HKUnit = .milligramsPerDeciliterPerMinute
+        let rateUnit: LoopUnit = .milligramsPerDeciliterPerMinute
         let delta = TimeInterval(minutes: 5)
         let effect = stride(from: start, through: end, by: delta).map { date in
             let value = sin(date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600 * 5) / (3600*5) * Double.pi * 2) * 10
-            let quantity = HKQuantity(unit: rateUnit, doubleValue: value)
+            let quantity = LoopQuantity(unit: rateUnit, doubleValue: value)
             print("\(start) = \(value)")
             return GlucoseEffectVelocity(startDate: date, endDate: date.addingTimeInterval(delta), quantity: quantity)
         }
